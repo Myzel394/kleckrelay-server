@@ -1,6 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
+from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
 from _mixins import Base, CreationMixin, UpdateMixin
 
 __all__ = [
@@ -16,12 +17,12 @@ class EmailAlias(Base, CreationMixin, UpdateMixin):
         back_populates="email_aliases"
     )
     local = sa.Column(
-        sa.String,
+        sa.String(64),
         nullable=False,
         index=True,
     )
     domain = sa.Column(
-        sa.String,
+        sa.String(255),
         nullable=False,
         index=True,
     )
@@ -31,8 +32,18 @@ class EmailAlias(Base, CreationMixin, UpdateMixin):
         nullable=False,
     )
     encrypted_notes = sa.Column(
-        sa.String,
+        sa.String(MAX_ENCRYPTED_NOTES_SIZE),
         nullable=False,
         default="",
     )
 
+
+class DeletedEmailAlias(Base):
+    """Store all deleted alias to make sure they will not be reused, so that new owner won't
+    receive emails from old aliases."""
+
+    email = sa.Column(
+        sa.String(255 + 64 + 1 + 20),
+        unique=True,
+        nullable=False,
+    )
