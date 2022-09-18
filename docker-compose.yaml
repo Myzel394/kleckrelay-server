@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  database:
+    image: 'postgres:latest'
+
+    ports:
+      - "35432:5432"
+
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mail
