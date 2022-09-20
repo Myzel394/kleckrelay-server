@@ -1,15 +1,16 @@
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
+from app.database.base import Base
 from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
-from _mixins import Base, CreationMixin, UpdateMixin
+from _mixins import CreationMixin, UpdateMixin, IDMixin
 
 __all__ = [
     "EmailAlias",
 ]
 
 
-class EmailAlias(Base, CreationMixin, UpdateMixin):
+class EmailAlias(Base, IDMixin, CreationMixin, UpdateMixin):
     __tablename__ = "email_alias"
 
     user = relationship(

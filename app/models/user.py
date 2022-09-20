@@ -1,13 +1,14 @@
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 import sqlalchemy as sa
-from _mixins import Base, CreationMixin
+from app.database.base import Base
+from _mixins import CreationMixin, IDMixin
 
 __all__ = [
     "User",
 ]
 
 
-class User(SQLAlchemyBaseUserTableUUID, Base, CreationMixin):
+class User(Base, IDMixin, CreationMixin):
     __tablename__ = "User"
 
     email = sa.Column(

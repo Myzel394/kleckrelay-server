@@ -1,15 +1,13 @@
 from datetime import datetime
+import uuid as uuid_pkg
 
-from sqlalchemy.orm import declarative_base
 import sqlalchemy as sa
 
 __all__ = [
-    "Base",
     "CreationMixin",
     "UpdateMixin",
+    "IDMixin",
 ]
-
-Base = declarative_base()
 
 
 class CreationMixin:
@@ -25,4 +23,13 @@ class UpdateMixin:
         sa.DateTime,
         default=None,
         onupdate=datetime.utcnow,
+    )
+
+
+class IDMixin:
+    id = uuid_pkg.UUID = sa.Column(
+        default_factory=uuid_pkg.uuid4,
+        primary_key=True,
+        index=True,
+        nullable=False,
     )
