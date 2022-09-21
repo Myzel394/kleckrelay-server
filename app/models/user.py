@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
+from app.constants import ENCRYPTED_PASSWORD_LENGTH
 from app.database.base import Base
 from _mixins import CreationMixin, IDMixin
 
@@ -17,19 +18,14 @@ class User(Base, IDMixin, CreationMixin):
     if TYPE_CHECKING:
         from .email import Email
         email: Email
-        encrypted_private_key: str
-        public_key: str
+        encrypted_password: str
     else:
         email = relationship(
             "Email",
             backref="user",
             uselist=False,
         )
-        encrypted_private_key = sa.Column(
-            sa.String,
-            nullable=False,
-        )
-        public_key = sa.Column(
-            sa.String,
+        encrypted_password = sa.Column(
+            sa.String(ENCRYPTED_PASSWORD_LENGTH),
             nullable=False,
         )

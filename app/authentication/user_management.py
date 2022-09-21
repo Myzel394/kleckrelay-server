@@ -35,8 +35,7 @@ def create_user(db: Session, /, user: UserCreate) -> User:
 
     db_user = User(
         email=db_email,
-        encrypted_private_key=user.encrypted_private_key,
-        public_key=user.public_key,
+        encrypted_password=user.encrypted_password,
     )
 
     db.add(db_user)
