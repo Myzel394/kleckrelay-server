@@ -105,7 +105,7 @@ async def login_with_email_token(email: str, db: Session = Depends(get_db())):
     user = get_user_by_email(db, email=email)
 
     if not user.email.is_verified:
-        raise HttpException(
+        raise HTTPException(
             status_code=400,
             detail="Your email has not been verified. Please verify it.",
         )
