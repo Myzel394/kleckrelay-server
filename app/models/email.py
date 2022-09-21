@@ -19,11 +19,16 @@ class Email(Base, IDMixin, CreationMixin):
         index=True,
         unique=True,
     )
-    is_verified = sa.Column(
-        sa.Boolean,
-        default=False,
-    )
     hashed_token = sa.Column(
         sa.String(len(hash_slowly("abc"))),
         nullable=False,
     )
+    verified_at = sa.Column(
+        sa.DateTime,
+        nullable=True,
+        default=None,
+    )
+
+    @property
+    def is_verified(self) -> bool:
+        return self.verified_at is not None

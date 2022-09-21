@@ -8,3 +8,7 @@ class EmailLoginTokenMaxTriesReachedError(Exception):
 
 class EmailLoginTokenSameRequestTokenInvalidError(Exception):
     pass
+
+
+class EmailIncorrectTokenError(Exception):
+    pass

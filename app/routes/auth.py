@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.authentication.email import get_email_by_address, verify_email
 from app.authentication.email_login import (
     create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, is_token_valid,
 )
 from app.authentication.errors import (
-    EmailLoginTokenExpiredError,
+    EmailIncorrectTokenError, EmailLoginTokenExpiredError,
     EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
 )
 from app.authentication.handler import access_security, refresh_security
@@ -15,6 +16,8 @@ from app.database.dependencies import get_db
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.schemas.authentication import EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, AuthenticationCredentialsResponseModel
+
+from app.schemas.email import VerifyEmailModel
 from app.schemas.user import UserCreate
 
 router = APIRouter()
@@ -40,9 +43,46 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
 
     return {
         "user": db_user,
-        "access_token": access_security.create_access_token(subject=db_user),
-        "refresh_token": refresh_security.create_refresh_token(subject=db_user),
     }
+
+
+@router.post(
+    "/verify-email",
+    responses={
+        400: {
+            "model": HTTPBadRequestExceptionModel,
+        },
+        404: {
+            "model": HTTPNotFoundExceptionModel,
+        }
+    }
+)
+def signup_verify_email(input_data: VerifyEmailModel, db: Session = Depends(get_db)):
+    default_error_message = "Email or token invalid."
+
+    try:
+        email = get_email_by_address(db, address=input_data.email)
+
+        if email is None:
+            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Email not found."
+                )
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail=default_error_message,
+                )
+
+        verify_email(db, email=email, token=input_data.token)
+
+        return {}
+    except EmailIncorrectTokenError:
+        raise HTTPException(
+            status_code=400,
+            detail=default_error_message,
+        )
 
 
 @router.post(
@@ -63,6 +103,13 @@ async def login_with_email_token(email: str, db: Session = Depends(get_db())):
         )
 
     user = get_user_by_email(db, email=email)
+
+    if not user.email.is_verified:
+        raise HttpException(
+            status_code=400,
+            detail="Your email has not been verified. Please verify it.",
+        )
+
     token_data = create_email_login_token(db, user=user)
 
     return {

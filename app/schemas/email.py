@@ -8,6 +8,7 @@ __all__ = [
     "EmailBase",
     "EmailCreate",
     "Email",
+    "VerifyEmailModel",
 ]
 
 
@@ -25,3 +26,10 @@ class Email(EmailBase):
     id: str
     is_verified: bool
     created_at: datetime
+
+
+class VerifyEmailModel(BaseModel):
+    email: str = Field(
+        max_length=MAX_EMAIL_LENGTH,
+    )
+    token: str
