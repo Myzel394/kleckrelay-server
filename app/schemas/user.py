@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, Field
+from app.constants import EMAIL_REGEX, PRIVATE_KEY_REGEX, PUBLIC_KEY_REGEX
 
 __all__ = [
     "UserBase",
@@ -10,12 +11,19 @@ __all__ = [
 
 
 class UserBase(BaseModel):
-    email: str
+    email: str = Field(
+        regex=EMAIL_REGEX,
+        max_length=400,
+    )
 
 
 class UserCreate(UserBase):
-    public_key: str
-    encrypted_private_key: str
+    public_key: str = Field(
+        regex=PUBLIC_KEY_REGEX,
+    )
+    encrypted_private_key: str = Field(
+        regex=PRIVATE_KEY_REGEX,
+    )
 
 
 class User(UserBase):
