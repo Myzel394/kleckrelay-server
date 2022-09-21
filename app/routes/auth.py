@@ -10,7 +10,7 @@ from app.authentication.errors import (
     EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
 )
 from app.authentication.handler import access_security, refresh_security
-from app.authentication.user_management import check_if_email_exists, create_user
+from app.authentication.user_management import check_if_email_exists, create_user, get_user_by_email
 from app.database.dependencies import get_db
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
@@ -55,16 +55,19 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
     }
 )
 async def login_with_email_token(email: str, db: Session = Depends(get_db())):
-    if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
-        if not check_if_email_exists(db, email):
-            raise HTTPException(
-                status_code=404,
-                detail="Email not found."
-            )
+    # No other error can occur, so we can simply return if the email doesn't exist
+    if not check_if_email_exists(db, email):
+        raise HTTPException(
+            status_code=404,
+            detail="Email not found."
+        )
 
-    create_email_login_token(db, email)
+    user = get_user_by_email(db, email=email)
+    token_data = create_email_login_token(db, user=user)
 
-    return {}
+    return {
+        "same_request_token": token_data[1],
+    }
 
 
 @router.post(
