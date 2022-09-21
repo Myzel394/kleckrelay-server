@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 from app.constants import DOMAIN_REGEX, LOCAL_REGEX
@@ -29,6 +31,8 @@ class AliasCreate(AliasBase):
 
 
 class Alias(AliasBase):
+    id: str
+    created_at: datetime
     user: User
 
     class Config:

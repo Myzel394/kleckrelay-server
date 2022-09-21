@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app.models.email import Email
 from app.models.user import User
 from app.schemas.user import UserCreate
 from app.utils import normalize_email
@@ -28,8 +29,12 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
 def create_user(db: Session, /, user: UserCreate) -> User:
     """Create a new user to the database."""
 
+    db_email = Email(
+        address=user.email,
+    )
+
     db_user = User(
-        email=user.email,
+        email=db_email,
         encrypted_private_key=user.encrypted_private_key,
         public_key=user.public_key,
     )

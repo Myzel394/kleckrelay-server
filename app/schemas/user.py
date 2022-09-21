@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 from app.constants import EMAIL_REGEX, MAX_EMAIL_LENGTH, PRIVATE_KEY_REGEX, PUBLIC_KEY_REGEX
+from email import Email
 
 __all__ = [
     "UserBase",
@@ -11,13 +12,6 @@ __all__ = [
 
 
 class UserBase(BaseModel):
-    email: str = Field(
-        regex=EMAIL_REGEX,
-        max_length=MAX_EMAIL_LENGTH,
-    )
-
-
-class UserCreate(UserBase):
     public_key: str = Field(
         regex=PUBLIC_KEY_REGEX,
     )
@@ -26,11 +20,17 @@ class UserCreate(UserBase):
     )
 
 
+class UserCreate(UserBase):
+    email: str = Field(
+        regex=EMAIL_REGEX,
+        max_length=MAX_EMAIL_LENGTH,
+    )
+
+
 class User(UserBase):
     id: str
     created_at: datetime
-    encrypted_private_key: str
-    public_key: str
+    email: Email
 
     class Config:
         orm_mode = True
