@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -6,6 +8,7 @@ from app.utils import normalize_email
 
 __all__ = [
     "check_if_email_exists",
+    "get_user_by_email",
     "create_user",
 ]
 
@@ -16,6 +19,10 @@ def check_if_email_exists(db: Session, /, email: str) -> bool:
     normalized_email = normalize_email(email)
 
     return db.query(User).filter(User.email == normalized_email).first() is not None
+
+
+def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    return db.query(User).filter(User.email == email).first()
 
 
 def create_user(db: Session, /, user: UserCreate) -> User:

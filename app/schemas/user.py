@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, Field
-from app.constants import EMAIL_REGEX, PRIVATE_KEY_REGEX, PUBLIC_KEY_REGEX
+from app.constants import EMAIL_REGEX, MAX_EMAIL_LENGTH, PRIVATE_KEY_REGEX, PUBLIC_KEY_REGEX
 
 __all__ = [
     "UserBase",
@@ -13,7 +13,7 @@ __all__ = [
 class UserBase(BaseModel):
     email: str = Field(
         regex=EMAIL_REGEX,
-        max_length=400,
+        max_length=MAX_EMAIL_LENGTH,
     )
 
 

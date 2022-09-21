@@ -8,7 +8,16 @@ __all__ = [
     "REFRESH_TOKEN_EXPIRE_IN_MINUTES",
     "JWT_SECRET_KEY",
     "JWT_REFRESH_SECRET_KEY",
+    "EMAIL_LOGIN_TOKEN_LENGTH",
+    "EMAIL_LOGIN_TOKEN_CHARS",
+    "EMAIL_LOGIN_TOKEN_MAX_TRIES",
+    "EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS",
+    "EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS",
 ]
+
+
+def get_bool(name: str, default: str) -> bool:
+    return os.getenv(name, default=default) in {"true", "True", "1", "yes", "YES", "Yes", "t"}
 
 
 DB_URI = os.getenv(
@@ -34,4 +43,24 @@ JWT_SECRET_KEY = os.getenv(
 JWT_REFRESH_SECRET_KEY = os.getenv(
     "JWT_REFRESH_SECRET_KEY",
     default=default_live_constants.JWT_REFRESH_SECRET_KEY,
+)
+EMAIL_LOGIN_TOKEN_LENGTH = int(os.getenv(
+    "EMAIL_LOGIN_TOKEN_LENGTH",
+    default=default_live_constants.EMAIL_LOGIN_TOKEN_CHARS,
+))
+EMAIL_LOGIN_TOKEN_CHARS = os.getenv(
+    "EMAIL_LOGIN_TOKEN_CHARS",
+    default=default_live_constants.EMAIL_LOGIN_TOKEN_CHARS,
+)
+EMAIL_LOGIN_TOKEN_MAX_TRIES = int(os.getenv(
+    "EMAIL_LOGIN_TOKEN_MAX_TRIES",
+    default=default_live_constants.EMAIL_LOGIN_TOKEN_MAX_TRIES,
+))
+EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS = int(os.getenv(
+    "EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS",
+    default=default_live_constants.EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS,
+))
+EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS = get_bool(
+    "EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS",
+    default=default_live_constants.EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS,
 )
