@@ -17,7 +17,7 @@ __all__ = [
 
 
 def get_bool(name: str, default: str) -> bool:
-    return os.getenv(name, default=default) in {"true", "True", "1", "yes", "YES", "Yes", "t"}
+    return os.getenv(name, default=default).lower() in {"true", "1", "yes", "t"}
 
 
 DB_URI = os.getenv(
