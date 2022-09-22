@@ -4,7 +4,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
 from app.database.base import Base
-from _mixins import CreationMixin, IDMixin
+from ._mixins import CreationMixin, IDMixin
+from ..constants import ENCRYPTED_PASSWORD_LENGTH
 
 __all__ = [
     "User",
@@ -12,24 +13,31 @@ __all__ = [
 
 
 class User(Base, IDMixin, CreationMixin):
-    __tablename__ = "User"
+    __tablename__ = "user"
 
     if TYPE_CHECKING:
         from .email import Email
+        from .alias import EmailAlias
+        from .email_login import EmailLoginToken
         email: Email
-        encrypted_private_key: str
-        public_key: str
+        encrypted_password: str
+        email_aliases: list[EmailAlias]
+        email_login_tokens: list[EmailLoginToken]
     else:
         email = relationship(
             "Email",
             backref="user",
             uselist=False,
         )
-        encrypted_private_key = sa.Column(
-            sa.String,
+        encrypted_password = sa.Column(
+            sa.String(ENCRYPTED_PASSWORD_LENGTH),
             nullable=False,
         )
-        public_key = sa.Column(
-            sa.String,
-            nullable=False,
+        email_aliases = relationship(
+            "EmailAlias",
+            backref="user",
+        )
+        email_login_tokens = relationship(
+            "EmailLoginToken",
+            backref="user",
         )

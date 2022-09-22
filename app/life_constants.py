@@ -1,5 +1,5 @@
 import os
-import default_life_constants
+from . import default_life_constants
 
 __all__ = [
     "DB_URI",
@@ -13,6 +13,7 @@ __all__ = [
     "EMAIL_LOGIN_TOKEN_MAX_TRIES",
     "EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS",
     "EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS",
+    "IS_DEBUG",
 ]
 
 
@@ -63,4 +64,8 @@ EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS = int(os.getenv(
 EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS = get_bool(
     "EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS",
     default=default_life_constants.EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS,
+)
+IS_DEBUG = get_bool(
+    "IS_DEBUG",
+    default=default_life_constants.IS_DEBUG,
 )

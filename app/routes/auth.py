@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.openapi.models import Response
 from sqlalchemy.orm import Session
+from starlette.responses import JSONResponse
 
 from app.authentication.email import get_email_by_address, verify_email
 from app.authentication.email_login import (
@@ -15,17 +17,19 @@ from app.authentication.user_management import check_if_email_exists, create_use
 from app.database.dependencies import get_db
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
-from app.schemas.authentication import EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, AuthenticationCredentialsResponseModel
+from app.schemas.authentication import (
+    AuthenticationCredentialsResponseModel,
+    EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, VerifyEmailModel,
+)
 
-from app.schemas.email import VerifyEmailModel
-from app.schemas.user import UserCreate
+from app.schemas.user import User, UserCreate
+from app.utils import object_as_dict
 
 router = APIRouter()
 
 
 @router.post(
     "/signup",
-    response_model=AuthenticationCredentialsResponseModel,
     responses={
         400: {
             "model": HTTPBadRequestExceptionModel
@@ -33,7 +37,7 @@ router = APIRouter()
     }
 )
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
-    if check_if_email_exists(db, user.email):
+    if await check_if_email_exists(db, user.email):
         raise HTTPException(
             status_code=400,
             detail="Email already in use.",
@@ -41,19 +45,21 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
 
     db_user = create_user(db, user=user)
 
-    return {
-        "user": db_user,
-    }
+    return {}
 
 
 @router.post(
     "/verify-email",
+    response_model=AuthenticationCredentialsResponseModel,
     responses={
         400: {
             "model": HTTPBadRequestExceptionModel,
         },
         404: {
             "model": HTTPNotFoundExceptionModel,
+        },
+        202: {
+            "model": {},
         }
     }
 )
@@ -75,14 +81,34 @@ def signup_verify_email(input_data: VerifyEmailModel, db: Session = Depends(get_
                     detail=default_error_message,
                 )
 
+        if email.is_verified:
+            return JSONResponse(
+                {},
+                status_code=202,
+            )
+
         verify_email(db, email=email, token=input_data.token)
 
-        return {}
+        return {
+            "user": email.user,
+            "access_token": access_security.create_access_token(subject={
+                "user_id": str(email.user.id),
+            }),
+            "refresh_token": refresh_security.create_refresh_token(subject={
+                "user_id": str(email.user.id),
+            }),
+        }
     except EmailIncorrectTokenError:
-        raise HTTPException(
-            status_code=400,
-            detail=default_error_message,
-        )
+        if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+            raise HTTPException(
+                status_code=400,
+                detail="Token invalid.",
+            )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=default_error_message,
+            )
 
 
 @router.post(
@@ -94,7 +120,7 @@ def signup_verify_email(input_data: VerifyEmailModel, db: Session = Depends(get_
         }
     }
 )
-async def login_with_email_token(email: str, db: Session = Depends(get_db())):
+async def login_with_email_token(email: str, db: Session = Depends(get_db)):
     # No other error can occur, so we can simply return if the email doesn't exist
     if not check_if_email_exists(db, email):
         raise HTTPException(
@@ -131,7 +157,7 @@ async def login_with_email_token(email: str, db: Session = Depends(get_db())):
 )
 async def verify_email_token(
     input_data: EmailLoginTokenVerifyModel,
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
 ):
     default_error_message = "Email or token or same request token invalid."
 

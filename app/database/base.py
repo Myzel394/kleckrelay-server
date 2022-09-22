@@ -11,7 +11,7 @@ __all__ = [
 
 
 engine = create_engine(
-    DB_URI, connect_args={"check_same_thread": False}
+    DB_URI,
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

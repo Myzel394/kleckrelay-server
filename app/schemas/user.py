@@ -1,22 +1,21 @@
+import uuid
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
-from app.constants import EMAIL_REGEX, MAX_EMAIL_LENGTH, PRIVATE_KEY_REGEX, PUBLIC_KEY_REGEX
-from email import Email
+from app.constants import (
+    EMAIL_REGEX, ENCRYPTED_PASSWORD_LENGTH, MAX_EMAIL_LENGTH,
+)
 
 __all__ = [
-    "UserBase",
     "UserCreate",
     "User",
 ]
 
 
 class UserBase(BaseModel):
-    public_key: str = Field(
-        regex=PUBLIC_KEY_REGEX,
-    )
-    encrypted_private_key: str = Field(
-        regex=PRIVATE_KEY_REGEX,
+    encrypted_password: str = Field(
+        max_length=ENCRYPTED_PASSWORD_LENGTH,
     )
 
 
@@ -27,8 +26,18 @@ class UserCreate(UserBase):
     )
 
 
+class Email(BaseModel):
+    id: uuid.UUID
+    address: str
+    verified_at: Optional[datetime]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
 class User(UserBase):
-    id: str
+    id: uuid.UUID
     created_at: datetime
     email: Email
 
