@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 
 from app.authentication.errors import EmailIncorrectTokenError
 from app.constants import EMAIL_VERIFICATION_TOKEN_CHARS, EMAIL_VERIFICATION_TOKEN_LENGTH
+from app import logger
 from app.mails.send_email_verification import send_email_verification
 from app.models.email import Email
-from app.utils import hash_slowly
 
 __all__ = [
     "create_email",
@@ -32,6 +32,7 @@ def create_email(db: Session, /, address: str) -> Email:
     Automatically sends the email to the user.
     """
 
+    logger.info(f"Create Email: Create email instance for {address}.")
     token = generate_token()
 
     email = Email(
@@ -48,21 +49,27 @@ def create_email(db: Session, /, address: str) -> Email:
         token=token,
     )
 
+    logger.info(f"Create Email: {address} created successfully.")
+
     return email
 
 
 def verify_email(db: Session, /, email: Email, token: str):
+    logger.info(f"Verify email: Verifying {email.address}.")
     if email.is_verified:
         return
 
     if not email.token == token:
+        logger.info(f"Verify email: Token for {email.address} is incorrect.")
         raise EmailIncorrectTokenError()
 
+    logger.info(f"Verify email: Token for {email.address} is correct.")
     email.verified_at = datetime.utcnow()
 
     db.add(email)
     db.commit()
     db.refresh(email)
+    logger.info(f"Verify email: {email.address} saved successfully.")
 
 
 def get_email_by_address(db: Session, address: str) -> Optional[Email]:

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.openapi.models import Response
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
@@ -16,14 +15,14 @@ from app.authentication.handler import access_security, refresh_security
 from app.authentication.user_management import check_if_email_exists, create_user, get_user_by_email
 from app.database.dependencies import get_db
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
+from app import logger
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.schemas.authentication import (
     AuthenticationCredentialsResponseModel,
     EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, VerifyEmailModel,
 )
 
-from app.schemas.user import User, UserCreate
-from app.utils import object_as_dict
+from app.schemas.user import UserCreate
 
 router = APIRouter()
 
@@ -37,13 +36,19 @@ router = APIRouter()
     }
 )
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
+    logger.info("Request: Signup -> Sign up request")
+
     if await check_if_email_exists(db, user.email):
+        logger.info("Request: Signup -> Email does not exist")
         raise HTTPException(
             status_code=400,
             detail="Email already in use.",
         )
 
-    db_user = create_user(db, user=user)
+    with logger.info_block("Request: Signup -> Create user"):
+        create_user(db, user=user)
+
+    logger.info("Request: Signup -> Return Response")
 
     return {}
 

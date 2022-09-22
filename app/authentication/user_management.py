@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.authentication.email import create_email, get_email_by_address
+from app.logger import logger
 from app.models.email import Email
 from app.models.user import User
 from app.schemas.user import UserCreate
@@ -36,6 +37,8 @@ def create_user(db: Session, /, user: UserCreate) -> User:
 
     db_email = create_email(db, address=user.email)
 
+    logger.info(f"Create user: Creating user with email {db_email.address}.")
+
     db_user = User(
         email=db_email,
         encrypted_password=user.encrypted_password,
@@ -44,5 +47,7 @@ def create_user(db: Session, /, user: UserCreate) -> User:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    logger.info(f"Create user: Created user {db_email.address} successfully. ID is: {db_user.id}.")
 
     return db_user
