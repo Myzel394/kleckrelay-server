@@ -1,11 +1,13 @@
 import logging
+import sys
 
 from app.life_constants import IS_DEBUG
 
 logger = logging.getLogger(__name__)
 
-
-logger.setLevel(logging.DEBUG)
+if IS_DEBUG:
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
 def info(msg: str) -> None:

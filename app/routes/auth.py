@@ -69,12 +69,14 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
     }
 )
 def signup_verify_email(input_data: VerifyEmailModel, db: Session = Depends(get_db)):
+    logger.info("Request: Verify Email -> Verify Email Request.")
     default_error_message = "Email or token invalid."
 
     try:
         email = get_email_by_address(db, address=input_data.email)
 
         if email is None:
+            logger.info("Request: Verify Email -> Email not found.")
             if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
                 raise HTTPException(
                     status_code=404,
@@ -87,6 +89,7 @@ def signup_verify_email(input_data: VerifyEmailModel, db: Session = Depends(get_
                 )
 
         if email.is_verified:
+            logger.info("Request: Verify Email -> Email already verified. Returning 202.")
             return JSONResponse(
                 {},
                 status_code=202,
