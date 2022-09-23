@@ -14,6 +14,7 @@ __all__ = [
     "EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS",
     "EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS",
     "IS_DEBUG",
+    "DOMAIN",
 ]
 
 
@@ -68,4 +69,8 @@ EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS = get_bool(
 IS_DEBUG = get_bool(
     "IS_DEBUG",
     default=default_life_constants.IS_DEBUG,
+)
+DOMAIN = os.getenv(
+    "DOMAIN",
+    default=default_life_constants.DOMAIN,
 )

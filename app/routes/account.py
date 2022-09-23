@@ -10,7 +10,10 @@ from app.schemas.user import User
 router = APIRouter()
 
 
-@router.get("/me", response_model=User)
+@router.get(
+    "/me",
+    response_model=User,
+)
 def get_me(
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
