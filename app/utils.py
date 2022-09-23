@@ -12,6 +12,8 @@ __all__ = [
     "normalize_email",
     "hash_slowly",
     "hash_fast",
+    "verify_fast_hash",
+    "verify_slow_hash",
 ]
 
 
@@ -30,6 +32,14 @@ def hash_slowly(value: str) -> str:
 
 def hash_fast(value: str) -> str:
     return pwd_context.hash(value)
+
+
+def verify_fast_hash(hashed_value: str, value: str) -> bool:
+    return pwd_context.verify(value, hashed_value)
+
+
+def verify_slow_hash(hashed_value: str, value: str) -> bool:
+    return pwd_context.verify(value, hashed_value)
 
 
 def object_as_dict(obj: "Base") -> dict:

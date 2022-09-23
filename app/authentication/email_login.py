@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.authentication.errors import (
     EmailLoginTokenExpiredError, EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError
 )
+from app.authentication.user_management import get_user_by_email
 
 from app.constants import (
     EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS,
@@ -21,7 +22,7 @@ from app import logger
 from app.mails.send_email_login_token import send_email_login_token
 from app.models.email_login import EmailLoginToken
 from app.models.user import User
-from app.utils import hash_fast, hash_slowly
+from app.utils import hash_fast, verify_fast_hash
 
 
 def get_token_from_email(db: Session, /, email: str) -> Optional[EmailLoginToken]:
@@ -31,7 +32,7 @@ def get_token_from_email(db: Session, /, email: str) -> Optional[EmailLoginToken
 def is_token_expired(instance: EmailLoginToken) -> bool:
     expires_at = instance.created_at + timedelta(seconds=EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS)
 
-    return expires_at < datetime.now()
+    return expires_at < datetime.utcnow()
 
 
 def is_token_valid(
@@ -41,21 +42,22 @@ def is_token_valid(
         token: str,
         same_request_token: str
 ) -> bool:
-    logger.info(f"Is token valid: Checking if token is valid for {instance.email}.")
+    logger.info(f"Is token valid: Checking if token is valid for {instance.user.email.address}.")
 
     if is_token_expired(instance):
-        logger.info(f"Is token valid: Token for {instance.email} expired.")
+        logger.info(f"Is token valid: Token for {instance.user.email.address} expired.")
         raise EmailLoginTokenExpiredError()
 
-    if instance.hashed_same_request_token != hash_fast(same_request_token):
-        logger.info(f"Is token valid: Token for {instance.email} is incorrect.")
+    if not verify_fast_hash(instance.hashed_same_request_token, same_request_token):
+        logger.info(f"Is token valid: Same Request Token for {instance.user.email.address} is "
+                    f"incorrect.")
         raise EmailLoginTokenSameRequestTokenInvalidError()
 
     if instance.tries > EMAIL_LOGIN_TOKEN_MAX_TRIES:
-        logger.info(f"Is token valid: {instance.email} has exceeded it's max tries.")
+        logger.info(f"Is token valid: {instance.user.email.address} has exceeded it's max tries.")
         raise EmailLoginTokenMaxTriesReachedError()
 
-    logger.info(f"Is token valid: Token for {instance.email} is correct.")
+    logger.info(f"Is token valid: Token for {instance.user.email.address} is correct.")
 
     # Save this try
     instance.tries += 1
@@ -64,9 +66,9 @@ def is_token_valid(
     db.commit()
     db.refresh(instance)
 
-    logger.info(f"Is token valid: {instance.email} saved successfully.")
+    logger.info(f"Is token valid: {instance.user.email.address} saved successfully.")
 
-    return instance.hashed_token == hash_fast(token)
+    return verify_fast_hash(instance.hashed_token, token)
 
 
 def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToken, str]:
@@ -77,14 +79,15 @@ def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToke
 
     # Delete existing email login tokens, there can only be one token
     if user.email_login_token is not None:
-        with logger.with_info(
-            f"Create email login token: Deleting existing email login token for {user.email}."
+        with logger.info_block(
+            f"Create email login token: Deleting existing email login token for {user.email.address}."
         ):
             delete_email_login_token(db, user.email_login_token)
 
-    logger.info(f"Create email login token: Generating new email login token for {user.email}.")
+    logger.info(f"Create email login token: Generating tokens for {user.email.address}.")
     token = generate_token()
     same_request_token = generate_same_request_token()
+    logger.info(f"Create email login token: Generating new email login token for {user.email.address}.")
     instance = EmailLoginToken(
         user=user,
         hashed_token=hash_fast(token),
@@ -101,19 +104,26 @@ def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToke
     db.refresh(instance)
 
     logger.info(
-        f"Create email login token: Email Login Token created for {user.email} successfully."
+        f"Create email login token: Email Login Token created for {user.email.address} successfully."
     )
 
     return instance, same_request_token
 
 
 def delete_email_login_token(db: Session, /, instance: EmailLoginToken):
+    logger.info(f"Delete email login token: Deleting email login token for "
+                f"{instance.user.email.address}.")
     db.delete(instance)
     db.commit()
 
 
-def get_email_login_token_from_email(db: Session, /, email: str) -> Optional[EmailLoginToken]:
-    return db.query(EmailLoginToken).filter(EmailLoginToken.email == email).first()
+async def get_email_login_token_from_email(db: Session, /, email: str) -> Optional[EmailLoginToken]:
+    user = await get_user_by_email(db, email)
+
+    if user is None:
+        return None
+
+    return user.email_login_token
 
 
 def generate_token() -> str:

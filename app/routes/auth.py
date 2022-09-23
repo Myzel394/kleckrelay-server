@@ -19,7 +19,8 @@ from app import logger
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.schemas.authentication import (
     AuthenticationCredentialsResponseModel,
-    EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, VerifyEmailModel,
+    EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, LoginWithEmailTokenModel,
+    VerifyEmailModel,
 )
 
 from app.schemas.user import UserCreate
@@ -128,15 +129,20 @@ def signup_verify_email(input_data: VerifyEmailModel, db: Session = Depends(get_
         }
     }
 )
-async def login_with_email_token(email: str, db: Session = Depends(get_db)):
+async def login_with_email_token(
+    input_data: LoginWithEmailTokenModel,
+    db: Session = Depends(get_db),
+):
+    email = input_data.email
+
     # No other error can occur, so we can simply return if the email doesn't exist
-    if not check_if_email_exists(db, email):
+    if not (await check_if_email_exists(db, email)):
         raise HTTPException(
             status_code=404,
             detail="Email not found."
         )
 
-    user = get_user_by_email(db, email=email)
+    user = await get_user_by_email(db, email=email)
 
     if not user.email.is_verified:
         raise HTTPException(
@@ -167,9 +173,9 @@ async def verify_email_token(
     input_data: EmailLoginTokenVerifyModel,
     db: Session = Depends(get_db),
 ):
-    default_error_message = "Email or token or same request token invalid."
+    default_error_message = "Email or token or same request token invalid or no token found."
 
-    if email_login := get_email_login_token_from_email(db, email=input_data.email):
+    if email_login := (await get_email_login_token_from_email(db, email=input_data.email)):
         try:
             is_valid = is_token_valid(
                 db,
@@ -178,26 +184,50 @@ async def verify_email_token(
                 same_request_token=input_data.same_request_token
             )
         except EmailLoginTokenExpiredError:
-            raise HTTPException(
-                status_code=400,
-                detail="Token expired. Please request a new one.",
-            )
-        except EmailLoginTokenMaxTriesReachedError:
-            raise HTTPException(
-                status_code=400,
-                detail="Token exceeded. Please request a new one.",
-            )
-        except EmailLoginTokenSameRequestTokenInvalidError:
-            raise HTTPException(
-                status_code=400,
-                detail=default_error_message,
-            )
-        else:
-            if not is_valid:
+            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Token expired. Please request a new one.",
+                )
+            else:
                 raise HTTPException(
                     status_code=400,
                     detail=default_error_message,
                 )
+        except EmailLoginTokenMaxTriesReachedError:
+            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Token tries exceeded. Please request a new one.",
+                )
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail=default_error_message,
+                )
+        except EmailLoginTokenSameRequestTokenInvalidError:
+            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Same request token invalid.",
+                )
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail=default_error_message,
+                )
+        else:
+            if not is_valid:
+                if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Token invalid.",
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=default_error_message,
+                    )
 
             user = email_login.user
 
@@ -207,14 +237,18 @@ async def verify_email_token(
             # Login user
             return {
                 "user": user,
-                "access_token": access_security.create_access_token(subject=user),
-                "refresh_token": refresh_security.create_refresh_token(subject=user),
+                "access_token": access_security.create_access_token(subject={
+                    "user_id": str(user.id),
+                }),
+                "refresh_token": refresh_security.create_refresh_token(subject={
+                    "user_id": str(user.id),
+                }),
             }
     else:
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
             raise HTTPException(
                 status_code=404,
-                detail="Email not found.",
+                detail="No Token found. Please request one.",
             )
         else:
             raise HTTPException(

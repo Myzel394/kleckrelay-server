@@ -22,7 +22,7 @@ class User(Base, IDMixin, CreationMixin):
         email: Email
         encrypted_password: str
         email_aliases: list[EmailAlias]
-        email_login_tokens: list[EmailLoginToken]
+        email_login_token: EmailLoginToken
     else:
         email = relationship(
             "Email",
@@ -37,7 +37,8 @@ class User(Base, IDMixin, CreationMixin):
             "EmailAlias",
             backref="user",
         )
-        email_login_tokens = relationship(
+        email_login_token = relationship(
             "EmailLoginToken",
             backref="user",
+            uselist=False,
         )

@@ -1,5 +1,6 @@
 import logging
 import sys
+from contextlib import contextmanager
 
 from app.life_constants import IS_DEBUG
 
@@ -15,6 +16,7 @@ def info(msg: str) -> None:
         logger.info(msg)
 
 
+@contextmanager
 def info_block(msg: str) -> None:
     logger.info(msg)
 

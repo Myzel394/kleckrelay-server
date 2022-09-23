@@ -47,7 +47,7 @@ JWT_REFRESH_SECRET_KEY = os.getenv(
 )
 EMAIL_LOGIN_TOKEN_LENGTH = int(os.getenv(
     "EMAIL_LOGIN_TOKEN_LENGTH",
-    default=default_life_constants.EMAIL_LOGIN_TOKEN_CHARS,
+    default=default_life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
 ))
 EMAIL_LOGIN_TOKEN_CHARS = os.getenv(
     "EMAIL_LOGIN_TOKEN_CHARS",

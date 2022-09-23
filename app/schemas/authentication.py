@@ -10,6 +10,7 @@ from app.life_constants import EMAIL_LOGIN_TOKEN_LENGTH
 __all__ = [
     "EmailLoginTokenResponseModel",
     "EmailLoginTokenVerifyModel",
+    "LoginWithEmailTokenModel",
     "User",
 ]
 
@@ -60,4 +61,8 @@ class AuthenticationCredentialsResponseModel(BaseModel):
 class VerifyEmailModel(BaseModel):
     email: str
     token: str
+
+
+class LoginWithEmailTokenModel(BaseModel):
+    email: str
 

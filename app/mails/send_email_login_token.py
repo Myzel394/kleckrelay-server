@@ -4,7 +4,7 @@ from app.models.user import User
 
 
 def send_email_login_token(user: User, token: str) -> None:
-    logger.info(f"Send email login token: Send email to {user.email}")
+    logger.info(f"Send email login token: Send email to {user.email.address}")
 
     if IS_DEBUG:
-        logger.info(f"Send email login token: Token for {user.email} is {token}")
+        logger.info(f"Send email login token: Token for {user.email.address} is {token}")
