@@ -1,13 +1,13 @@
+import uuid
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
 from app.constants import (
     EMAIL_REGEX, ENCRYPTED_PASSWORD_LENGTH, MAX_EMAIL_LENGTH,
 )
-from email import Email
 
 __all__ = [
-    "UserBase",
     "UserCreate",
     "User",
 ]
@@ -26,8 +26,18 @@ class UserCreate(UserBase):
     )
 
 
+class Email(BaseModel):
+    id: uuid.UUID
+    address: str
+    verified_at: Optional[datetime]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
 class User(UserBase):
-    id: str
+    id: uuid.UUID
     created_at: datetime
     email: Email
 

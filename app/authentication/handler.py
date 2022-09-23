@@ -14,7 +14,7 @@ __all__ = [
 
 access_security = JwtAccessBearerCookie(
     secret_key=JWT_SECRET_KEY,
-    auto_error=False,
+    auto_error=True,
     access_expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_IN_MINUTES),
 )
 refresh_security = JwtRefreshBearer(
