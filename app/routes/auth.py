@@ -69,7 +69,10 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
         }
     }
 )
-def signup_verify_email(input_data: VerifyEmailModel, db: Session = Depends(get_db)):
+def signup_verify_email(
+    input_data: VerifyEmailModel,
+    db: Session = Depends(get_db),
+):
     logger.info("Request: Verify Email -> Verify Email Request.")
     default_error_message = "Email or token invalid."
 
@@ -236,7 +239,6 @@ async def verify_email_token(
 
             # Login user
             return {
-                "user": user,
                 "access_token": access_security.create_access_token(subject={
                     "user_id": str(user.id),
                 }),

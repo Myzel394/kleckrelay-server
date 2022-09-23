@@ -13,6 +13,7 @@ __all__ = [
     "check_if_email_exists",
     "get_user_by_email",
     "create_user",
+    "get_user_by_id",
 ]
 
 
@@ -51,3 +52,7 @@ def create_user(db: Session, /, user: UserCreate) -> User:
     logger.info(f"Create user: Created user {db_email.address} successfully. ID is: {db_user.id}.")
 
     return db_user
+
+
+def get_user_by_id(db: Session, /, user_id: int) -> User:
+    return db.query(User).filter(User.id == user_id).first()

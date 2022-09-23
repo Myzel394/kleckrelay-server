@@ -53,7 +53,6 @@ class EmailLoginTokenVerifyModel(BaseModel):
 
 
 class AuthenticationCredentialsResponseModel(BaseModel):
-    user: User
     access_token: str
     refresh_token: str
 
