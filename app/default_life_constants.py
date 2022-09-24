@@ -15,7 +15,14 @@ __all__ = [
     "EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS",
     "IS_DEBUG",
     "DOMAIN",
+    "MAIL_DOMAIN",
+    "RANDOM_EMAIL_ID_MIN_LENGTH",
+    "RANDOM_EMAIL_ID_CHARS",
+    "CUSTOM_EMAIL_SUFFIX_LENGTH",
+    "CUSTOM_EMAIL_SUFFIX_CHARS",
 ]
+
+from app.life_constants import CUSTOM_EMAIL_SUFFIX_LENGTH
 
 DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
 MAX_ENCRYPTED_NOTES_SIZE = 10_000
@@ -32,4 +39,9 @@ EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS = 60 * 15  # 15 minutes
 EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS = "True"
 IS_DEBUG = "False"
 DOMAIN = "kleckrelay.com"
+MAIL_DOMAIN = "mail.kleckrelay.com"
+RANDOM_EMAIL_ID_MIN_LENGTH = 6
+RANDOM_EMAIL_ID_CHARS = string.ascii_letters + string.digits
+CUSTOM_EMAIL_SUFFIX_LENGTH = 4
+CUSTOM_EMAIL_SUFFIX_CHARS = string.digits
 

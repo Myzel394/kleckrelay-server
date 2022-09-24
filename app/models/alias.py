@@ -1,3 +1,4 @@
+import enum
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -9,11 +10,17 @@ from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
 from ._mixins import CreationMixin, UpdateMixin, IDMixin
 
 __all__ = [
+    "AliasType",
     "EmailAlias",
 ]
 
 
-class EmailAlias(Base, IDMixin, CreationMixin, UpdateMixin):
+class AliasType(enum.Enum):
+    RANDOM = 1
+    CUSTOM = 2
+
+
+class EmailAlias(Base, IDMixin):
     __tablename__ = "email_alias"
 
     if TYPE_CHECKING:
@@ -34,6 +41,10 @@ class EmailAlias(Base, IDMixin, CreationMixin, UpdateMixin):
             sa.String(255),
             nullable=False,
             index=True,
+        )
+        type = sa.Column(
+            sa.Enum(AliasType),
+            default=AliasType.RANDOM,
         )
         is_active = sa.Column(
             sa.Boolean,

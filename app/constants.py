@@ -11,6 +11,7 @@ __all__ = [
     "ENCRYPTED_PASSWORD_LENGTH",
     "EMAIL_VERIFICATION_TOKEN_CHARS",
     "EMAIL_VERIFICATION_TOKEN_LENGTH",
+    "MAX_RANDOM_ALIAS_ID_GENERATION",
 ]
 
 
@@ -22,6 +23,9 @@ ENCRYPTED_PASSWORD_LENGTH = 2000
 MAX_EMAIL_LENGTH = 400
 EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH = 80
 EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS = string.ascii_letters + string.digits
-ENCRYPTED_PASSWORD_LENGTH = 2000
 EMAIL_VERIFICATION_TOKEN_CHARS = string.ascii_letters + string.digits
 EMAIL_VERIFICATION_TOKEN_LENGTH = 80
+# How often should be tried to generate a new alias id. After this amount, the length of the
+# alias increases by one. This behavior continues until a new alias is found.
+# This is an edge case scenario and will probably never occur.
+MAX_RANDOM_ALIAS_ID_GENERATION = 200

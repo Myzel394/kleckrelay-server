@@ -15,6 +15,11 @@ __all__ = [
     "EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS",
     "IS_DEBUG",
     "DOMAIN",
+    "MAIL_DOMAIN",
+    "RANDOM_EMAIL_ID_MIN_LENGTH",
+    "RANDOM_EMAIL_ID_CHARS",
+    "CUSTOM_EMAIL_SUFFIX_LENGTH",
+    "CUSTOM_EMAIL_SUFFIX_CHARS",
 ]
 
 
@@ -73,4 +78,24 @@ IS_DEBUG = get_bool(
 DOMAIN = os.getenv(
     "DOMAIN",
     default=default_life_constants.DOMAIN,
+)
+MAIL_DOMAIN = os.getenv(
+    "MAIL_DOMAIN",
+    default=default_life_constants.MAIL_DOMAIN,
+)
+RANDOM_EMAIL_ID_MIN_LENGTH = int(os.getenv(
+    "RANDOM_EMAIL_ID_MIN_LENGTH",
+    default=default_life_constants.RANDOM_EMAIL_ID_MIN_LENGTH,
+))
+RANDOM_EMAIL_ID_CHARS = int(os.getenv(
+    "RANDOM_EMAIL_ID_CHARS",
+    default=default_life_constants.RANDOM_EMAIL_ID_CHARS,
+))
+CUSTOM_EMAIL_SUFFIX_LENGTH = int(os.getenv(
+    "CUSTOM_EMAIL_SUFFIX_LENGTH",
+    default=default_life_constants.CUSTOM_EMAIL_SUFFIX_LENGTH,
+))
+CUSTOM_EMAIL_SUFFIX_CHARS = os.getenv(
+    "CUSTOM_EMAIL_SUFFIX_CHARS",
+    default=default_life_constants.CUSTOM_EMAIL_SUFFIX_CHARS,
 )
