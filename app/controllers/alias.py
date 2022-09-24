@@ -21,15 +21,15 @@ __all__ = [
 
 
 def get_aliases_amount(db: Session, /, domain: str) -> int:
-    return db.query(EmailAlias).filter(EmailAlias.domain == domain).count()
+    return db.query(EmailAlias.domain).filter(EmailAlias.domain == domain).count()
 
 
 def check_if_local_exists(db: Session, /, local: str, domain: str) -> bool:
-    return db\
-        .query(EmailAlias)\
-        .filter(EmailAlias.domain == domain)\
-        .filter(EmailAlias.local == local)\
-        .exists()
+    return db.query(db
+        .query(EmailAlias)
+        .filter(EmailAlias.domain == domain)
+        .filter(EmailAlias.local == local)
+        .exists()).scalar()
 
 
 def calculate_id_length(aliases_amount: int) -> int:
@@ -37,7 +37,7 @@ def calculate_id_length(aliases_amount: int) -> int:
     if aliases_amount <= 1:
         return RANDOM_EMAIL_ID_MIN_LENGTH
 
-    min_length = log(aliases_amount, base=len(RANDOM_EMAIL_ID_CHARS))
+    min_length = log(aliases_amount, len(RANDOM_EMAIL_ID_CHARS))
     # Add a small constant to avoid generating ids over and over again because it needs to search
     # the last unique ones available
     min_length += 0.3

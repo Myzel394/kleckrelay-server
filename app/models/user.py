@@ -1,11 +1,9 @@
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Union
 
-import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
 from app.database.base import Base
 from ._mixins import CreationMixin, IDMixin
-from ..constants import ENCRYPTED_PASSWORD_LENGTH
 
 __all__ = [
     "User",
@@ -20,7 +18,6 @@ class User(Base, IDMixin, CreationMixin):
         from .alias import EmailAlias
         from .email_login import EmailLoginToken
         email: Email
-        encrypted_password: str
         email_aliases: list[EmailAlias]
         email_login_token: EmailLoginToken
     else:
@@ -28,10 +25,6 @@ class User(Base, IDMixin, CreationMixin):
             "Email",
             backref="user",
             uselist=False,
-        )
-        encrypted_password = sa.Column(
-            sa.String(ENCRYPTED_PASSWORD_LENGTH),
-            nullable=False,
         )
         email_aliases = relationship(
             "EmailAlias",
@@ -42,3 +35,13 @@ class User(Base, IDMixin, CreationMixin):
             backref="user",
             uselist=False,
         )
+
+    def to_jwt_object(self) -> dict[str, Any]:
+        return {
+            "id": str(self.id),
+            "created_at": self.created_at.isoformat(),
+            "email": {
+                "address": self.email.address,
+                "is_verified": self.email.is_verified
+            },
+        }

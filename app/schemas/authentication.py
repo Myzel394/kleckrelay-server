@@ -18,8 +18,7 @@ __all__ = [
 class Email(BaseModel):
     id: uuid.UUID
     address: str
-    verified_at: Optional[datetime]
-    created_at: datetime
+    is_verified: bool
 
     class Config:
         orm_mode = True
@@ -27,7 +26,6 @@ class Email(BaseModel):
 
 class User(BaseModel):
     id: uuid.UUID
-    encrypted_password: str
     created_at: datetime
     email: Email
 

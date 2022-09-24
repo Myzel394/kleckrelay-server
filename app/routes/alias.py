@@ -28,7 +28,7 @@ def create_alias(
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Create Alias -> Creating alias.")
-    user = get_user_by_id(db, credentials["user_id"])
+    user = get_user_by_id(db, credentials["id"])
 
     if alias_data.type == AliasType.RANDOM:
         logger.info("Request: Create Alias -> Type is AliasType.RANDOM")
@@ -54,12 +54,12 @@ def create_alias(
     db.refresh(alias)
 
     logger.info("Request: Create Alias -> Instance saved successfully.")
-    return db
+    return alias
 
 
 @router.patch(
     "/{id}",
-    response_model=EmailAlias,
+    response_model=Alias,
     responses={
         404: {
             "model": HTTPNotFoundExceptionModel
@@ -73,7 +73,7 @@ def update_alias(
     db: Session = Depends(get_db),
 ):
     logger.info(f"Request: Update Alias -> Updating alias with id={id}.")
-    user = get_user_by_id(db, credentials["user_id"])
+    user = get_user_by_id(db, credentials["id"])
     alias = get_alias_from_user(db, user=user, id=id)
 
     if alias is None:

@@ -16,8 +16,8 @@ __all__ = [
 
 
 class AliasType(enum.Enum):
-    RANDOM = 1
-    CUSTOM = 2
+    RANDOM = "RANDOM"
+    CUSTOM = "CUSTOM"
 
 
 class EmailAlias(Base, IDMixin):

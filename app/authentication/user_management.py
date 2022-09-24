@@ -1,11 +1,11 @@
 from typing import Optional
+from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.authentication.email import create_email, get_email_by_address
+from app.controllers.email import create_email, get_email_by_address
 from app.logger import logger
-from app.models.email import Email
 from app.models.user import User
 from app.schemas.user import UserCreate
 from app.utils import normalize_email
@@ -34,16 +34,15 @@ async def get_user_by_email(db: Session, email: str) -> Optional[User]:
     return email_instance.user
 
 
-def create_user(db: Session, /, user: UserCreate) -> User:
+async def create_user(db: Session, /, user: UserCreate) -> User:
     """Create a new user to the database."""
 
-    db_email = create_email(db, address=user.email)
+    db_email = await create_email(db, address=user.email)
 
     logger.info(f"Create user: Creating user with email {db_email.address}.")
 
     db_user = User(
         email=db_email,
-        encrypted_password=user.encrypted_password,
     )
 
     db.add(db_user)
@@ -55,8 +54,8 @@ def create_user(db: Session, /, user: UserCreate) -> User:
     return db_user
 
 
-def get_user_by_id(db: Session, /, user_id: int) -> User:
-    if (user := db.query(User).filter(User.id == user_id).first()) is not None:
+def get_user_by_id(db: Session, /, user_id: str) -> User:
+    if (user := db.query(User).filter(User.id == UUID(user_id)).first()) is not None:
         return user
 
     raise HTTPException(

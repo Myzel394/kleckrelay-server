@@ -15,14 +15,14 @@ __all__ = [
 ]
 
 
-class Email(Base, IDMixin, CreationMixin):
+class Email(Base, IDMixin):
     __tablename__ = "email"
 
     if TYPE_CHECKING:
         from .user import User
         address: str
         token: str
-        verified_at: datetime
+        is_verified: bool
         user_id: str
         user: User
     else:
@@ -36,16 +36,12 @@ class Email(Base, IDMixin, CreationMixin):
             sa.String(len(hash_slowly("abc"))),
             nullable=False,
         )
-        verified_at = sa.Column(
-            sa.DateTime,
-            nullable=True,
-            default=None,
+        is_verified = sa.Column(
+            sa.Boolean,
+            nullable=False,
+            default=False,
         )
         user_id = sa.Column(
             UUID(as_uuid=True),
             ForeignKey("user.id"),
         )
-
-    @property
-    def is_verified(self) -> bool:
-        return self.verified_at is not None

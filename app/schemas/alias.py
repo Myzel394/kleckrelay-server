@@ -1,13 +1,14 @@
+from uuid import UUID
+
 from pydantic import BaseModel, Field, root_validator
 
 from app.constants import DOMAIN_REGEX, LOCAL_REGEX
 from app.life_constants import DOMAIN, MAX_ENCRYPTED_NOTES_SIZE
 from app.logger import logger
 from app.models.alias import AliasType
-from user import User
+from .user import User
 
 __all__ = [
-    "AliasBase",
     "AliasCreate",
     "AliasUpdate",
     "Alias",
@@ -20,6 +21,7 @@ class AliasBase(BaseModel):
     )
     encrypted_notes: str = Field(
         max_length=MAX_ENCRYPTED_NOTES_SIZE,
+        default="",
     )
 
 
@@ -35,7 +37,7 @@ class AliasCreate(AliasBase):
     )
 
     @root_validator()
-    def validate_type(self, values: dict):
+    def validate_type(cls, values: dict):
         alias_type = values.get("type")
 
         logger.info(f"AliasCreate: Validating type {alias_type}.")
@@ -49,6 +51,8 @@ class AliasCreate(AliasBase):
         else:
             logger.info("AliasCreate: Type is AliasType.CUSTOM")
 
+        return values
+
 
 class AliasUpdate(AliasBase):
     is_active: bool = None
@@ -59,12 +63,9 @@ class AliasUpdate(AliasBase):
 
 
 class Alias(AliasBase):
-    id: str
-    domain: str = Field(
-        regex=DOMAIN_REGEX,
-        default=DOMAIN,
-    )
-    user: User
+    id: UUID
+    domain: str
+    local: str
 
     class Config:
         orm_mode = True

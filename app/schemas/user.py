@@ -14,9 +14,7 @@ __all__ = [
 
 
 class UserBase(BaseModel):
-    encrypted_password: str = Field(
-        max_length=ENCRYPTED_PASSWORD_LENGTH,
-    )
+    pass
 
 
 class UserCreate(UserBase):
@@ -29,8 +27,7 @@ class UserCreate(UserBase):
 class Email(BaseModel):
     id: uuid.UUID
     address: str
-    verified_at: Optional[datetime]
-    created_at: datetime
+    is_verified: bool
 
     class Config:
         orm_mode = True

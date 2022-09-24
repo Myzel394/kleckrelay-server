@@ -16,6 +16,8 @@ __all__ = [
     "get_email_by_address",
 ]
 
+from app.utils import normalize_email
+
 
 def generate_token() -> str:
     return "".join(
@@ -24,7 +26,7 @@ def generate_token() -> str:
     )
 
 
-def create_email(db: Session, /, address: str) -> Email:
+async def create_email(db: Session, /, address: str) -> Email:
     """Create a new email.
 
     Returns the email instance.
@@ -32,11 +34,13 @@ def create_email(db: Session, /, address: str) -> Email:
     Automatically sends the email to the user.
     """
 
+    normalized_email = await normalize_email(address)
+
     logger.info(f"Create Email: Create email instance for {address}.")
     token = generate_token()
 
     email = Email(
-        address=address,
+        address=normalized_email,
         token=token,
     )
 
@@ -64,7 +68,7 @@ def verify_email(db: Session, /, email: Email, token: str):
         raise EmailIncorrectTokenError()
 
     logger.info(f"Verify email: Token for {email.address} is correct.")
-    email.verified_at = datetime.utcnow()
+    email.is_verified = True
 
     db.add(email)
     db.commit()

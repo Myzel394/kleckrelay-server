@@ -87,10 +87,10 @@ RANDOM_EMAIL_ID_MIN_LENGTH = int(os.getenv(
     "RANDOM_EMAIL_ID_MIN_LENGTH",
     default=default_life_constants.RANDOM_EMAIL_ID_MIN_LENGTH,
 ))
-RANDOM_EMAIL_ID_CHARS = int(os.getenv(
+RANDOM_EMAIL_ID_CHARS = os.getenv(
     "RANDOM_EMAIL_ID_CHARS",
     default=default_life_constants.RANDOM_EMAIL_ID_CHARS,
-))
+)
 CUSTOM_EMAIL_SUFFIX_LENGTH = int(os.getenv(
     "CUSTOM_EMAIL_SUFFIX_LENGTH",
     default=default_life_constants.CUSTOM_EMAIL_SUFFIX_LENGTH,
