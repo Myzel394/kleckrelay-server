@@ -1,21 +1,25 @@
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app import logger
 from app.authentication.handler import access_security
 from app.authentication.user_management import get_user_by_id
-from app.controllers.alias import create_local_with_suffix, generate_random_local_id
+from app.controllers.alias import (
+    create_local_with_suffix, generate_random_local_id,
+    get_alias_from_user,
+)
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN
 from app.models.alias import AliasType, EmailAlias
-from app.schemas.alias import Alias, AliasCreate
+from app.schemas._basic import HTTPNotFoundExceptionModel
+from app.schemas.alias import Alias, AliasCreate, AliasUpdate
 
 router = APIRouter()
 
 
 @router.post(
-    "/create",
+    "/",
     response_model=Alias,
 )
 def create_alias(
@@ -51,3 +55,44 @@ def create_alias(
 
     logger.info("Request: Create Alias -> Instance saved successfully.")
     return db
+
+
+@router.patch(
+    "/{id}",
+    response_model=EmailAlias,
+    responses={
+        404: {
+            "model": HTTPNotFoundExceptionModel
+        }
+    }
+)
+def update_alias(
+    id: str,
+    update: AliasUpdate,
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+    db: Session = Depends(get_db),
+):
+    logger.info(f"Request: Update Alias -> Updating alias with id={id}.")
+    user = get_user_by_id(db, credentials["user_id"])
+    alias = get_alias_from_user(db, user=user, id=id)
+
+    if alias is None:
+        logger.info(f"Request: Update Alias -> Alias {id} not found.")
+        raise HTTPException(
+            status_code=404,
+            detail="Alias not found."
+        )
+
+    logger.info(f"Request: Update Alias -> Updating values of Alias {id}.")
+    update_data = update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(alias, key, value)
+
+    logger.info(f"Request: Update Alias -> Saving Alias {id} to database.")
+    db.add(alias)
+    db.commit()
+    db.refresh(alias)
+
+    logger.info(f"Request: Update Alias -> Alias {id} saved successfully.")
+    return alias
+

@@ -1,5 +1,6 @@
 import secrets
 from math import ceil, log
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -8,12 +9,14 @@ from app.life_constants import (
     CUSTOM_EMAIL_SUFFIX_CHARS, CUSTOM_EMAIL_SUFFIX_LENGTH, RANDOM_EMAIL_ID_CHARS,
     RANDOM_EMAIL_ID_MIN_LENGTH,
 )
+from app.models import User
 from app.models.alias import EmailAlias
 
 
 __all__ = [
     "generate_random_local_id",
     "create_local_with_suffix",
+    "get_alias_from_user",
 ]
 
 
@@ -83,3 +86,12 @@ def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
 
         if generation_round > MAX_RANDOM_ALIAS_ID_GENERATION:
             length += 1
+
+
+def get_alias_from_user(db: Session, /, user: User, id: str) -> Optional[EmailAlias]:
+    return db\
+        .query(EmailAlias)\
+        .filter(EmailAlias.user == user)\
+        .filter(EmailAlias.id == id)\
+        .first()
+

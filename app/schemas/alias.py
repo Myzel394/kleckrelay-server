@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from pydantic import BaseModel, Field, root_validator
 
 from app.constants import DOMAIN_REGEX, LOCAL_REGEX
@@ -11,6 +9,7 @@ from user import User
 __all__ = [
     "AliasBase",
     "AliasCreate",
+    "AliasUpdate",
     "Alias",
 ]
 
@@ -49,6 +48,14 @@ class AliasCreate(AliasBase):
                 raise ValueError("`local` may be None or empty if `type` is AliasType.RANDOM.")
         else:
             logger.info("AliasCreate: Type is AliasType.CUSTOM")
+
+
+class AliasUpdate(AliasBase):
+    is_active: bool = None
+    encrypted_notes: str = Field(
+        max_length=MAX_ENCRYPTED_NOTES_SIZE,
+        default=None,
+    )
 
 
 class Alias(AliasBase):

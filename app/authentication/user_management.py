@@ -1,5 +1,6 @@
 from typing import Optional
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.authentication.email import create_email, get_email_by_address
@@ -55,4 +56,10 @@ def create_user(db: Session, /, user: UserCreate) -> User:
 
 
 def get_user_by_id(db: Session, /, user_id: int) -> User:
-    return db.query(User).filter(User.id == user_id).first()
+    if (user := db.query(User).filter(User.id == user_id).first()) is not None:
+        return user
+
+    raise HTTPException(
+        status_code=400,
+        detail="User account not found."
+    )
