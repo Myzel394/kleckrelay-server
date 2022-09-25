@@ -1,7 +1,10 @@
+from functools import cache
+from pathlib import Path
+
 import email_normalize
 from passlib.context import CryptContext
 
-from typing import TYPE_CHECKING
+from typing import Iterator, TYPE_CHECKING
 
 from sqlalchemy import inspect
 
@@ -14,10 +17,24 @@ __all__ = [
     "hash_fast",
     "verify_fast_hash",
     "verify_slow_hash",
+    "contains_word",
 ]
 
 
 pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
+
+
+@cache
+def _get_words() -> Iterator[str]:
+    try:
+        return (
+            word.lower()
+            for word in Path("/usr/share/dict/words")
+                .read_text()
+                .splitlines()
+        )
+    except OSError:
+        return []
 
 
 async def normalize_email(email: str) -> str:
@@ -47,3 +64,10 @@ def object_as_dict(obj: "Base") -> dict:
         attr.key: getattr(obj, attr.key)
         for attr in inspect(obj).mapper.column_attrs
     }
+
+
+def contains_word(value: str) -> bool:
+    return any(
+        word in value
+        for word in _get_words()
+    )

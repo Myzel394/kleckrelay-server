@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
-from app.constants import DOMAIN_REGEX, LOCAL_REGEX
-from app.life_constants import DOMAIN, MAX_ENCRYPTED_NOTES_SIZE
+from app.constants import DOMAIN_REGEX, LOCAL_REGEX, MAX_LOCAL_LENGTH
+from app.life_constants import DOMAIN, MAX_ENCRYPTED_NOTES_SIZE, CUSTOM_EMAIL_SUFFIX_LENGTH
 from app.logger import logger
 from app.models.alias import AliasType
 from .user import User
@@ -32,6 +32,7 @@ class AliasCreate(AliasBase):
     local: str = Field(
         regex=LOCAL_REGEX,
         default=None,
+        max_length=MAX_LOCAL_LENGTH,
         description="Only required if type == AliasType.CUSTOM. To avoid collisions, a random "
                     "suffix will be added to the end.",
     )
@@ -50,6 +51,13 @@ class AliasCreate(AliasBase):
                 raise ValueError("`local` may be None or empty if `type` is AliasType.RANDOM.")
         else:
             logger.info("AliasCreate: Type is AliasType.CUSTOM")
+            # Validate length
+
+            if len(values.get("local", "")) > \
+                    (max_length := MAX_LOCAL_LENGTH - CUSTOM_EMAIL_SUFFIX_LENGTH - 1):
+                raise ValueError(
+                    f"`local` is too long. It should be at most {max_length} characters long."
+                )
 
         return values
 

@@ -1,10 +1,9 @@
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 from app.constants import (
-    EMAIL_REGEX, ENCRYPTED_PASSWORD_LENGTH, MAX_EMAIL_LENGTH,
+    EMAIL_REGEX, MAX_EMAIL_LENGTH,
 )
 
 __all__ = [

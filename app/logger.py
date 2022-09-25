@@ -18,3 +18,7 @@ if IS_DEBUG:
 def info(msg: str) -> None:
     if IS_DEBUG:
         logger.info(msg)
+
+
+def warning(msg: str) -> None:
+    logger.warning(msg)

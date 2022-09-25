@@ -11,6 +11,7 @@ from app.life_constants import (
 )
 from app.models import User
 from app.models.alias import EmailAlias
+from app.utils import contains_word
 
 
 __all__ = [
@@ -22,6 +23,24 @@ __all__ = [
 
 def get_aliases_amount(db: Session, /, domain: str) -> int:
     return db.query(EmailAlias.domain).filter(EmailAlias.domain == domain).count()
+
+
+def generate_id(length: int = RANDOM_EMAIL_ID_MIN_LENGTH) -> str:
+    while True:
+        alias_id = "".join(
+            secrets.choice(RANDOM_EMAIL_ID_CHARS)
+            for _ in range(length)
+        )
+
+        if not contains_word(alias_id):
+            return alias_id
+
+
+def generate_suffix(length: int = CUSTOM_EMAIL_SUFFIX_LENGTH) -> str:
+    return "".join(
+        secrets.choice(CUSTOM_EMAIL_SUFFIX_CHARS)
+        for _ in range(length)
+    )
 
 
 def check_if_local_exists(db: Session, /, local: str, domain: str) -> bool:
@@ -53,10 +72,7 @@ def generate_random_local_id(db: Session, /, domain: str) -> str:
     length = calculate_id_length(aliases_amount=amount)
 
     while True:
-        alias_id = "".join(
-            secrets.choice(RANDOM_EMAIL_ID_CHARS)
-            for _ in range(length)
-        )
+        alias_id = generate_id(length)
 
         if not check_if_local_exists(db, local=alias_id, domain=domain):
             return alias_id
@@ -68,24 +84,13 @@ def generate_random_local_id(db: Session, /, domain: str) -> str:
 
 
 def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
-    generation_round = 1
-    length = CUSTOM_EMAIL_SUFFIX_LENGTH
-
     while True:
-        suffix = "".join(
-            secrets.choice(CUSTOM_EMAIL_SUFFIX_CHARS)
-            for _ in range(length)
-        )
+        suffix = generate_suffix()
 
         suggested_local = f"{local}.{suffix}"
 
         if not check_if_local_exists(db, local=suggested_local, domain=domain):
             return suggested_local
-
-        generation_round += 1
-
-        if generation_round > MAX_RANDOM_ALIAS_ID_GENERATION:
-            length += 1
 
 
 def get_alias_from_user(db: Session, /, user: User, id: str) -> Optional[EmailAlias]:
