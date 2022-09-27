@@ -11,6 +11,7 @@ __all__ = [
     "EMAIL_VERIFICATION_TOKEN_CHARS",
     "EMAIL_VERIFICATION_TOKEN_LENGTH",
     "MAX_RANDOM_ALIAS_ID_GENERATION",
+    "IS_TESTING",
 ]
 
 
@@ -28,3 +29,4 @@ EMAIL_VERIFICATION_TOKEN_LENGTH = 80
 # alias increases by one. This behavior continues until a new alias is found.
 # This is an edge case scenario and will probably never occur.
 MAX_RANDOM_ALIAS_ID_GENERATION = 200
+IS_TESTING = False

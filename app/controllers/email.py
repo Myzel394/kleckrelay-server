@@ -5,7 +5,10 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.authentication.errors import EmailIncorrectTokenError
-from app.constants import EMAIL_VERIFICATION_TOKEN_CHARS, EMAIL_VERIFICATION_TOKEN_LENGTH
+from app.constants import (
+    EMAIL_VERIFICATION_TOKEN_CHARS, EMAIL_VERIFICATION_TOKEN_LENGTH,
+    IS_TESTING,
+)
 from app import logger
 from app.mails.send_email_verification import send_email_verification
 from app.models.email import Email
@@ -15,6 +18,8 @@ __all__ = [
     "verify_email",
     "get_email_by_address",
 ]
+
+from app.tests.variables import VARIABLES
 
 from app.utils import normalize_email
 
@@ -52,6 +57,9 @@ async def create_email(db: Session, /, address: str) -> Email:
         address=address,
         token=token,
     )
+
+    if IS_TESTING:
+        VARIABLES["email_token"] = token
 
     logger.info(f"Create Email: {address} created successfully.")
 

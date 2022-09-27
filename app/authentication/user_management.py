@@ -4,10 +4,12 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.constants import IS_TESTING
 from app.controllers.email import create_email, get_email_by_address
 from app.logger import logger
 from app.models.user import User
 from app.schemas.user import UserCreate
+from app.tests.variables import VARIABLES
 from app.utils import normalize_email
 
 __all__ = [
