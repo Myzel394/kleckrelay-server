@@ -9,7 +9,6 @@ from app.controllers.email import create_email, get_email_by_address
 from app.logger import logger
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.tests.variables import VARIABLES
 from app.utils import normalize_email
 
 __all__ = [

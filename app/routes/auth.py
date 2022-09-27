@@ -4,6 +4,7 @@ from sqlalchemy.exc import DatabaseError, IntegrityError
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
+from app.constants import get_is_testing
 from app.controllers.email import get_email_by_address, verify_email
 from app.authentication.email_login import (
     create_email_login_token,

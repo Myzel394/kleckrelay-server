@@ -12,6 +12,7 @@ __all__ = [
     "EMAIL_VERIFICATION_TOKEN_LENGTH",
     "MAX_RANDOM_ALIAS_ID_GENERATION",
     "IS_TESTING",
+    "get_is_testing",
 ]
 
 
@@ -30,3 +31,8 @@ EMAIL_VERIFICATION_TOKEN_LENGTH = 80
 # This is an edge case scenario and will probably never occur.
 MAX_RANDOM_ALIAS_ID_GENERATION = 200
 IS_TESTING = False
+
+
+def get_is_testing() -> bool:
+    global IS_TESTING
+    return IS_TESTING
