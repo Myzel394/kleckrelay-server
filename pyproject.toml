@@ -18,6 +18,7 @@ psycopg2 = "^2.9.3"
 fastapi-jwt = "^0.1.8"
 email-normalize = "^2.0.0"
 argon2-cffi = "^21.3.0"
+requests = "^2.28.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.3"

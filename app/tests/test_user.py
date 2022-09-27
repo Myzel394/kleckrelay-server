@@ -11,5 +11,4 @@ def test_can_create_account_with_valid_data():
             "email": "user@example.com",
         }
     )
-    print(response)
-    print(VARIABLES)
+    assert response.status_code == 200, "Status code should be 200"
