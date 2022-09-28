@@ -64,3 +64,4 @@ def test_can_verify_login_token(
             "same_request_token": same_request_token,
         }
     )
+    assert response.status_code == 200, "Status code should be 200"
