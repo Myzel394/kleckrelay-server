@@ -4,11 +4,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists
 from starlette.testclient import TestClient
 
+from app.authentication.email_login import generate_same_request_token, generate_token
 from app.database.base import Base
 from app.database.dependencies import get_db
 from app.main import app
 from app.models import Email, EmailLoginToken, User
 from app.tests.helpers import create_item
+from app.utils import hash_fast
 
 SQLALCHEMY_DATABASE_URL = "postgresql://user:password@127.0.0.1:35432/mail"
 
@@ -62,8 +64,8 @@ def email(db) -> Email:
 
 
 @pytest.fixture
-def create_user(db, email) -> User:
-    def _method(is_verified=False):
+def create_user(db, email):
+    def _method(is_verified=False) -> User:
         user = create_item(
             db,
             {
@@ -88,16 +90,20 @@ def create_user(db, email) -> User:
 
 
 @pytest.fixture
-def create_email_token(db) -> EmailLoginToken:
-    def _method(user: User):
-        token = create_item(
+def create_email_token(db):
+    def _method(user: User) -> tuple[EmailLoginToken, str, str]:
+        token = generate_token()
+        same_request_token = generate_same_request_token()
+        email_login = create_item(
             db,
             {
                 "user_id": user.id,
+                "hashed_token": hash_fast(token),
+                "hashed_same_request_token": hash_fast(same_request_token),
             },
             EmailLoginToken
         )
 
-        return token
+        return email_login, token, same_request_token
 
     return _method
