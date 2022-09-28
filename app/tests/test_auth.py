@@ -20,7 +20,9 @@ def test_can_create_account_with_valid_data(db, client):
     assert response.status_code == 200, "Status code should be 200"
 
 
-def test_can_verify_email_with_correct_token(user, client,):
+def test_can_verify_email_with_correct_token(create_user, client,):
+    user = create_user()
+
     response = client.post(
         "/auth/verify-email",
         json={
@@ -30,3 +32,26 @@ def test_can_verify_email_with_correct_token(user, client,):
     )
     assert response.status_code == 200, "Status code should be 200"
 
+
+def test_can_create_email_login_token(create_user, client):
+    user = create_user(is_verified=True)
+
+    response = client.post(
+        "/auth/login/email_token",
+        json={
+            "email": user.email.address,
+        }
+    )
+    assert response.status_code == 200, "Status code should be 200"
+
+
+def test_can_verify_login_token(create_user, create_email_token, client):
+    user = create_user(is_verified=True)
+    token = create_email_token(user=user)
+
+    response = client.post(
+        "/auth/login/email_token/verify",
+        json={
+            "email": user.email.address,
+        }
+    )

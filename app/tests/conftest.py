@@ -7,7 +7,7 @@ from starlette.testclient import TestClient
 from app.database.base import Base
 from app.database.dependencies import get_db
 from app.main import app
-from app.models import Email, User
+from app.models import Email, EmailLoginToken, User
 from app.tests.helpers import create_item
 
 SQLALCHEMY_DATABASE_URL = "postgresql://user:password@127.0.0.1:35432/mail"
@@ -62,17 +62,42 @@ def email(db) -> Email:
 
 
 @pytest.fixture
-def user(db, email) -> User:
-    user = create_item(
-        db,
-        {
-            "email": email,
-        },
-        User,
-    )
-    email.user_id = user.id
+def create_user(db, email) -> User:
+    def _method(is_verified=False):
+        user = create_item(
+            db,
+            {
+                "email": email,
+            },
+            User,
+        )
+        email.user_id = user.id
 
-    db.add(email)
-    db.commit()
+        db.add(email)
+        db.commit()
 
-    return user
+        if is_verified:
+            email.is_verified = True
+
+            db.add(email)
+            db.commit()
+
+        return user
+
+    return _method
+
+
+@pytest.fixture
+def create_email_token(db) -> EmailLoginToken:
+    def _method(user: User):
+        token = create_item(
+            db,
+            {
+                "user_id": user.id,
+            },
+            EmailLoginToken
+        )
+
+        return token
+
+    return _method
