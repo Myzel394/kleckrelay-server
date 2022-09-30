@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import logger
@@ -74,25 +75,26 @@ def update_alias(
 ):
     logger.info(f"Request: Update Alias -> Updating alias with id={id}.")
     user = get_user_by_id(db, credentials["id"])
-    alias = get_alias_from_user(db, user=user, id=id)
 
-    if alias is None:
+    try:
+        alias = get_alias_from_user(db, user=user, id=id)
+    except NoResultFound:
         logger.info(f"Request: Update Alias -> Alias {id} not found.")
         raise HTTPException(
             status_code=404,
             detail="Alias not found."
         )
+    else:
+        logger.info(f"Request: Update Alias -> Updating values of Alias {id}.")
+        update_data = update.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(alias, key, value)
 
-    logger.info(f"Request: Update Alias -> Updating values of Alias {id}.")
-    update_data = update.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(alias, key, value)
+        logger.info(f"Request: Update Alias -> Saving Alias {id} to database.")
+        db.add(alias)
+        db.commit()
+        db.refresh(alias)
 
-    logger.info(f"Request: Update Alias -> Saving Alias {id} to database.")
-    db.add(alias)
-    db.commit()
-    db.refresh(alias)
-
-    logger.info(f"Request: Update Alias -> Alias {id} saved successfully.")
-    return alias
+        logger.info(f"Request: Update Alias -> Alias {id} saved successfully.")
+        return alias
 

@@ -1,10 +1,9 @@
-from typing import Optional
 from uuid import UUID
 
 from fastapi import HTTPException
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.constants import IS_TESTING
 from app.controllers.email import create_email, get_email_by_address
 from app.logger import logger
 from app.models.user import User
@@ -21,18 +20,18 @@ __all__ = [
 
 async def check_if_email_exists(db: Session, /, email: str) -> bool:
     """Check if an email exists in the database."""
-    return (await get_user_by_email(db, email)) is not None
+    try:
+        await get_user_by_email(db, email)
+
+        return True
+    except NoResultFound:
+        return False
 
 
-async def get_user_by_email(db: Session, email: str) -> Optional[User]:
+async def get_user_by_email(db: Session, email: str) -> User:
     normalized_email = await normalize_email(email)
 
-    email_instance = get_email_by_address(db, address=normalized_email)
-
-    if email_instance is None:
-        return None
-
-    return email_instance.user
+    return get_email_by_address(db, address=normalized_email).user
 
 
 async def create_user(db: Session, /, user: UserCreate) -> User:
@@ -56,10 +55,10 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 
 
 def get_user_by_id(db: Session, /, user_id: str) -> User:
-    if (user := db.query(User).filter(User.id == UUID(user_id)).first()) is not None:
-        return user
-
-    raise HTTPException(
-        status_code=400,
-        detail="User account not found."
-    )
+    try:
+        return db.query(User).filter(User.id == UUID(user_id)).one()
+    except NoResultFound:
+        raise HTTPException(
+            status_code=400,
+            detail="User account not found."
+        )

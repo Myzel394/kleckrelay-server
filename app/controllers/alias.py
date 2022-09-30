@@ -2,6 +2,7 @@ import secrets
 from math import ceil, log
 from typing import Optional
 
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
 from app.constants import MAX_RANDOM_ALIAS_ID_GENERATION
@@ -96,7 +97,6 @@ def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
 def get_alias_from_user(db: Session, /, user: User, id: str) -> Optional[EmailAlias]:
     return db\
         .query(EmailAlias)\
-        .filter(EmailAlias.user == user)\
-        .filter(EmailAlias.id == id)\
-        .first()
+        .filter(and_(EmailAlias.user == user, EmailAlias.id == id))\
+        .one()
 

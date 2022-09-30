@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
-from sqlalchemy.exc import DatabaseError, IntegrityError
+from sqlalchemy.exc import DatabaseError, IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
@@ -85,19 +85,6 @@ def signup_verify_email(
     try:
         email = get_email_by_address(db, address=input_data.email)
 
-        if email is None:
-            logger.info(f"Request: Verify Email -> Email {input_data.email} not found.")
-            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
-                raise HTTPException(
-                    status_code=404,
-                    detail="Email not found."
-                )
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail=default_error_message,
-                )
-
         if email.is_verified:
             logger.info(
                 f"Request: Verify Email -> Email {email.address} already verified. Returning 202."
@@ -117,6 +104,19 @@ def signup_verify_email(
             "access_token": access_security.create_access_token(subject=email.user.to_jwt_object()),
             "refresh_token": refresh_security.create_refresh_token(subject=email.user.to_jwt_object()),
         }
+    except NoResultFound:
+        logger.info(f"Request: Verify Email -> Email {input_data.email} not found.")
+        if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+            raise HTTPException(
+                status_code=404,
+                detail="Email not found."
+            )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=default_error_message,
+            )
+
     except EmailIncorrectTokenError:
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
             raise HTTPException(

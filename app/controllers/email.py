@@ -79,4 +79,4 @@ def verify_email(db: Session, /, email: Email, token: str):
 
 
 def get_email_by_address(db: Session, address: str) -> Optional[Email]:
-    return db.query(Email).filter(Email.address == address).first()
+    return db.query(Email).filter(Email.address == address).one()

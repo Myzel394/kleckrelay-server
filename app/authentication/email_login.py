@@ -25,10 +25,6 @@ from app.models.user import User
 from app.utils import hash_fast, verify_fast_hash
 
 
-def get_token_from_email(db: Session, /, email: str) -> Optional[EmailLoginToken]:
-    return db.query(EmailLoginToken).filter(EmailLoginToken.user.email == email).first()
-
-
 def is_token_expired(instance: EmailLoginToken) -> bool:
     expires_at = instance.created_at + timedelta(seconds=EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS)
 
