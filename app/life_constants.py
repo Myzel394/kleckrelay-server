@@ -20,6 +20,7 @@ __all__ = [
     "MAIL_DOMAIN",
     "RANDOM_EMAIL_ID_MIN_LENGTH",
     "RANDOM_EMAIL_ID_CHARS",
+    "RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE",
     "CUSTOM_EMAIL_SUFFIX_LENGTH",
     "CUSTOM_EMAIL_SUFFIX_CHARS",
     "FROM_MAIL",
@@ -48,6 +49,10 @@ def get_int(name: str, default: Optional[str] = None) -> int:
     return int(_get_raw_value(name, default))
 
 
+def get_float(name: str, default: Optional[str] = None) -> float:
+    return float(_get_raw_value(name, default))
+
+
 def get_str(name: str, default: Optional[str] = None) -> str:
     return _get_raw_value(name, default)
 
@@ -68,6 +73,7 @@ DOMAIN = get_str("DOMAIN")
 MAIL_DOMAIN = get_str("MAIL_DOMAIN")
 RANDOM_EMAIL_ID_MIN_LENGTH = get_int("RANDOM_EMAIL_ID_MIN_LENGTH")
 RANDOM_EMAIL_ID_CHARS = get_str("RANDOM_EMAIL_ID_CHARS")
+RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE = get_float("RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE")
 CUSTOM_EMAIL_SUFFIX_LENGTH = get_int("CUSTOM_EMAIL_SUFFIX_LENGTH")
 CUSTOM_EMAIL_SUFFIX_CHARS = get_str("CUSTOM_EMAIL_SUFFIX_CHARS")
 FROM_MAIL = get_str("FROM_MAIL", default=f"noreply@{MAIL_DOMAIN}")

@@ -1,19 +1,17 @@
 import secrets
-from math import ceil, log
 from typing import Optional
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.constants import MAX_RANDOM_ALIAS_ID_GENERATION
 from app.life_constants import (
     CUSTOM_EMAIL_SUFFIX_CHARS, CUSTOM_EMAIL_SUFFIX_LENGTH, RANDOM_EMAIL_ID_CHARS,
-    RANDOM_EMAIL_ID_MIN_LENGTH,
+    RANDOM_EMAIL_ID_MIN_LENGTH, RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE,
 )
 from app.models import User
 from app.models.alias import EmailAlias
 from app.utils import contains_word
-
 
 __all__ = [
     "generate_random_local_id",
@@ -49,7 +47,8 @@ def check_if_local_exists(db: Session, /, local: str, domain: str) -> bool:
         .query(EmailAlias)
         .filter(EmailAlias.domain == domain)
         .filter(EmailAlias.local == local)
-        .exists()).scalar()
+        .exists()
+    ).scalar()
 
 
 def calculate_id_length(aliases_amount: int) -> int:
@@ -57,14 +56,15 @@ def calculate_id_length(aliases_amount: int) -> int:
     if aliases_amount <= 1:
         return RANDOM_EMAIL_ID_MIN_LENGTH
 
-    min_length = log(aliases_amount, len(RANDOM_EMAIL_ID_CHARS))
-    # Add a small constant to avoid generating ids over and over again because it needs to search
-    # the last unique ones available
-    min_length += 0.3
+    length = RANDOM_EMAIL_ID_MIN_LENGTH
 
-    length = max(RANDOM_EMAIL_ID_MIN_LENGTH, ceil(min_length))
+    while True:
+        amount = aliases_amount / (len(RANDOM_EMAIL_ID_CHARS) ** length)
 
-    return length
+        if amount <= RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE:
+            return length
+
+        length += 1
 
 
 def generate_random_local_id(db: Session, /, domain: str) -> str:
