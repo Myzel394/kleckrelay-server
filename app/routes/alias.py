@@ -19,6 +19,21 @@ from app.schemas.alias import Alias, AliasCreate, AliasUpdate
 router = APIRouter()
 
 
+@router.get(
+    "/",
+    response_model=list[Alias]
+)
+def get_all_aliases(
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+                                               db: Session = Depends(get_db),
+):
+    logger.info("Request: Get all aliases -> New Request.")
+
+    user = get_user_by_id(db, credentials["id"])
+
+    return user.email_aliases
+
+
 @router.post(
     "/",
     response_model=Alias,
@@ -38,8 +53,10 @@ def create_alias(
         logger.info("Request: Create Alias -> Type is AliasType.CUSTOM")
         local = create_local_with_suffix(db, domain=MAIL_DOMAIN, local=alias_data.local)
 
-    logger.info(f"Request: Create Alias -> Creating email alias with local={local} and domain="
-                f"{MAIL_DOMAIN} for {user.email.address}.")
+    logger.info(
+        f"Request: Create Alias -> Creating email alias with local={local} and domain={MAIL_DOMAIN} "
+        f"for {user.email.address}."
+    )
     alias = EmailAlias(
         local=local,
         domain=MAIL_DOMAIN,
