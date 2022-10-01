@@ -20,6 +20,10 @@ __all__ = [
     "RANDOM_EMAIL_ID_CHARS",
     "CUSTOM_EMAIL_SUFFIX_LENGTH",
     "CUSTOM_EMAIL_SUFFIX_CHARS",
+    "POSTFIX_HOST",
+    "POSTFIX_PORT",
+    "POSTFIX_USE_TLS",
+    "DEBUG_EMAILS",
 ]
 
 DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
@@ -42,3 +46,7 @@ RANDOM_EMAIL_ID_MIN_LENGTH = 6
 RANDOM_EMAIL_ID_CHARS = string.ascii_letters + string.digits
 CUSTOM_EMAIL_SUFFIX_LENGTH = 4
 CUSTOM_EMAIL_SUFFIX_CHARS = string.digits
+POSTFIX_HOST = "127.0.0.1"
+POSTFIX_PORT = 25
+POSTFIX_USE_TLS = "True"
+DEBUG_EMAILS = "False"

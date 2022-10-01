@@ -4,6 +4,7 @@ __all__ = [
     "LOCAL_REGEX",
     "DOMAIN_REGEX",
     "EMAIL_REGEX",
+    "RELAY_LOCAL_REGEX",
     "MAX_EMAIL_LENGTH",
     "MAX_LOCAL_LENGTH",
     "EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH",
@@ -20,6 +21,7 @@ __all__ = [
 LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,64}$"
 DOMAIN_REGEX = r"^[a-zA-Z0-9-]{1,255}\.[a-zA-Z0-9-.]+$"
 EMAIL_REGEX = f"^{LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
+RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,68}$"
 MAX_EMAIL_LENGTH = 400
 MAX_LOCAL_LENGTH = 64
 EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH = 80

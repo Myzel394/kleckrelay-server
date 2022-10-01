@@ -61,6 +61,10 @@ class EmailAlias(Base, IDMixin):
             ForeignKey("user.id"),
         )
 
+    @property
+    def address(self) -> str:
+        return f"{self.local}@{self.domain}"
+
 
 class DeletedEmailAlias(Base, IDMixin, CreationMixin):
     """Store all deleted alias to make sure they will not be reused, so that new owner won't
