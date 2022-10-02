@@ -1,34 +1,32 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
-from sqlalchemy.exc import DatabaseError, IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app.constants import get_is_testing
-from app.controllers.email import get_email_by_address, verify_email
-from app.authentication.email_login import (
-    create_email_login_token,
-    delete_email_login_token, get_email_login_token_from_email, is_token_valid,
-)
+from app import logger
 from app.authentication.errors import (
     EmailIncorrectTokenError, EmailLoginTokenExpiredError,
     EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
 )
 from app.authentication.handler import access_security, refresh_security
-from app.authentication.user_management import (
+from app.controllers.email import get_email_by_address, verify_email
+from app.controllers.email_login import (
+    create_email_login_token,
+    delete_email_login_token, get_email_login_token_from_email, is_token_valid,
+)
+from app.controllers.user import (
     check_if_email_exists, create_user,
     get_user_by_email, get_user_by_id,
 )
 from app.database.dependencies import get_db
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
-from app import logger
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.schemas.authentication import (
     AuthenticationCredentialsResponseModel,
     EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, LoginWithEmailTokenModel,
     VerifyEmailModel,
 )
-
 from app.schemas.user import UserCreate
 
 router = APIRouter()

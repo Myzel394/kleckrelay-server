@@ -5,11 +5,11 @@ from sqlalchemy.orm import Session
 
 from app import logger
 from app.authentication.handler import access_security
-from app.authentication.user_management import get_user_by_id
 from app.controllers.alias import (
     create_local_with_suffix, generate_random_local_id,
     get_alias_from_user,
 )
+from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN
 from app.models.alias import AliasType, EmailAlias

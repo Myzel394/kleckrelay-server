@@ -4,21 +4,20 @@ from typing import Optional, Tuple
 
 from sqlalchemy.orm import Session
 
+from app import logger
 from app.authentication.errors import (
-    EmailLoginTokenExpiredError, EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError
+    EmailLoginTokenExpiredError, EmailLoginTokenMaxTriesReachedError,
+    EmailLoginTokenSameRequestTokenInvalidError,
 )
-from app.authentication.user_management import get_user_by_email
-
 from app.constants import (
     EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS,
     EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH,
 )
-
+from app.controllers.user import get_user_by_email
 from app.life_constants import (
     EMAIL_LOGIN_TOKEN_CHARS, EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS,
     EMAIL_LOGIN_TOKEN_LENGTH, EMAIL_LOGIN_TOKEN_MAX_TRIES,
 )
-from app import logger
 from app.mails.send_email_login_token import send_email_login_token
 from app.models.email_login import EmailLoginToken
 from app.models.user import User

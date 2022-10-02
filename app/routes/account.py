@@ -3,7 +3,7 @@ from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app.authentication.handler import access_security
-from app.authentication.user_management import get_user_by_id
+from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.schemas.account import IsPasswordCorrectResponseModel, VerifyPasswordModel
 from app.utils import verify_slow_hash

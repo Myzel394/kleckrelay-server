@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists
 from starlette.testclient import TestClient
 
-from app.authentication.email_login import generate_same_request_token, generate_token
 from app.authentication.handler import access_security, refresh_security
+from app.controllers.email_login import generate_same_request_token, generate_token
 from app.database.base import Base
 from app.database.dependencies import get_db
 from app.main import app
