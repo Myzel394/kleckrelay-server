@@ -1,6 +1,6 @@
 from math import log
 
-from . import life_constants, logger
+from . import default_life_constants, life_constants, logger
 from .controllers.alias import generate_id, generate_suffix
 from .utils import _get_words
 
@@ -31,16 +31,36 @@ def calculate_email_token_brute_force_amount() -> int:
     return int(amount * life_constants.RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE)
 
 
-def check_life_constants() -> None:
-    if len(life_constants.JWT_SECRET_KEY) < 20:
+def validate_value_is_random_string(name: str) -> None:
+    value = life_constants.__dict__.get(name, None)
+    default_value = default_life_constants.__dict__.get(name, None)
+
+    if value is None:
         logger.warning(
-            "Doctor: We recommend generating a `JWT_SECRET_KEY` of at least 20 characters."
+            f"Doctor: `{name}` has not value set. Please set it manually to a random string.\n"
+        )
+    elif value == default_value:
+        logger.warning(
+            f"Doctor: `{name}` has not been changed, it's still set to it's default value. "
+            f"Please change it to increase the security of your app."
+            f"You can do this by editing your `docker_compose.yml` file. Add the following entry "
+            f"in the `env` section:\n\n"
+            f"{name}=<some random string here, just type randomly on your keyboard>\n\n"
+            f"You can also use an online generator for this."
+        )
+    elif len(value) < 20:
+        logger.warning(
+            f"Doctor: Your `{name}` is pretty short. We recommend it to have a length of at least "
+            "20 characters."
         )
 
-    if len(life_constants.JWT_REFRESH_SECRET_KEY) < 20:
-        logger.warning(
-            "Doctor: We recommend generating a `JWT_REFRESH_SECRET_KEY` of at least 20 characters."
-        )
+
+def check_life_constants() -> None:
+    validate_value_is_random_string("JWT_SECRET_KEY")
+    validate_value_is_random_string("JWT_REFRESH_SECRET_KEY")
+    validate_value_is_random_string("SLOW_HASH_SALT")
+    validate_value_is_random_string("FAST_HASH_SALT")
+    validate_value_is_random_string("USER_PASSWORD_HASH_SALT")
 
     email_token_entropy = calculate_entropy(
         len(life_constants.EMAIL_LOGIN_TOKEN_CHARS),

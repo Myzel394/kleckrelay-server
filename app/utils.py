@@ -1,12 +1,12 @@
 from functools import cache
 from pathlib import Path
+from typing import Iterator, TYPE_CHECKING
 
 import email_normalize
 from passlib.context import CryptContext
-
-from typing import Iterator, TYPE_CHECKING
-
 from sqlalchemy import inspect
+
+from .life_constants import FAST_HASH_SALT, SLOW_HASH_SALT
 
 if TYPE_CHECKING:
     from .database.base import Base
@@ -44,11 +44,11 @@ async def normalize_email(email: str) -> str:
 
 
 def hash_slowly(value: str) -> str:
-    return pwd_context.hash(value)
+    return pwd_context.hash(f"{value}#{SLOW_HASH_SALT}")
 
 
 def hash_fast(value: str) -> str:
-    return pwd_context.hash(value)
+    return pwd_context.hash(f"{value}#{FAST_HASH_SALT}")
 
 
 def verify_fast_hash(hashed_value: str, value: str) -> bool:

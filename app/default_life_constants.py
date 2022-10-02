@@ -25,6 +25,9 @@ __all__ = [
     "POSTFIX_PORT",
     "POSTFIX_USE_TLS",
     "DEBUG_EMAILS",
+    "SLOW_HASH_SALT",
+    "FAST_HASH_SALT",
+    "USER_PASSWORD_HASH_SALT",
 ]
 
 DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
@@ -52,3 +55,6 @@ POSTFIX_HOST = "127.0.0.1"
 POSTFIX_PORT = 25
 POSTFIX_USE_TLS = "True"
 DEBUG_EMAILS = "False"
+SLOW_HASH_SALT = "KleckRelay_#ChangeMe"
+FAST_HASH_SALT = "KleckRelay_#ChangeMeToo"
+USER_PASSWORD_HASH_SALT = "KleckRelay_#AlsoChangeMeToo"

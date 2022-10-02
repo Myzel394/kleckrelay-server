@@ -5,6 +5,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.controllers.email import create_email, get_email_by_address
+from app.life_constants import USER_PASSWORD_HASH_SALT
 from app.logger import logger
 from app.models.user import User
 from app.schemas.user import UserCreate
@@ -41,9 +42,11 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 
     logger.info(f"Create user: Creating user with email {db_email.address}.")
 
+    password = f"{user.password}:{USER_PASSWORD_HASH_SALT}" if user.password is not None else None
+
     db_user = User(
         email=db_email,
-        hashed_password=hash_slowly(user.password) if user.password is not None else None,
+        hashed_password=hash_slowly(password) if password is not None else None,
         public_key=user.public_key,
         encrypted_private_key=user.encrypted_private_key,
     )
