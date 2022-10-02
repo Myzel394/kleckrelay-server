@@ -25,6 +25,12 @@ def calculate_email_token_probability() -> float:
     )
 
 
+def calculate_email_token_brute_force_amount() -> int:
+    amount = len(life_constants.RANDOM_EMAIL_ID_CHARS) ** life_constants.RANDOM_EMAIL_ID_MIN_LENGTH
+
+    return int(amount * life_constants.RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE)
+
+
 def check_life_constants() -> None:
     if len(life_constants.JWT_SECRET_KEY) < 20:
         logger.warning(
@@ -41,13 +47,13 @@ def check_life_constants() -> None:
         life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
     )
 
-    logger.logger.info("Caching dictionary")
+    logger.logger.info("Doctor: Caching dictionary")
     _get_words()
-    logger.logger.info("Caching dictionary --- DONE!")
+    logger.logger.info("Doctor: Caching dictionary --- DONE!")
 
     logger.logger.info(
-        f"Doctor: Entropy of Email-Token-based authentication is about "
-        f"{email_token_entropy:0f}."
+        f"Doctor: The entropy of Email-Token-based authentication is about "
+        f"{email_token_entropy:.1f}."
     )
     logger.logger.info(
         f"Doctor: The probability of brute-forcing an Email-Login-Token is about "
@@ -57,10 +63,17 @@ def check_life_constants() -> None:
         f"Doctor: The domain for the app is: {life_constants.DOMAIN}."
     )
     logger.logger.info(
-        f"Doctor: The domain for the mails are: {life_constants.MAIL_DOMAIN}."
+        f"Doctor: The domain for the mails is: {life_constants.MAIL_DOMAIN}."
     )
     logger.logger.info(
         f"Doctor: Random emails will look like this: {generate_id()}@{life_constants.MAIL_DOMAIN}."
+    )
+    logger.logger.info(
+        f"Doctor: Random emails will increase their length after "
+        f"{format(calculate_email_token_brute_force_amount(), ',')} generated emails from "
+        f"{life_constants.RANDOM_EMAIL_ID_MIN_LENGTH} characters to "
+        f"{life_constants.RANDOM_EMAIL_ID_MIN_LENGTH + 1} characters. The percentage value is "
+        f"{format(life_constants.RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE * 100, '.0f')}%."
     )
     logger.logger.info(
         f"Doctor: Custom emails will look like this: "
