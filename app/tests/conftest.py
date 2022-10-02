@@ -5,12 +5,13 @@ from sqlalchemy_utils import create_database, database_exists
 from starlette.testclient import TestClient
 
 from app.authentication.email_login import generate_same_request_token, generate_token
+from app.authentication.handler import access_security, refresh_security
 from app.database.base import Base
 from app.database.dependencies import get_db
 from app.main import app
 from app.models import Email, EmailLoginToken, User
 from app.tests.helpers import create_item
-from app.utils import hash_fast
+from app.utils import hash_fast, hash_slowly
 
 SQLALCHEMY_DATABASE_URL = "postgresql://user:password@127.0.0.1:35432/mail"
 
@@ -65,11 +66,12 @@ def email(db) -> Email:
 
 @pytest.fixture
 def create_user(db, email):
-    def _method(is_verified=False) -> User:
+    def _method(is_verified=False, password=None) -> User:
         user = create_item(
             db,
             {
                 "email": email,
+                "hashed_password": hash_slowly(password) if password is not None else None,
             },
             User,
         )
@@ -105,5 +107,21 @@ def create_email_token(db):
         )
 
         return email_login, token, same_request_token
+
+    return _method
+
+
+@pytest.fixture
+def create_auth_tokens(db):
+    def _method(user: User) -> dict:
+        access_token = access_security.create_access_token(subject=user.to_jwt_object()),
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_security.create_refresh_token(subject=user.to_jwt_object()),
+            "headers": {
+                "Authorization": f"Bearer {access_token[0]}"
+            }
+        }
 
     return _method

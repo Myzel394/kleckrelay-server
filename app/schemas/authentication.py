@@ -1,15 +1,16 @@
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from app.constants import EMAIL_REGEX, MAX_EMAIL_LENGTH, EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH
+from app.constants import EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH, EMAIL_REGEX, MAX_EMAIL_LENGTH
 from app.life_constants import EMAIL_LOGIN_TOKEN_LENGTH
 
 __all__ = [
     "EmailLoginTokenResponseModel",
     "EmailLoginTokenVerifyModel",
+    "AuthenticationCredentialsResponseModel",
+    "VerifyEmailModel",
     "LoginWithEmailTokenModel",
     "User",
 ]

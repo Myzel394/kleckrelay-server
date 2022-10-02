@@ -1,12 +1,11 @@
 from uuid import UUID
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, root_validator
 
-from app.constants import DOMAIN_REGEX, LOCAL_REGEX, MAX_LOCAL_LENGTH
-from app.life_constants import DOMAIN, MAX_ENCRYPTED_NOTES_SIZE, CUSTOM_EMAIL_SUFFIX_LENGTH
+from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
+from app.life_constants import CUSTOM_EMAIL_SUFFIX_LENGTH, MAX_ENCRYPTED_NOTES_SIZE
 from app.logger import logger
 from app.models.alias import AliasType
-from .user import User
 
 __all__ = [
     "AliasCreate",
