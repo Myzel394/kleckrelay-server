@@ -1,3 +1,4 @@
+import enum
 from typing import Any, Optional, TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -8,8 +9,13 @@ from app.database.base import Base
 from ._mixins import CreationMixin, IDMixin
 
 __all__ = [
+    "LanguageType",
     "User",
 ]
+
+
+class LanguageType(enum.Enum):
+    EN_US = "en_US"
 
 
 class User(Base, IDMixin, CreationMixin):
@@ -21,6 +27,7 @@ class User(Base, IDMixin, CreationMixin):
         from .email_login import EmailLoginToken
         from .email_report import EmailReport
         email: Email
+        language: LanguageType
         public_key: Optional[str]
         encrypted_private_key: Optional[str]
         hashed_password: Optional[str]
@@ -32,6 +39,10 @@ class User(Base, IDMixin, CreationMixin):
             "Email",
             backref="user",
             uselist=False,
+        )
+        language = sa.Column(
+            sa.Enum(LanguageType),
+            default=LanguageType.EN_US,
         )
         public_key = sa.Column(
             sa.String(constants.PUBLIC_KEY_MAX_LENGTH),

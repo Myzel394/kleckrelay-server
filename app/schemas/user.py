@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, root_validator
 
 from app import constants
+from app.models.user import LanguageType
 
 __all__ = [
     "UserCreate",
@@ -21,6 +22,9 @@ class UserBase(BaseModel):
     encrypted_private_key: Optional[str] = Field(
         max_length=constants.ENCRYPTED_PRIVATE_KEY_MAX_LENGTH,
         defualt=None,
+    )
+    language: LanguageType = Field(
+        default=LanguageType.EN_US
     )
 
 
