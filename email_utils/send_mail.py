@@ -1,8 +1,6 @@
 import smtplib
-from email.message import EmailMessage
-from email.mime.base import MIMEBase
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from email import message_from_bytes
+from email.message import Message
 from typing import Optional
 
 from aiosmtpd.smtp import Envelope
@@ -19,7 +17,7 @@ __all__ = [
 
 
 def _send_mail_to_smtp_server(
-    message: MIMEBase,
+    message: Message,
     from_address: str,
     to_address: str,
 ) -> None:
@@ -35,7 +33,7 @@ def _send_mail_to_smtp_server(
 
 
 def _debug_email(
-    message: MIMEBase,
+    message: Message,
     from_address: str,
     to_address: str,
 ) -> None:
@@ -47,30 +45,19 @@ def _debug_email(
 
 
 def send_mail(
+    message: Message,
     to_mail: str,
-    subject: str,
-    plaintext: str,
-    html: Optional[str] = None,
     from_mail: str = life_constants.FROM_MAIL,
-    from_name: str = life_constants.FROM_MAIL,
+    from_name: Optional[str] = None,
 ):
-    if html:
-        message = MIMEMultipart("alternative")
-        message.attach(MIMEText(plaintext))
-        message.attach(MIMEText(html, "html"))
-    else:
-        message = EmailMessage()
-        message.set_payload(plaintext)
-        message[headers.CONTENT_TYPE] = "text/plain"
+    from_name = from_name or from_mail
 
-    message[headers.SUBJECT] = subject
     message[headers.FROM] = formatters.format_from_mail(
         name=from_name,
         mail=from_mail,
     )
     message[headers.TO] = to_mail
     message[headers.MESSAGE_ID] = generate_message_id()
-    message[headers.MIME_VERSION] = "1.0"
 
     if life_constants.DEBUG_EMAILS:
         _debug_email(
@@ -92,22 +79,29 @@ def send_mail_from_private_mail_to_destination(envelope: Envelope, email: Email)
         email=envelope.rcpt_tos[0],
     )
     logger.info(
-        f"Email {local_alias} should be relayed to {forward_address}. "
+        f"Local mail {local_alias} should be relayed to outside mail {forward_address}. "
         f"Sending email now..."
     )
+
+    message = message_from_bytes(envelope.original_content)
 
     send_mail(
         from_mail=local_alias,
         to_mail=forward_address,
-        plaintext=envelope.original_content,
-        subject="Test",
+        message=message,
     )
 
 
 def send_mail_from_outside_to_private_mail(envelope: Envelope, alias: EmailAlias) -> None:
+    logger.info(
+        f"Outside mail {envelope.mail_from} should be relayed to private mail "
+        f"{alias.user.email.address} (from alias {alias.address})."
+    )
+
+    message = message_from_bytes(envelope.original_content)
+
     send_mail(
         from_mail=envelope.mail_from,
         to_mail=alias.user.email.address,
-        plaintext=envelope.original_content,
-        subject="Test",
+        message=message,
     )
