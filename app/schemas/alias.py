@@ -18,6 +18,15 @@ class AliasBase(BaseModel):
     is_active: bool = Field(
         default=True,
     )
+    remove_trackers: bool = Field(
+        default=True,
+    )
+    create_mail_report: bool = Field(
+        default=True,
+    )
+    proxy_images: bool = Field(
+        default=False,
+    )
     encrypted_notes: str = Field(
         max_length=MAX_ENCRYPTED_NOTES_SIZE,
         default="",

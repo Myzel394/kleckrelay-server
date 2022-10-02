@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from app.database.base import Base
 from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
-from ._mixins import CreationMixin, UpdateMixin, IDMixin
+from ._mixins import CreationMixin, IDMixin
 
 __all__ = [
     "AliasType",
@@ -28,6 +28,9 @@ class EmailAlias(Base, IDMixin):
         local: str
         domain: str
         is_active: bool
+        remove_trackers: bool
+        create_mail_report: bool
+        proxy_images: bool
         encrypted_notes: str
         user: User
         user_id: str
@@ -49,6 +52,21 @@ class EmailAlias(Base, IDMixin):
         is_active = sa.Column(
             sa.Boolean,
             default=True,
+            nullable=False,
+        )
+        remove_trackers = sa.Column(
+            sa.Boolean,
+            default=True,
+            nullable=False,
+        )
+        create_mail_report = sa.Column(
+            sa.Boolean,
+            default=True,
+            nullable=False,
+        )
+        proxy_images = sa.Column(
+            sa.Boolean,
+            default=False,
             nullable=False,
         )
         encrypted_notes = sa.Column(

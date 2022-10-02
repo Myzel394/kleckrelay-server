@@ -19,11 +19,13 @@ class User(Base, IDMixin, CreationMixin):
         from .email import Email
         from .alias import EmailAlias
         from .email_login import EmailLoginToken
+        from .email_report import EmailReport
         email: Email
         public_key: Optional[str]
         encrypted_private_key: Optional[str]
         hashed_password: Optional[str]
         email_aliases: list[EmailAlias]
+        email_reports: list[EmailReport]
         email_login_token: EmailLoginToken
     else:
         email = relationship(
@@ -48,6 +50,10 @@ class User(Base, IDMixin, CreationMixin):
         )
         email_aliases = relationship(
             "EmailAlias",
+            backref="user",
+        )
+        emai_reports = relationship(
+            "EmailReport",
             backref="user",
         )
         email_login_token = relationship(
