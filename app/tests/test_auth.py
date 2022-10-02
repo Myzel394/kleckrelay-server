@@ -3,8 +3,23 @@ from starlette.testclient import TestClient
 
 from app.models import User
 
+PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAm3pAntNs9dx+yhL/pkFQ
+js4W6pCS0OSb837j/XHwkG1kRVVS+SxJRFqTL0vwe0sM7udjZpDIVQpmnNcJoZOQ
+7Ra6r8rUPO3F18Ka4RvjJxiHIIRMcTDCXE4T5UzOuJnxfb4+tSvcNX2j7k6X+sGt
+svuyFTmmSsMSNrNXRrbJKiFoViPgQhfOAPHTTdtzyfZLKQuKx7gmeuO1ehZ4QSvt
+MMITv/aRCse3IIGAYGIvTXeCO7Qv7UUNBYUGsO+64BKHC24YA9j35zYXynnmXbZj
+7+1E5J1/G1f5gL0CrlYA3l2Vh8ab+idalH8c3JusK+WkQ8QqdrrZTqeB+cglLb+E
+ixU9WAqRfP292LWqq5tVPq9x226QzdrA422J9RcXXm22HqPayjYOzJdcabJshqna
+MWef8MYIGhW2nGa1Mow38bM70RT9LmEoYHMuRTQeDKvbrObe6eoawDN9b3VYXQ2D
+nHTLJN9ToaYtbRsDrf8pD2TCeUh8IDvad5aepf8bX+tkwT5xqQZODLfl4eriucWo
+yYk4XUz9eiFyulyhc2wzLQgibs+Ml8xfoL4JrMpHLIEMlX/we190DIGlvtyqovCM
+Il0PFeoiGtg/OT6KiPwHvOcS4owrV/Rc08fQWCYMK4pG6hArNt+htBPns/BYvTlU
+xoXL4GatdKD+og4oHVMKmdUCAwEAAQ==
+-----END PUBLIC KEY-----"""
 
-def test_can_create_account_with_valid_data(
+
+def test_can_create_account_with_minimum_valid_data(
     db: Session,
     client: TestClient,
 ):
@@ -12,6 +27,36 @@ def test_can_create_account_with_valid_data(
         "/auth/signup",
         json={
             "email": "email@example.com",
+        }
+    )
+    assert response.status_code == 200, "Status code should be 200"
+
+
+def test_can_create_account_with_valid_data_with_public_key(
+        db: Session,
+        client: TestClient,
+):
+    response = client.post(
+        "/auth/signup",
+        json={
+            "email": "email@example.com",
+            "public_key": PUBLIC_KEY,
+        }
+    )
+    assert response.status_code == 200, "Status code should be 200"
+
+
+def test_can_create_account_with_valid_data_with_all_data(
+        db: Session,
+        client: TestClient,
+):
+    response = client.post(
+        "/auth/signup",
+        json={
+            "email": "email@example.com",
+            "public_key": PUBLIC_KEY,
+            "encrypted_private_key": "abc",
+            "password": "abc",
         }
     )
     assert response.status_code == 200, "Status code should be 200"

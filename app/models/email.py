@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -7,7 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from app.constants import MAX_EMAIL_LENGTH
 from app.database.base import Base
-from app.models._mixins import IDMixin, CreationMixin
+from app.models._mixins import IDMixin
 from app.utils import hash_slowly
 
 __all__ = [

@@ -15,6 +15,10 @@ __all__ = [
     "MAX_RANDOM_ALIAS_ID_GENERATION",
     "IS_TESTING",
     "get_is_testing",
+    "PUBLIC_KEY_MAX_LENGTH",
+    "ENCRYPTED_PRIVATE_KEY_MAX_LENGTH",
+    "PUBLIC_KEY_MAX_LENGTH",
+    "PRIVATE_KEY_REGEX",
 ]
 
 
@@ -35,6 +39,9 @@ EMAIL_VERIFICATION_TOKEN_LENGTH = 80
 # This is an edge case scenario and will probably never occur.
 MAX_RANDOM_ALIAS_ID_GENERATION = 200
 IS_TESTING = False
+PUBLIC_KEY_MAX_LENGTH = 90_000
+ENCRYPTED_PRIVATE_KEY_MAX_LENGTH = 90_000
+PUBLIC_KEY_REGEX = r"-----BEGIN PUBLIC KEY-----(\n|\r|\r\n)([0-9a-zA-Z\+\/=]{64}(\n|\r|\r\n))*([0-9a-zA-Z\+\/=]{1,63}(\n|\r|\r\n))?-----END PUBLIC KEY-----"
 
 
 def get_is_testing() -> bool:

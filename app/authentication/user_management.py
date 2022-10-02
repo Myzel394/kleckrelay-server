@@ -8,7 +8,7 @@ from app.controllers.email import create_email, get_email_by_address
 from app.logger import logger
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.utils import normalize_email
+from app.utils import hash_slowly, normalize_email
 
 __all__ = [
     "check_if_email_exists",
@@ -43,6 +43,9 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 
     db_user = User(
         email=db_email,
+        hashed_password=hash_slowly(user.password) if user.password is not None else None,
+        public_key=user.public_key,
+        encrypted_private_key=user.encrypted_private_key,
     )
 
     db.add(db_user)

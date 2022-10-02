@@ -1,7 +1,9 @@
-from typing import Any, TYPE_CHECKING, Union
+from typing import Any, Optional, TYPE_CHECKING
 
+import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
+from app import constants
 from app.database.base import Base
 from ._mixins import CreationMixin, IDMixin
 
@@ -18,6 +20,9 @@ class User(Base, IDMixin, CreationMixin):
         from .alias import EmailAlias
         from .email_login import EmailLoginToken
         email: Email
+        public_key: Optional[str]
+        encrypted_private_key: Optional[str]
+        hashed_password: Optional[str]
         email_aliases: list[EmailAlias]
         email_login_token: EmailLoginToken
     else:
@@ -25,6 +30,21 @@ class User(Base, IDMixin, CreationMixin):
             "Email",
             backref="user",
             uselist=False,
+        )
+        public_key = sa.Column(
+            sa.String(constants.PUBLIC_KEY_MAX_LENGTH),
+            default=None,
+            nullable=True,
+        )
+        encrypted_private_key = sa.Column(
+            sa.String(constants.ENCRYPTED_PRIVATE_KEY_MAX_LENGTH),
+            default=None,
+            nullable=True,
+        )
+        hashed_password = sa.Column(
+            sa.String(),
+            default=None,
+            nullable=True,
         )
         email_aliases = relationship(
             "EmailAlias",
