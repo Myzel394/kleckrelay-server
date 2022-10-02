@@ -52,11 +52,11 @@ def hash_fast(value: str) -> str:
 
 
 def verify_fast_hash(hashed_value: str, value: str) -> bool:
-    return pwd_context.verify(value, hashed_value)
+    return pwd_context.verify(f"{value}#{FAST_HASH_SALT}", hashed_value)
 
 
 def verify_slow_hash(hashed_value: str, value: str) -> bool:
-    return pwd_context.verify(value, hashed_value)
+    return pwd_context.verify(f"{value}#{SLOW_HASH_SALT}", hashed_value)
 
 
 def object_as_dict(obj: "Base") -> dict:
