@@ -1,5 +1,4 @@
 import smtplib
-from email import message_from_bytes
 from email.message import Message
 from typing import Optional
 
@@ -73,7 +72,11 @@ def send_mail(
         )
 
 
-def send_mail_from_private_mail_to_destination(envelope: Envelope, email: Email) -> None:
+def send_mail_from_private_mail_to_destination(
+    envelope: Envelope,
+    message: Message,
+    email: Email,
+) -> None:
     local_alias, forward_address = parse_destination_email(
         user=email.user,
         email=envelope.rcpt_tos[0],
@@ -83,8 +86,6 @@ def send_mail_from_private_mail_to_destination(envelope: Envelope, email: Email)
         f"Sending email now..."
     )
 
-    message = message_from_bytes(envelope.original_content)
-
     send_mail(
         from_mail=local_alias,
         to_mail=forward_address,
@@ -92,13 +93,15 @@ def send_mail_from_private_mail_to_destination(envelope: Envelope, email: Email)
     )
 
 
-def send_mail_from_outside_to_private_mail(envelope: Envelope, alias: EmailAlias) -> None:
+def send_mail_from_outside_to_private_mail(
+    envelope: Envelope,
+    message: Message,
+    alias: EmailAlias,
+) -> None:
     logger.info(
         f"Outside mail {envelope.mail_from} should be relayed to private mail "
         f"{alias.user.email.address} (from alias {alias.address})."
     )
-
-    message = message_from_bytes(envelope.original_content)
 
     send_mail(
         from_mail=envelope.mail_from,

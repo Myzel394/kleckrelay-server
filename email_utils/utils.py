@@ -22,8 +22,6 @@ __all__ = [
     "validate_email",
 ]
 
-from email_utils.errors import InvalidEmailError
-
 
 def generate_message_id(
     message_id: str = None,
@@ -119,7 +117,3 @@ def get_alias_email(db: Session, /, email: str) -> Optional[EmailAlias]:
         .filter(EmailAlias.domain == domain)\
         .first()
 
-
-def validate_email(email: str) -> None:
-    if not re.match(constants.RELAY_EMAIL_REGEX, email):
-        raise InvalidEmailError(email)

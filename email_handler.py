@@ -1,19 +1,22 @@
 import time
+from email import message_from_bytes
+from mailbox import Message
 
 from aiosmtpd.controller import Controller
 from aiosmtpd.smtp import Envelope
 
 from app import logger
 from app.database.dependencies import with_db
+from email_utils.sanitizers import sanitize_envelope, sanitize_message
 from email_utils.send_mail import (
     send_mail_from_outside_to_private_mail,
     send_mail_from_private_mail_to_destination,
 )
-from email_utils.utils import get_alias_email, get_local_email, validate_email
+from email_utils.utils import get_alias_email, get_local_email
 
 
 class ExampleHandler:
-    def handle(self, envelope: Envelope):
+    def handle(self, envelope: Envelope, message: Message):
         logger.info("Retrieving mail from database.")
 
         with with_db() as db:
@@ -25,7 +28,7 @@ class ExampleHandler:
                     f"Email {envelope.mail_from} is a locally saved user. Relaying email to "
                     f"destination {envelope.rcpt_tos[0]}."
                 )
-                send_mail_from_private_mail_to_destination(envelope, email)
+                send_mail_from_private_mail_to_destination(envelope, message, email)
                 return
 
             logger.info(
@@ -39,22 +42,22 @@ class ExampleHandler:
                     f"{alias.address}. "
                     f"Relaying email to locally saved user {alias.user.email.address}."
                 )
-                send_mail_from_outside_to_private_mail(envelope, alias)
+                send_mail_from_outside_to_private_mail(envelope, message, alias)
 
     async def handle_DATA(self, server, session, envelope: Envelope):
         logger.info("New DATA received. Validating data...")
 
         try:
-            validate_email(envelope.mail_from)
+            sanitize_envelope(envelope)
 
-            for mail in envelope.rcpt_tos:
-                validate_email(mail)
+            message = message_from_bytes(envelope.original_content)
+            sanitize_message(message)
 
             logger.info("Data validated successfully.")
 
             logger.info(f"New mail received from {envelope.mail_from} to {envelope.rcpt_tos[0]}")
 
-            self.handle(envelope)
+            self.handle(envelope, message)
         except Exception as error:
             print("blaa")
             print(error)
