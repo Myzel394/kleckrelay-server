@@ -5,44 +5,56 @@ from aiosmtpd.smtp import Envelope
 
 from app import logger
 from app.database.dependencies import with_db
-from app.main import app as mail_app
-from app.models import Email
-from email_utils.send_mail import send_mail
-from email_utils.utils import parse_destination_email, sanitize_email
+from email_utils.send_mail import (
+    send_mail_from_outside_to_private_mail,
+    send_mail_from_private_mail_to_destination,
+)
+from email_utils.utils import get_alias_email, get_local_email, validate_email
 
 
 class ExampleHandler:
+    def handle(self, envelope: Envelope):
+        logger.info("Retrieving mail from database.")
+
+        with with_db() as db:
+            logger.info(f"Checking if FROM mail {envelope.mail_from} is locally saved.")
+
+            if email := get_local_email(db, email=envelope.mail_from):
+                # LOCALLY saved user wants to send a mail FROM its private mail TO the outside.
+                logger.info(
+                    f"Email {envelope.mail_from} is a locally saved user. Relaying email to "
+                    f"destination {envelope.rcpt_tos[0]}."
+                )
+                send_mail_from_private_mail_to_destination(envelope, email)
+                return
+
+            logger.info(
+                f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is an alias mail."
+            )
+
+            if alias := get_alias_email(db, email=envelope.rcpt_tos[0]):
+                # OUTSIDE user wants to send a mail TO a locally saved user's private mail.
+                logger.info(
+                    f"Email {envelope.mail_from} is from outside and wants to send to alias "
+                    f"{alias.address}. "
+                    f"Relaying email to locally saved user {alias.user.email.address}."
+                )
+                send_mail_from_outside_to_private_mail(envelope, alias)
+
     async def handle_DATA(self, server, session, envelope: Envelope):
-        logger.info(f"New mail received from {envelope.mail_from}")
+        logger.info("New DATA received. Validating data...")
 
         try:
-            with with_db() as db:
-                logger.info(f"Retrieving mail {envelope.mail_from} from database")
-                email = db.query(Email).filter(Email.address == envelope.mail_from).first()
+            validate_email(envelope.mail_from)
 
-                if email:
-                    logger.info(
-                        f"Email {envelope.mail_from} is a locally saved user. Relaying email to "
-                        f"destination."
-                    )
-                    # Forward email FROM private mail TO destination
-                    local_alias, forward_address = parse_destination_email(
-                        user=email.user,
-                        email=envelope.rcpt_tos[0],
-                    )
-                    logger.info(
-                        f"Email {envelope.mail_from} should be relayed to {forward_address}. "
-                        f"Sending email now..."
-                    )
+            for mail in envelope.rcpt_tos:
+                validate_email(mail)
 
-                    send_mail(
-                        to_mail=forward_address,
-                        from_mail=local_alias,
-                        plaintext=envelope.original_content,
-                        subject="Test",
-                    )
+            logger.info("Data validated successfully.")
 
-                print(email)
+            logger.info(f"New mail received from {envelope.mail_from} to {envelope.rcpt_tos[0]}")
+
+            self.handle(envelope)
         except Exception as error:
             print("blaa")
             print(error)

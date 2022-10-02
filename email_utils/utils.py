@@ -5,18 +5,24 @@ import socket
 import time
 from email import policy
 from email.message import Message
+from typing import Optional
 
 import email_normalize
+from sqlalchemy.orm import Session
 
-from app.models import User
-from app import life_constants, constants
+from app import constants, life_constants
+from app.models import Email, EmailAlias, User
 
 __all__ = [
     "generate_message_id",
     "message_to_bytes",
-    "sanitize_email",
     "parse_destination_email",
+    "get_local_email",
+    "get_alias_email",
+    "validate_email",
 ]
+
+from email_utils.errors import InvalidEmailError
 
 
 def generate_message_id(
@@ -99,3 +105,21 @@ async def sanitize_email(email: str) -> str:
 
     return (await normalizer.normalize(email)).normalized_address
 
+
+def get_local_email(db: Session, /, email: str) -> Optional[Email]:
+    return db.query(Email).filter(Email.address == email).first()
+
+
+def get_alias_email(db: Session, /, email: str) -> Optional[EmailAlias]:
+    local, domain = email.split("@")
+
+    return db\
+        .query(EmailAlias)\
+        .filter(EmailAlias.local == local)\
+        .filter(EmailAlias.domain == domain)\
+        .first()
+
+
+def validate_email(email: str) -> None:
+    if not re.match(constants.RELAY_EMAIL_REGEX, email):
+        raise InvalidEmailError(email)
