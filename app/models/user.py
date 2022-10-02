@@ -14,7 +14,7 @@ __all__ = [
 ]
 
 
-class LanguageType(enum.Enum):
+class LanguageType(str, enum.Enum):
     EN_US = "en_US"
 
 

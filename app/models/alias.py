@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-class AliasType(enum.Enum):
+class AliasType(str, enum.Enum):
     RANDOM = "RANDOM"
     CUSTOM = "CUSTOM"
 

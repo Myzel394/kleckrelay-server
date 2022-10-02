@@ -7,9 +7,11 @@ from aiosmtpd.smtp import Envelope
 
 from app import logger
 from app.database.dependencies import with_db
+from email_utils import status
+from email_utils.errors import EmailHandlerError
 from email_utils.sanitizers import sanitize_envelope, sanitize_message
 from email_utils.send_mail import (
-    send_mail_from_outside_to_private_mail,
+    send_error_mail, send_mail_from_outside_to_private_mail,
     send_mail_from_private_mail_to_destination,
 )
 from email_utils.utils import get_alias_email, get_local_email
@@ -25,11 +27,23 @@ class ExampleHandler:
             if email := get_local_email(db, email=envelope.mail_from):
                 # LOCALLY saved user wants to send a mail FROM its private mail TO the outside.
                 logger.info(
-                    f"Email {envelope.mail_from} is a locally saved user. Relaying email to "
+                    f"Mail {envelope.mail_from} is a locally saved user. Relaying mail to "
                     f"destination {envelope.rcpt_tos[0]}."
                 )
-                send_mail_from_private_mail_to_destination(envelope, message, email)
-                return
+
+                try:
+                    send_mail_from_private_mail_to_destination(envelope, message, email)
+
+                    return status.E200
+                except EmailHandlerError as error:
+                    send_error_mail(
+                        error=error,
+                        mail=envelope.mail_from,
+                        targeted_mail=envelope.rcpt_tos[0],
+                        language=email.user.language,
+                    )
+
+                    return status.E521
 
             logger.info(
                 f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is an alias mail."
@@ -42,7 +56,26 @@ class ExampleHandler:
                     f"{alias.address}. "
                     f"Relaying email to locally saved user {alias.user.email.address}."
                 )
-                send_mail_from_outside_to_private_mail(envelope, message, alias)
+                try:
+                    send_mail_from_outside_to_private_mail(envelope, message, alias)
+
+                    return status.E200
+                except EmailHandlerError as error:
+                    send_error_mail(
+                        error=error,
+                        mail=envelope.mail_from,
+                        targeted_mail=envelope.rcpt_tos[0],
+                        language=email.user.language,
+                    )
+
+                    return status.E521
+
+            logger.info(
+                f"Mail {envelope.mail_from} is neither a locally saved user nor does it want to "
+                f"send to one. Sending error mail back."
+            )
+
+            return status.E501
 
     async def handle_DATA(self, server, session, envelope: Envelope):
         logger.info("New DATA received. Validating data...")
@@ -57,21 +90,14 @@ class ExampleHandler:
 
             logger.info(f"New mail received from {envelope.mail_from} to {envelope.rcpt_tos[0]}")
 
-            self.handle(envelope, message)
+            return self.handle(envelope, message)
         except Exception as error:
-            print("blaa")
-            print(error)
-        """
-        print('Message from %s' % envelope.mail_from)
-        print('Message for %s' % envelope.rcpt_tos)
-        print('Message data:\n')
-        for ln in envelope.content.decode('utf8', errors='replace').splitlines():
-            ...
-            print(f'> {ln}'.strip())
-        print()
-        print('End of message')"""
+            send_error_mail(
+                mail=envelope.mail_from,
+                targeted_mail=envelope.rcpt_tos[0],
+            )
 
-        return '250 Message accepted for delivery'
+            return status.E501
 
 
 def main():

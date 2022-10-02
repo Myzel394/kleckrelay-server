@@ -28,6 +28,8 @@ __all__ = [
     "SLOW_HASH_SALT",
     "FAST_HASH_SALT",
     "USER_PASSWORD_HASH_SALT",
+    "EMAIL_LANDING_PAGE_URL_TEXT",
+    "EMAIL_LANDING_PAGE_URL",
 ]
 
 DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
@@ -58,3 +60,5 @@ DEBUG_EMAILS = "False"
 SLOW_HASH_SALT = "KleckRelay_#ChangeMe"
 FAST_HASH_SALT = "KleckRelay_#ChangeMeToo"
 USER_PASSWORD_HASH_SALT = "KleckRelay_#AlsoChangeMeToo"
+EMAIL_LANDING_PAGE_URL_TEXT = "KleckRelay"
+EMAIL_LANDING_PAGE_URL = "kleckrelay.com"

@@ -1,0 +1,12 @@
+Hello,
+
+we are sorry to inform you that we could not deliver
+your email to {{ targeted_mail }}.
+
+{% if error %}
+Reason: {{ error }}
+{% else %}
+There is not particular reason given.
+{% endif %}
+
+We suggest you to try it again later.

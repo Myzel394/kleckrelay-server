@@ -11,7 +11,7 @@ import email_normalize
 from sqlalchemy.orm import Session
 
 from app import constants, life_constants
-from app.models import Email, EmailAlias, User
+from app.models import Email, EmailAlias, LanguageType, User
 
 __all__ = [
     "generate_message_id",
@@ -19,7 +19,7 @@ __all__ = [
     "parse_destination_email",
     "get_local_email",
     "get_alias_email",
-    "validate_email",
+    "determine_text_language",
 ]
 
 
@@ -117,3 +117,6 @@ def get_alias_email(db: Session, /, email: str) -> Optional[EmailAlias]:
         .filter(EmailAlias.domain == domain)\
         .first()
 
+
+def determine_text_language(text: str) -> LanguageType:
+    return LanguageType.EN_US
