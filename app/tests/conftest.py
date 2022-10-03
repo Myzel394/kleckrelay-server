@@ -140,7 +140,7 @@ def create_auth_tokens(db):
 
 @pytest.fixture
 def create_random_alias(db):
-    def _method(user: User) -> EmailAlias:
+    def _method(user: User, **kwargs) -> EmailAlias:
         return create_item(
             db,
             {
@@ -148,6 +148,7 @@ def create_random_alias(db):
                 "local": generate_random_local_id(db),
                 "domain": MAIL_DOMAIN,
                 "type": AliasType.RANDOM,
+                **kwargs,
             },
             EmailAlias,
         )

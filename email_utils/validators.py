@@ -3,16 +3,18 @@ import re
 from aiosmtpd.smtp import Envelope
 
 from app import constants
-from email_utils.errors import InvalidEmailError
+from app.models import EmailAlias
+from email_utils.errors import AliasDisabledError, InvalidEmailError
 
 __all__ = [
     "validate_envelope",
+    "validate_alias",
 ]
 
 
 def validate_email(email: str) -> None:
     if not re.match(constants.RELAY_EMAIL_REGEX, email):
-        raise InvalidEmailError(email)
+        raise InvalidEmailError()
 
 
 def validate_envelope(envelope: Envelope) -> None:
@@ -20,3 +22,8 @@ def validate_envelope(envelope: Envelope) -> None:
 
     for mail in envelope.rcpt_tos:
         validate_email(mail)
+
+
+def validate_alias(alias: EmailAlias) -> None:
+    if not alias.is_active:
+        raise AliasDisabledError()

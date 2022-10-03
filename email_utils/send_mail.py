@@ -4,19 +4,16 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
-from aiosmtpd.smtp import Envelope
-
 from app import life_constants, logger
-from app.models import Email, EmailAlias, LanguageType
+from app.models import LanguageType
 from . import formatters, headers
-from .errors import EmailHandlerError, NotYourAliasError
+from .errors import EmailHandlerError
 from .template_renderer import render
-from .utils import generate_message_id, message_to_bytes, parse_destination_email
+from .utils import generate_message_id, message_to_bytes
 
 __all__ = [
-    "send_mail_from_private_mail_to_destination",
-    "send_mail_from_outside_to_private_mail",
     "send_error_mail",
+    "send_mail",
     "draft_message",
 ]
 
@@ -76,48 +73,6 @@ def send_mail(
             to_address=to_mail,
             from_address=from_mail,
         )
-
-
-def send_mail_from_private_mail_to_destination(
-    envelope: Envelope,
-    message: Message,
-    email: Email,
-) -> None:
-    try:
-        local_alias, forward_address = parse_destination_email(
-            user=email.user,
-            email=envelope.rcpt_tos[0],
-        )
-    except ValueError as error:
-        raise NotYourAliasError(str(error))
-
-    logger.info(
-        f"Local mail {local_alias} should be relayed to outside mail {forward_address}. "
-        f"Sending email now..."
-    )
-
-    send_mail(
-        from_mail=local_alias,
-        to_mail=forward_address,
-        message=message,
-    )
-
-
-def send_mail_from_outside_to_private_mail(
-    envelope: Envelope,
-    message: Message,
-    alias: EmailAlias,
-) -> None:
-    logger.info(
-        f"Outside mail {envelope.mail_from} should be relayed to private mail "
-        f"{alias.user.email.address} (from alias {alias.address})."
-    )
-
-    send_mail(
-        from_mail=envelope.mail_from,
-        to_mail=alias.user.email.address,
-        message=message,
-    )
 
 
 def send_error_mail(

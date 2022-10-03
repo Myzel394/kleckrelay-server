@@ -18,9 +18,11 @@ __all__ = [
     "message_to_bytes",
     "parse_destination_email",
     "get_local_email",
-    "get_alias_email",
+    "get_alias_by_email",
     "determine_text_language",
 ]
+
+from email_utils import status
 
 from email_utils.errors import AliasNotFoundError, InvalidEmailError
 
@@ -67,7 +69,7 @@ def find_alias_for_full_address(user: User, /, email: str) -> EmailAlias:
         if email.endswith(f"_{alias.address}"):
             return alias
 
-    raise AliasNotFoundError(f"No alias from user {user.email.address} found for email {email}.")
+    raise AliasNotFoundError(status_code=status.E502)
 
 
 def parse_destination_email(user: User, email: str) -> tuple[EmailAlias, str]:
@@ -86,18 +88,18 @@ def parse_destination_email(user: User, email: str) -> tuple[EmailAlias, str]:
         Output:
             ("abcdef@mail.kleckrelay.com", "test@example.com")
     """
-    local_address = find_alias_for_full_address(user, email)
-    raw_destination = email[:-len(local_address) - 1]
+    local_alias = find_alias_for_full_address(user, email)
+    raw_destination = email[:-len(local_alias.address) - 1]
 
     if raw_destination.count("_at_") != 1:
-        raise InvalidEmailError('Invalid email. Too many or too few "_at_" characters.')
+        raise InvalidEmailError()
 
     destination_address = raw_destination.replace("_at_", "@")
 
     if re.match(constants.EMAIL_REGEX, destination_address) is None:
-        raise InvalidEmailError("Invalid destination email. Regex pattern mismatch.")
+        raise InvalidEmailError()
 
-    return local_address, destination_address
+    return local_alias, destination_address
 
 
 async def sanitize_email(email: str) -> str:
@@ -110,7 +112,7 @@ def get_local_email(db: Session, /, email: str) -> Optional[Email]:
     return db.query(Email).filter(Email.address == email).first()
 
 
-def get_alias_email(db: Session, /, email: str) -> Optional[EmailAlias]:
+def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
     local, domain = email.split("@")
 
     return db\
