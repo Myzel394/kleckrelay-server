@@ -9,7 +9,7 @@ from aiosmtpd.smtp import Envelope
 from app import life_constants, logger
 from app.models import Email, EmailAlias, LanguageType
 from . import formatters, headers
-from .errors import EmailHandlerError
+from .errors import NotYourAliasError
 from .template_renderer import render
 from .utils import generate_message_id, message_to_bytes, parse_destination_email
 
@@ -83,10 +83,14 @@ def send_mail_from_private_mail_to_destination(
     message: Message,
     email: Email,
 ) -> None:
-    local_alias, forward_address = parse_destination_email(
-        user=email.user,
-        email=envelope.rcpt_tos[0],
-    )
+    try:
+        local_alias, forward_address = parse_destination_email(
+            user=email.user,
+            email=envelope.rcpt_tos[0],
+        )
+    except ValueError as error:
+        raise NotYourAliasError(str(error))
+
     logger.info(
         f"Local mail {local_alias} should be relayed to outside mail {forward_address}. "
         f"Sending email now..."
@@ -119,7 +123,6 @@ def send_mail_from_outside_to_private_mail(
 def send_error_mail(
     mail: str,
     targeted_mail: str,
-   error: Optional[EmailHandlerError] = None,
     language: LanguageType = LanguageType.EN_US,
 ) -> None:
     send_mail(
@@ -129,7 +132,6 @@ def send_error_mail(
                 "general_error",
                 language,
                 targeted_mail=targeted_mail,
-                error=str(error) if error is not None else None,
             ),
         ),
         from_mail=life_constants.FROM_MAIL,

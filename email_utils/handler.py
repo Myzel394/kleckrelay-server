@@ -34,15 +34,14 @@ def handle(envelope: Envelope, message: Message) -> str:
                 send_mail_from_private_mail_to_destination(envelope, message, email)
 
                 return status.E200
-            except EmailHandlerError as error:
+            except EmailHandlerError:
                 send_error_mail(
-                    error=error,
                     mail=envelope.mail_from,
                     targeted_mail=envelope.rcpt_tos[0],
                     language=email.user.language,
                 )
 
-                return status.E521
+                return status.E501
 
         logger.info(
             f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is an alias mail."
@@ -59,9 +58,8 @@ def handle(envelope: Envelope, message: Message) -> str:
                 send_mail_from_outside_to_private_mail(envelope, message, alias)
 
                 return status.E200
-            except EmailHandlerError as error:
+            except EmailHandlerError:
                 send_error_mail(
-                    error=error,
                     mail=envelope.mail_from,
                     targeted_mail=envelope.rcpt_tos[0],
                     language=email.user.language,

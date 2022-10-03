@@ -4,3 +4,7 @@ class EmailHandlerError(Exception):
 
 class InvalidEmailError(EmailHandlerError):
     pass
+
+
+class NotYourAliasError(EmailHandlerError):
+    pass
