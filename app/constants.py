@@ -14,7 +14,6 @@ __all__ = [
     "EMAIL_VERIFICATION_TOKEN_LENGTH",
     "MAX_RANDOM_ALIAS_ID_GENERATION",
     "IS_TESTING",
-    "get_is_testing",
     "PUBLIC_KEY_MAX_LENGTH",
     "ENCRYPTED_PRIVATE_KEY_MAX_LENGTH",
     "PUBLIC_KEY_MAX_LENGTH",
@@ -45,6 +44,4 @@ PUBLIC_KEY_REGEX = r"-----BEGIN PUBLIC KEY-----(\n|\r|\r\n)([0-9a-zA-Z\+\/=]{64}
 EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 
 
-def get_is_testing() -> bool:
-    global IS_TESTING
-    return IS_TESTING
+TESTING_DB = None

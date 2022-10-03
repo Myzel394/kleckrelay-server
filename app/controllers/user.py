@@ -65,6 +65,6 @@ def get_user_by_id(db: Session, /, user_id: str) -> User:
         return db.query(User).filter(User.id == UUID(user_id)).one()
     except NoResultFound:
         raise HTTPException(
-            status_code=400,
+            status_code=401,
             detail="User account not found."
         )

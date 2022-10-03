@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 
-from . import doctor
-from .constants import get_is_testing
+from . import constants, doctor
 from .routes import routers
 
 app = FastAPI()
@@ -9,7 +8,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 def show_information():
-    if get_is_testing():
+    if constants.IS_TESTING:
         return
 
     doctor.check_life_constants()

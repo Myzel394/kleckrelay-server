@@ -111,6 +111,9 @@ def get_local_email(db: Session, /, email: str) -> Optional[Email]:
 def get_alias_email(db: Session, /, email: str) -> Optional[EmailAlias]:
     local, domain = email.split("@")
 
+    print("####" * 5)
+    print(db.query(EmailAlias).all())
+
     return db\
         .query(EmailAlias)\
         .filter(EmailAlias.local == local)\

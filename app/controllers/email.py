@@ -1,18 +1,15 @@
 import secrets
-from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app import logger
 from app.authentication.errors import EmailIncorrectTokenError
 from app.constants import (
     EMAIL_VERIFICATION_TOKEN_CHARS, EMAIL_VERIFICATION_TOKEN_LENGTH,
-    get_is_testing, IS_TESTING,
 )
-from app import logger
 from app.mails.send_email_verification import send_email_verification
 from app.models.email import Email
-
 from app.utils import normalize_email
 
 __all__ = [

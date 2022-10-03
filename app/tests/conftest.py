@@ -4,16 +4,24 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists
 from starlette.testclient import TestClient
 
+from app import constants
 from app.authentication.handler import access_security, refresh_security
+from app.controllers.alias import generate_random_local_id
 from app.controllers.email_login import generate_same_request_token, generate_token
 from app.database.base import Base
 from app.database.dependencies import get_db
+from app.life_constants import MAIL_DOMAIN
 from app.main import app
-from app.models import Email, EmailLoginToken, User
+from app.models import AliasType, Email, EmailAlias, EmailLoginToken, User
 from app.tests.helpers import create_item
 from app.utils import hash_fast, hash_slowly
 
 SQLALCHEMY_DATABASE_URL = "postgresql://user:password@127.0.0.1:35432/mail"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def update_is_testing():
+    constants.IS_TESTING = True
 
 
 @pytest.fixture(scope="session")
@@ -23,6 +31,7 @@ def db_engine():
         create_database(engine.url)
 
     Base.metadata.create_all(bind=engine)
+
     yield engine
 
 
@@ -36,6 +45,8 @@ def db(db_engine):
     # bind an individual Session to the connection
     db = Session(bind=connection)
     # db = Session(db_engine)
+
+    constants.TESTING_DB = db
 
     yield db
 
@@ -123,5 +134,22 @@ def create_auth_tokens(db):
                 "Authorization": f"Bearer {access_token[0]}"
             }
         }
+
+    return _method
+
+
+@pytest.fixture
+def create_random_alias(db):
+    def _method(user: User) -> EmailAlias:
+        return create_item(
+            db,
+            {
+                "user": user,
+                "local": generate_random_local_id(db),
+                "domain": MAIL_DOMAIN,
+                "type": AliasType.RANDOM,
+            },
+            EmailAlias,
+        )
 
     return _method

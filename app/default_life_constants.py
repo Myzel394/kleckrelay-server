@@ -24,7 +24,7 @@ __all__ = [
     "POSTFIX_HOST",
     "POSTFIX_PORT",
     "POSTFIX_USE_TLS",
-    "DEBUG_EMAILS",
+    "DEBUG_MAILS",
     "SLOW_HASH_SALT",
     "FAST_HASH_SALT",
     "USER_PASSWORD_HASH_SALT",
@@ -56,7 +56,7 @@ CUSTOM_EMAIL_SUFFIX_CHARS = string.digits
 POSTFIX_HOST = "127.0.0.1"
 POSTFIX_PORT = 25
 POSTFIX_USE_TLS = "True"
-DEBUG_EMAILS = "False"
+DEBUG_MAILS = "False"
 SLOW_HASH_SALT = "KleckRelay_#ChangeMe"
 FAST_HASH_SALT = "KleckRelay_#ChangeMeToo"
 USER_PASSWORD_HASH_SALT = "KleckRelay_#AlsoChangeMeToo"

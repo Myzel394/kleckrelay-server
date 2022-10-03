@@ -64,7 +64,7 @@ def send_mail(
     message[headers.TO] = to_mail
     message[headers.MESSAGE_ID] = generate_message_id()
 
-    if life_constants.DEBUG_EMAILS:
+    if life_constants.DEBUG_MAILS:
         _debug_email(
             message=message, 
             to_address=to_mail, 

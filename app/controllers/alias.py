@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.constants import MAX_RANDOM_ALIAS_ID_GENERATION
 from app.life_constants import (
-    CUSTOM_EMAIL_SUFFIX_CHARS, CUSTOM_EMAIL_SUFFIX_LENGTH, RANDOM_EMAIL_ID_CHARS,
+    CUSTOM_EMAIL_SUFFIX_CHARS, CUSTOM_EMAIL_SUFFIX_LENGTH, MAIL_DOMAIN, RANDOM_EMAIL_ID_CHARS,
     RANDOM_EMAIL_ID_MIN_LENGTH, RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE,
 )
 from app.models import User
@@ -67,7 +67,7 @@ def calculate_id_length(aliases_amount: int) -> int:
         length += 1
 
 
-def generate_random_local_id(db: Session, /, domain: str) -> str:
+def generate_random_local_id(db: Session, /, domain: str = MAIL_DOMAIN) -> str:
     generation_round = 1
     amount = get_aliases_amount(db, domain=domain)
     length = calculate_id_length(aliases_amount=amount)
