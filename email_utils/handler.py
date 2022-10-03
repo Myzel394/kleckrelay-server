@@ -86,7 +86,4 @@ def handle(envelope: Envelope, message: Message) -> str:
                 language=user.language if user is not None else LanguageType.EN_US,
             )
 
-            print("#############################################")
-            print(error.status_code)
-
             return error.status_code
