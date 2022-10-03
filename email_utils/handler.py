@@ -8,10 +8,13 @@ from app.database.dependencies import with_db
 from app.models import LanguageType, User
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, EmailHandlerError
+from email_utils.proxy_images import convert_images
 from email_utils.send_mail import (
     send_error_mail, send_mail,
 )
-from email_utils.utils import get_alias_by_email, get_local_email, parse_destination_email
+from email_utils.utils import (
+    get_alias_by_email, get_local_email, parse_destination_email,
+)
 from email_utils.validators import validate_alias
 
 __all__ = [
@@ -19,7 +22,7 @@ __all__ = [
 ]
 
 
-def _get_targets(db: Session, /, envelope: Envelope) -> tuple[str, str, User]:
+def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[str, str, User]:
     """Returns [FROM, TO]."""
 
     logger.info(f"Checking if FROM mail {envelope.mail_from} is locally saved.")
@@ -47,6 +50,10 @@ def _get_targets(db: Session, /, envelope: Envelope) -> tuple[str, str, User]:
         # OUTSIDE user wants to send a mail TO a locally saved user's private mail.
         validate_alias(alias)
 
+        if alias.proxy_images:
+            content = convert_images(db, message.as_string())
+
+            message.set_payload(content, "utf-8")
         logger.info(
             f"Email {envelope.mail_from} is from outside and wants to send to alias "
             f"{alias.address}. "
@@ -69,7 +76,7 @@ def handle(envelope: Envelope, message: Message) -> str:
         user = None
 
         try:
-            from_mail, to_mail, user = _get_targets(db, envelope)
+            from_mail, to_mail, user = _get_targets(db, envelope, message)
 
             send_mail(
                 from_mail=from_mail,

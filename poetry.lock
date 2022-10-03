@@ -187,6 +187,14 @@ ssh = ["bcrypt (>=3.1.5)"]
 test = ["pytest (>=6.2.0)", "pytest-benchmark", "pytest-cov", "pytest-subtests", "pytest-xdist", "pretend", "iso8601", "pytz", "hypothesis (>=1.11.4,!=3.79.2)"]
 
 [[package]]
+name = "cssselect"
+version = "1.1.0"
+description = "cssselect parses CSS3 Selectors and translates them to XPath 1.0"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
 name = "dnspython"
 version = "2.2.1"
 description = "DNS toolkit"
@@ -363,6 +371,20 @@ MarkupSafe = ">=2.0"
 i18n = ["Babel (>=2.7)"]
 
 [[package]]
+name = "lxml"
+version = "4.9.1"
+description = "Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, != 3.4.*"
+
+[package.extras]
+cssselect = ["cssselect (>=0.7)"]
+html5 = ["html5lib"]
+htmlsoup = ["beautifulsoup4"]
+source = ["Cython (>=0.29.7)"]
+
+[[package]]
 name = "makefun"
 version = "1.15.0"
 description = "Small library to dynamically create python functions."
@@ -534,6 +556,18 @@ python-versions = ">=3.6.8"
 
 [package.extras]
 diagrams = ["railroad-diagrams", "jinja2"]
+
+[[package]]
+name = "pyquery"
+version = "1.4.3"
+description = "A jquery-like library for python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+cssselect = ">0.7.9"
+lxml = ">=2.1"
 
 [[package]]
 name = "pytesseract"
@@ -760,7 +794,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.4.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "d6663fd46e2abadc2248dbe925a422cea515676f6ef482196d04d5cfe519587d"
+content-hash = "66c3ff5f0a624f5cdd79254e9242f86fb359cd0c6175ce8bac30f09a82e2c30c"
 
 [metadata.files]
 aiodns = []
@@ -778,6 +812,7 @@ charset-normalizer = []
 click = []
 colorama = []
 cryptography = []
+cssselect = []
 dnspython = []
 ecdsa = []
 email-normalize = []
@@ -791,6 +826,7 @@ h11 = []
 idna = []
 iniconfig = []
 jinja2 = []
+lxml = []
 makefun = []
 mako = []
 markupsafe = []
@@ -806,6 +842,7 @@ pycparser = []
 pydantic = []
 pyjwt = []
 pyparsing = []
+pyquery = []
 pytesseract = []
 pytest = []
 python-jose = []

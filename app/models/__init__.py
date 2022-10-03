@@ -6,6 +6,6 @@ from .email import *
 from .email_login import *
 from .email_report import *
 # noinspection PyUnresolvedReferences
-from .user import *
-from .user import *
+from .image_proxy import *
+# noinspection PyUnresolvedReferences
 from .user import *
