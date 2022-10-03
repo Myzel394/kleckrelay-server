@@ -22,6 +22,8 @@ __all__ = [
     "determine_text_language",
 ]
 
+from email_utils.errors import AliasNotFoundError, InvalidEmailError
+
 
 def generate_message_id(
     message_id: str = None,
@@ -53,22 +55,22 @@ def message_to_bytes(message: Message) -> bytes:
     return message_string.encode(errors="replace")
 
 
-def get_user_aliases(user: User, /) -> set[str]:
+def get_user_aliases(user: User, /) -> set[EmailAlias]:
     return {
-        alias.address
+        alias
         for alias in user.email_aliases
     }
 
 
-def find_alias_for_full_address(user: User, /, email: str) -> str:
+def find_alias_for_full_address(user: User, /, email: str) -> EmailAlias:
     for alias in get_user_aliases(user):
-        if email.endswith(f"_{alias}"):
+        if email.endswith(f"_{alias.address}"):
             return alias
 
-    raise ValueError(f"No alias from user {user.email.address} found for email {email}.")
+    raise AliasNotFoundError(f"No alias from user {user.email.address} found for email {email}.")
 
 
-def parse_destination_email(user: User, email: str) -> tuple[str, str]:
+def parse_destination_email(user: User, email: str) -> tuple[EmailAlias, str]:
     """Parses the `to` email address.
 
     Returns a tuple containing:
@@ -88,12 +90,12 @@ def parse_destination_email(user: User, email: str) -> tuple[str, str]:
     raw_destination = email[:-len(local_address) - 1]
 
     if raw_destination.count("_at_") != 1:
-        raise ValueError('Invalid email. Too many or too few "_at_" characters.')
+        raise InvalidEmailError('Invalid email. Too many or too few "_at_" characters.')
 
     destination_address = raw_destination.replace("_at_", "@")
 
     if re.match(constants.EMAIL_REGEX, destination_address) is None:
-        raise ValueError("Invalid destination email. Regex pattern mismatch.")
+        raise InvalidEmailError("Invalid destination email. Regex pattern mismatch.")
 
     return local_address, destination_address
 
@@ -110,9 +112,6 @@ def get_local_email(db: Session, /, email: str) -> Optional[Email]:
 
 def get_alias_email(db: Session, /, email: str) -> Optional[EmailAlias]:
     local, domain = email.split("@")
-
-    print("####" * 5)
-    print(db.query(EmailAlias).all())
 
     return db\
         .query(EmailAlias)\

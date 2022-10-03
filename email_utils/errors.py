@@ -6,5 +6,5 @@ class InvalidEmailError(EmailHandlerError):
     pass
 
 
-class NotYourAliasError(EmailHandlerError):
+class AliasNotFoundError(EmailHandlerError):
     pass

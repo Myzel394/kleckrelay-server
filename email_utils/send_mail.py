@@ -9,7 +9,7 @@ from aiosmtpd.smtp import Envelope
 from app import life_constants, logger
 from app.models import Email, EmailAlias, LanguageType
 from . import formatters, headers
-from .errors import NotYourAliasError
+from .errors import EmailHandlerError, NotYourAliasError
 from .template_renderer import render
 from .utils import generate_message_id, message_to_bytes, parse_destination_email
 
@@ -123,6 +123,7 @@ def send_mail_from_outside_to_private_mail(
 def send_error_mail(
     mail: str,
     targeted_mail: str,
+    error: Optional[EmailHandlerError] = None,
     language: LanguageType = LanguageType.EN_US,
 ) -> None:
     send_mail(
@@ -131,6 +132,7 @@ def send_error_mail(
             plaintext=render(
                 "general_error",
                 language,
+                error=error,
                 targeted_mail=targeted_mail,
             ),
         ),
