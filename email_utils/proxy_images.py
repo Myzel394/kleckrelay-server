@@ -18,6 +18,6 @@ def convert_images(db: Session, /, html: str) -> str:
         image.attrib["data-kleckrelay-original-source"] = source
         image_proxy = create_image_proxy(db, source)
 
-        image.attrib["src"] = image_proxy.url
+        image.attrib["src"] = image_proxy.generate_url(source)
 
-    return str(d)
+    return d.html()

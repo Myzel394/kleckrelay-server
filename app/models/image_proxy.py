@@ -1,3 +1,5 @@
+import base64
+
 import sqlalchemy as sa
 
 from ._mixins import IDMixin
@@ -15,6 +17,7 @@ class ImageProxy(Base, IDMixin):
     hashed_url = sa.Column(
         sa.String(),
         nullable=False,
+        unique=True,
     )
     path = sa.Column(
         sa.String(),
@@ -22,6 +25,6 @@ class ImageProxy(Base, IDMixin):
         default=None,
     )
     
-    @property
-    def url(self) -> str:
-        return f"https://{DOMAIN}/image-proxy/{self.hashed_url}"
+    def generate_url(self, url: str) -> str:
+        return f"https://{DOMAIN}/image-proxy/" \
+               f"{base64.b64encode(url.encode('utf-8')).decode('utf-8')}"
