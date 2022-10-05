@@ -1,26 +1,48 @@
 from io import BytesIO
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
+from app import logger
 from app.models import ImageProxyFormatType
 
 __all__ = [
-    "parse_proxied_image"
+    "convert_image_to_type"
 ]
 
 
-def parse_proxied_image(
+def  _convert(content: bytes, image_format: str) -> BytesIO:
+    data = BytesIO(content)
+    image = Image.open(data)
+
+    if image.format.lower() != image_format:
+        new_bytes = BytesIO()
+
+        image.save(new_bytes, format=image_format)
+
+        new_bytes.seek(0)
+
+        return new_bytes
+    else:
+        data.seek(0)
+
+        return data
+
+
+def convert_image_to_type(
     content: bytes,
     preferred_type: ImageProxyFormatType,
+    retry_with_jpeg_on_error: bool = True
 ) -> BytesIO:
-    image_bytes = BytesIO(content)
-    image = Image.open(image_bytes)
+    try:
+        return _convert(content, preferred_type)
+    except UnidentifiedImageError:
+        if retry_with_jpeg_on_error and preferred_type != ImageProxyFormatType.JPEG:
+            logger.info(
+                f"Convert image to type: Error while trying to convert image to "
+                f"{preferred_type=}. Falling back to JPEG now."
+            )
 
-    if image.format.lower() != str(preferred_type).lower():
-        image = Image.open(image_bytes)
-
-        image.save(image_bytes, format=preferred_type)
-
-    image_bytes.seek(0)
-
-    return image_bytes
+            try:
+                return _convert(content, ImageProxyFormatType.JPEG)
+            except UnidentifiedImageError as error:
+                raise error

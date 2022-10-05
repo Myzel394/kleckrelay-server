@@ -1,4 +1,3 @@
-from datetime import datetime
 from io import BytesIO
 from uuid import UUID
 
@@ -92,8 +91,7 @@ def download_image(
     image.save(str(file))
 
     logger.info(f"Download Image -> Saving downloaded image {url=} to database.")
-    instance.downloaded_at = datetime.utcnow()
-    instance.path = str(file.relative_to(ROOT_DIR))
+    instance.path = str(file.relative_to(ROOT_DIR / life_constants.IMAGE_PROXY_STORAGE_PATH))
 
     db.add(instance)
     db.commit()
