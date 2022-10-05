@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, root_validator
 from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
 from app.life_constants import CUSTOM_EMAIL_SUFFIX_LENGTH, MAX_ENCRYPTED_NOTES_SIZE
 from app.logger import logger
-from app.models.alias import AliasType
+from app.models.alias import AliasType, ImageProxyFormatType
 
 __all__ = [
     "AliasCreate",
@@ -30,6 +30,9 @@ class AliasBase(BaseModel):
     encrypted_notes: str = Field(
         max_length=MAX_ENCRYPTED_NOTES_SIZE,
         default="",
+    )
+    image_proxy_format: ImageProxyFormatType = Field(
+        default=ImageProxyFormatType.JPEG,
     )
 
 

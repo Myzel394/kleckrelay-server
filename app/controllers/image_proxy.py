@@ -4,6 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.models import ImageProxy
+from app.schemas.alias import Alias
 from app.utils import hash_fast, verify_fast_hash
 
 __all__ = [
@@ -15,10 +16,12 @@ __all__ = [
 def create_image_proxy(
     db: Session,
     /,
+    alias: Alias,
     url: str,
 ) -> ImageProxy:
     image = ImageProxy(
         hashed_url=hash_fast(url),
+        alias_id=alias.id,
     )
 
     db.add(image)

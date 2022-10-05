@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import sqlalchemy as sa
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.database.base import Base
 from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
@@ -11,6 +12,7 @@ from ._mixins import CreationMixin, IDMixin
 
 __all__ = [
     "AliasType",
+    "ImageProxyFormatType",
     "EmailAlias",
 ]
 
@@ -20,20 +22,33 @@ class AliasType(str, enum.Enum):
     CUSTOM = "CUSTOM"
 
 
+class ImageProxyFormatType(str, enum.Enum):
+    WEBP = "webp"
+    PNG = "png"
+    JPEG = "jpeg"
+
+    def __str__(self) -> str:
+        return str(self.value).split(".")[-1]
+
+
 class EmailAlias(Base, IDMixin):
     __tablename__ = "email_alias"
 
     if TYPE_CHECKING:
         from .user import User
+        from .image_proxy import ImageProxy
+
         local: str
         domain: str
         is_active: bool
         remove_trackers: bool
         create_mail_report: bool
         proxy_images: bool
+        image_proxy_format: ImageProxyFormatType
         encrypted_notes: str
         user: User
         user_id: str
+        image_proxies: list[ImageProxy]
     else:
         local = sa.Column(
             sa.String(64),
@@ -69,6 +84,10 @@ class EmailAlias(Base, IDMixin):
             default=False,
             nullable=False,
         )
+        image_proxy_format = sa.Column(
+            sa.Enum(ImageProxyFormatType),
+            default=ImageProxyFormatType.JPEG,
+        )
         encrypted_notes = sa.Column(
             sa.String(MAX_ENCRYPTED_NOTES_SIZE),
             nullable=False,
@@ -77,6 +96,10 @@ class EmailAlias(Base, IDMixin):
         user_id = sa.Column(
             UUID(as_uuid=True),
             ForeignKey("user.id"),
+        )
+        image_proxies = relationship(
+            "ImageProxy",
+            backref="email_alias",
         )
 
     @property

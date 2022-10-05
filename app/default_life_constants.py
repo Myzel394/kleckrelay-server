@@ -30,6 +30,7 @@ __all__ = [
     "USER_PASSWORD_HASH_SALT",
     "EMAIL_LANDING_PAGE_URL_TEXT",
     "EMAIL_LANDING_PAGE_URL",
+    "IMAGE_PROXY_TIMEOUT_IN_SECONDS",
 ]
 
 DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
@@ -62,3 +63,4 @@ FAST_HASH_SALT = "KleckRelay_#ChangeMeToo"
 USER_PASSWORD_HASH_SALT = "KleckRelay_#AlsoChangeMeToo"
 EMAIL_LANDING_PAGE_URL_TEXT = "KleckRelay"
 EMAIL_LANDING_PAGE_URL = "kleckrelay.com"
+IMAGE_PROXY_TIMEOUT_IN_SECONDS = 8

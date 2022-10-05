@@ -51,7 +51,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
         validate_alias(alias)
 
         if alias.proxy_images or True:
-            content = convert_images(db, message.as_string())
+            content = convert_images(db, alias=alias, html=message.as_string())
 
             message.set_payload(content, "utf-8")
         logger.info(
