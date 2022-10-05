@@ -1,24 +1,20 @@
 import base64
-from io import BytesIO, StringIO
-from pathlib import Path
 
 import requests
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.openapi.models import Response
-from PIL import Image, UnidentifiedImageError
+from PIL import UnidentifiedImageError
 from requests import HTTPError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from starlette.responses import FileResponse, StreamingResponse
+from starlette.responses import StreamingResponse
 from urllib3.exceptions import ConnectTimeoutError
 
 from app import life_constants, logger
 from app.controllers.image_proxy import find_image_by_url
 from app.database.dependencies import get_db
 from app.helpers.parse_proxied_image import parse_proxied_image
-from app.models import ImageProxy, ImageProxyFormatType
+from app.models import ImageProxyFormatType
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
-from app.utils import hash_fast
 
 router = APIRouter()
 
@@ -49,6 +45,7 @@ def proxy_image(
         logger.info(f"Request: Proxy Image -> Trying to find {url=} in database.")
         proxy_instance = find_image_by_url(db, url, id=proxy_id)
     except NoResultFound as error:
+        logger.info(f"Request: Proxy Image -> {url=} not found.")
         return {}
     else:
         preferred_type = proxy_instance.email_alias.image_proxy_format
@@ -133,10 +130,11 @@ def proxy_image(
                 except UnidentifiedImageError:
                     pass
 
-            raise HTTPException(
-                detail="Image could not be parsed.",
-                status_code=502,
-            )
+            if image_bytes is None:
+                raise HTTPException(
+                    detail="Image could not be parsed.",
+                    status_code=502,
+                )
 
         return StreamingResponse(
             image_bytes,
