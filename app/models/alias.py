@@ -31,6 +31,15 @@ class ImageProxyFormatType(str, enum.Enum):
         return str(self.value).split(".")[-1]
 
 
+class ProxyUserAgentType(str, enum.Enum):
+    APPLE_MAIL = "apple-mail"
+    GOOGLE_MAIL = "google-mail"
+    OUTLOOK_WINDOWS = "outlook-windows"
+    OUTLOOK_MACOS = "outlook-macos"
+    FIREFOX = "firefox"
+    CHROME = "chrome"
+
+
 class EmailAlias(Base, IDMixin):
     __tablename__ = "email_alias"
 
@@ -45,6 +54,7 @@ class EmailAlias(Base, IDMixin):
         create_mail_report: bool
         proxy_images: bool
         image_proxy_format: ImageProxyFormatType
+        image_proxy_user_agent: ProxyUserAgentType
         encrypted_notes: str
         user: User
         user_id: str
@@ -87,6 +97,10 @@ class EmailAlias(Base, IDMixin):
         image_proxy_format = sa.Column(
             sa.Enum(ImageProxyFormatType),
             default=ImageProxyFormatType.JPEG,
+        )
+        image_proxy_user_agent = sa.Column(
+            sa.Enum(ProxyUserAgentType),
+            default=ProxyUserAgentType.FIREFOX,
         )
         encrypted_notes = sa.Column(
             sa.String(MAX_ENCRYPTED_NOTES_SIZE),
