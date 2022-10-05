@@ -1,6 +1,6 @@
 from math import log
 
-from . import default_life_constants, life_constants, logger
+from . import constants, default_life_constants, life_constants, logger
 from .controllers.alias import generate_id, generate_suffix
 from .utils import _get_words
 
@@ -55,6 +55,16 @@ def validate_value_is_random_string(name: str) -> None:
         )
 
 
+def create_image_proxy_storage_path():
+    path = constants.ROOT_DIR / life_constants.IMAGE_PROXY_STORAGE_PATH
+
+    logger.logger.info(
+        f"Proxied images will be stored in {path}"
+    )
+
+    path.mkdir(parents=True, exist_ok=True)
+
+
 def check_life_constants() -> None:
     validate_value_is_random_string("JWT_SECRET_KEY")
     validate_value_is_random_string("JWT_REFRESH_SECRET_KEY")
@@ -99,3 +109,9 @@ def check_life_constants() -> None:
         f"Doctor: Custom emails will look like this: "
         f"awesome-fish.{generate_suffix()}@{life_constants.MAIL_DOMAIN}."
     )
+
+    logger.logger.info(
+        f"Root dir is: {constants.ROOT_DIR}"
+    )
+
+    create_image_proxy_storage_path()

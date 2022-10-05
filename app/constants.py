@@ -1,4 +1,7 @@
+import os.path
 import string
+
+from pathlib import Path
 
 __all__ = [
     "LOCAL_REGEX",
@@ -18,6 +21,7 @@ __all__ = [
     "ENCRYPTED_PRIVATE_KEY_MAX_LENGTH",
     "PUBLIC_KEY_MAX_LENGTH",
     "EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH",
+    "ROOT_DIR",
 ]
 
 
@@ -42,6 +46,7 @@ PUBLIC_KEY_MAX_LENGTH = 90_000
 ENCRYPTED_PRIVATE_KEY_MAX_LENGTH = 90_000
 PUBLIC_KEY_REGEX = r"-----BEGIN PUBLIC KEY-----(\n|\r|\r\n)([0-9a-zA-Z\+\/=]{64}(\n|\r|\r\n))*([0-9a-zA-Z\+\/=]{1,63}(\n|\r|\r\n))?-----END PUBLIC KEY-----"
 EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
+ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 
 
 TESTING_DB = None

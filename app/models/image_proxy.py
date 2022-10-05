@@ -1,5 +1,4 @@
 import base64
-import enum
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -37,6 +36,10 @@ class ImageProxy(Base, IDMixin):
             sa.String(),
             nullable=True,
             default=None,
+        )
+        downloaded_at = sa.Column(
+            sa.DateTime(),
+            nullable=True,
         )
     
     def generate_url(self, url: str) -> str:
