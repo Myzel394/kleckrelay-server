@@ -128,7 +128,7 @@ def proxy_image(
                 return StreamingResponse(
                     convert_image_to_type(
                         proxy_instance.absolute_path.read_bytes(),
-                        preferred_type=proxy_instance,
+                        preferred_type=proxy_instance.email_alias.image_proxy_format,
                     ),
                     media_type=f"image/{str(proxy_instance.email_alias.image_proxy_format).lower()}",
                 )

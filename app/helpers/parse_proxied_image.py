@@ -34,7 +34,7 @@ def convert_image_to_type(
     retry_with_jpeg_on_error: bool = True
 ) -> BytesIO:
     try:
-        return _convert(content, preferred_type)
+        return _convert(content, str(preferred_type))
     except UnidentifiedImageError:
         if retry_with_jpeg_on_error and preferred_type != ImageProxyFormatType.JPEG:
             logger.info(
@@ -43,6 +43,6 @@ def convert_image_to_type(
             )
 
             try:
-                return _convert(content, ImageProxyFormatType.JPEG)
+                return _convert(content, str(ImageProxyFormatType.JPEG))
             except UnidentifiedImageError as error:
                 raise error

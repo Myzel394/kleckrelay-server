@@ -58,7 +58,6 @@ class ImageProxy(Base, IDMixin, CreationMixin):
 
     @property
     def has_downloaded_image_expired(self) -> bool:
-        return True
         expire_date = self.created_at + \
                       timedelta(seconds=life_constants.IMAGE_PROXY_TIMEOUT_IN_SECONDS)
 
