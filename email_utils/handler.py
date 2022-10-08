@@ -3,7 +3,7 @@ from mailbox import Message
 from aiosmtpd.smtp import Envelope
 from sqlalchemy.orm import Session
 
-from app import logger
+from app import life_constants, logger
 from app.database.dependencies import with_db
 from app.models import LanguageType, User
 from email_utils import status
@@ -50,7 +50,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
         # OUTSIDE user wants to send a mail TO a locally saved user's private mail.
         validate_alias(alias)
 
-        if alias.proxy_images or True:
+        if life_constants.ENABLE_IMAGE_PROXY and alias.proxy_images:
             content = convert_images(db, alias=alias, html=message.as_string())
 
             message.set_payload(content, "utf-8")

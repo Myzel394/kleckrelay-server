@@ -32,6 +32,7 @@ __all__ = [
     "EMAIL_LANDING_PAGE_URL",
     "IMAGE_PROXY_TIMEOUT_IN_SECONDS",
     "IMAGE_PROXY_STORAGE_PATH",
+    "ENABLE_IMAGE_PROXY",
 ]
 
 DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
@@ -66,3 +67,4 @@ EMAIL_LANDING_PAGE_URL_TEXT = "KleckRelay"
 EMAIL_LANDING_PAGE_URL = "kleckrelay.com"
 IMAGE_PROXY_TIMEOUT_IN_SECONDS = 8
 IMAGE_PROXY_STORAGE_PATH = "./storage/image_proxy/images"
+ENABLED_IMAGE_PROXY = "True"
