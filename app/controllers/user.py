@@ -5,6 +5,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.controllers.email import create_email, get_email_by_address
+from app.controllers.user_preferences import create_user_preferences
 from app.life_constants import USER_PASSWORD_HASH_SALT
 from app.logger import logger
 from app.models.user import User
@@ -39,6 +40,7 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
     """Create a new user to the database."""
 
     db_email = await create_email(db, address=user.email)
+    preferences = create_user_preferences(db)
 
     logger.info(f"Create user: Creating user with email {db_email.address}.")
 
@@ -46,13 +48,13 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 
     db_user = User(
         email=db_email,
+        preferences=preferences,
         hashed_password=hash_slowly(password) if password is not None else None,
         public_key=user.public_key,
         encrypted_private_key=user.encrypted_private_key,
     )
 
     db.add(db_user)
-    db.add(db_email)
     db.commit()
     db.refresh(db_email)
 
