@@ -54,6 +54,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
             content = convert_images(db, alias=alias, html=message.as_string())
 
             message.set_payload(content, "utf-8")
+
         logger.info(
             f"Email {envelope.mail_from} is from outside and wants to send to alias "
             f"{alias.address}. "

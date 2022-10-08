@@ -14,7 +14,7 @@ from app import life_constants, logger
 from app.controllers.image_proxy import download_image, find_image_by_url
 from app.database.dependencies import get_db
 from app.helpers.parse_proxied_image import convert_image_to_type
-from app.models import ImageProxyFormatType
+from app.models.enums.alias import ImageProxyFormatType
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 
 router = APIRouter()

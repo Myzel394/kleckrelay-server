@@ -5,6 +5,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database.base import Base
+from app.models import IDMixin
 from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 
 __all__ = [
@@ -12,7 +13,7 @@ __all__ = [
 ]
 
 
-class UserPreferences(Base):
+class UserPreferences(Base, IDMixin):
     __tablename__ = "user_preferences"
 
     if TYPE_CHECKING:

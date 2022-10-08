@@ -65,7 +65,7 @@ class User(Base, IDMixin, CreationMixin):
             "EmailAlias",
             backref="user",
         )
-        emai_reports = relationship(
+        email_reports = relationship(
             "EmailReport",
             backref="user",
         )

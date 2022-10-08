@@ -1,12 +1,11 @@
-from abc import ABC
-
 __all__ = [
     "ModelPreference",
 ]
 
 
-class ModelPreference(ABC):
+class ModelPreference:
     USER_FIELD = "user"
+    USER_PREFERENCES_FIELD = "preferences"
     FIELD_PREFIX = "pref_"
 
     @classmethod
@@ -18,5 +17,6 @@ class ModelPreference(ABC):
             return value
 
         user = getattr(self, self.USER_FIELD)
+        preferences = getattr(user, self.USER_PREFERENCES_FIELD)
 
-        return getattr(user, self._get_user_preference_prefix() + name)
+        return getattr(preferences, self._get_user_preference_prefix() + name)

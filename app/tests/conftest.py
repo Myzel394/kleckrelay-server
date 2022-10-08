@@ -12,7 +12,8 @@ from app.database.base import Base
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN
 from app.main import app
-from app.models import AliasType, Email, EmailAlias, EmailLoginToken, User
+from app.models import Email, EmailAlias, EmailLoginToken, User, UserPreferences
+from app.models.enums.alias import AliasType
 from app.tests.helpers import create_item
 from app.utils import hash_fast, hash_slowly
 
@@ -96,6 +97,17 @@ def create_user(db, email):
 
             db.add(email)
             db.commit()
+
+        preferences = create_item(
+            db,
+            {
+                "user_id": user.id,
+            },
+            UserPreferences,
+        )
+
+        db.add(preferences)
+        db.commit()
 
         return user
 

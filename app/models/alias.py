@@ -97,6 +97,9 @@ class EmailAlias(Base, IDMixin, ModelPreference):
             nullable=True,
         )
 
+    def _get_user_preference_prefix(self) -> str:
+        return "alias_"
+
     @property
     def address(self) -> str:
         return f"{self.local}@{self.domain}"

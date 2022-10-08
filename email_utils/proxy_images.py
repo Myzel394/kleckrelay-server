@@ -1,10 +1,9 @@
 from lxml import etree
-from lxml.etree import _Element
+from lxml.etree import _Element, XMLSyntaxError
 from pyquery import PyQuery as pq
 from sqlalchemy.orm import Session
 
 from app.controllers.image_proxy import create_image_proxy
-
 from app.models import EmailAlias
 
 __all__ = [
@@ -18,7 +17,10 @@ def convert_images(
     alias: EmailAlias,
     html: str,
 ) -> str:
-    d = pq(etree.fromstring(html))
+    try:
+        d = pq(etree.fromstring(html))
+    except XMLSyntaxError:
+        return html
 
     for image in d("img"):  # type: _Element
         source = image.attrib["src"]

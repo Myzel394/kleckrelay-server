@@ -55,6 +55,12 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
     db.commit()
     db.refresh(db_user)
 
+    db_email.user_id = db_user.id
+
+    db.add(db_email)
+    db.commit()
+    db.refresh(db_email)
+
     logger.info(f"Create user: Created user {db_email.address} successfully. ID is: {db_user.id}.")
 
     return db_user
