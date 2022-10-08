@@ -23,6 +23,7 @@ router = APIRouter()
 def download_image_on_fly(
     url: str,
     preferred_type: ImageProxyFormatType,
+    user_agent: str,
 ) -> BytesIO:
     try:
         proxied_response = requests.request(
@@ -30,6 +31,9 @@ def download_image_on_fly(
             url=url,
             allow_redirects=True,
             timeout=life_constants.IMAGE_PROXY_TIMEOUT_IN_SECONDS,
+            headers={
+                "User-Agent": user_agent,
+            }
         )
     except ConnectTimeoutError:
         logger.info(
@@ -117,6 +121,7 @@ def proxy_image(
                 db,
                 instance=proxy_instance,
                 url=url,
+                user_agent=proxy_instance.email_alias.get_user_agent_string(),
             )
 
         if proxy_instance.is_available():
@@ -145,6 +150,7 @@ def proxy_image(
             download_image_on_fly(
                 url=url,
                 preferred_type=proxy_instance.email_alias.image_proxy_format,
+                user_agent=proxy_instance.email_alias.get_user_agent_string(),
             ),
             media_type=f"image/{str(proxy_instance.email_alias.image_proxy_format).lower()}",
         )

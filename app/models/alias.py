@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 from app.database.base import Base
 from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
 from ._mixins import CreationMixin, IDMixin
+from .constants.alias import ALIAS_IMAGE_PROXY_USER_AGENT_STRING
 from .enums.alias import AliasType, ImageProxyFormatType, ProxyUserAgentType
 from ..mixins.model_preference import ModelPreference
 
@@ -99,6 +100,9 @@ class EmailAlias(Base, IDMixin, ModelPreference):
 
     def _get_user_preference_prefix(self) -> str:
         return "alias_"
+
+    def get_user_agent_string(self) -> str:
+        return ALIAS_IMAGE_PROXY_USER_AGENT_STRING[self.image_proxy_user_agent]
 
     @property
     def address(self) -> str:

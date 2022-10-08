@@ -67,6 +67,7 @@ def download_image(
     /,
     instance: ImageProxy,
     url: str,
+    user_agent: str,
 ) -> None:
     logger.info(f"Download Image -> Downloading image for {url=}.")
     response = requests.request(
@@ -74,6 +75,9 @@ def download_image(
         url=url,
         allow_redirects=True,
         timeout=life_constants.IMAGE_PROXY_TIMEOUT_IN_SECONDS,
+        headers={
+            "User-Agent": user_agent,
+        }
     )
 
     response.raise_for_status()

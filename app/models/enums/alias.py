@@ -8,8 +8,8 @@ __all__ = [
 
 
 class AliasType(str, enum.Enum):
-    RANDOM = "RANDOM"
-    CUSTOM = "CUSTOM"
+    RANDOM = "random"
+    CUSTOM = "custom"
 
 
 class ImageProxyFormatType(str, enum.Enum):
