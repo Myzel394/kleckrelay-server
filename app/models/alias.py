@@ -1,4 +1,3 @@
-import enum
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -9,38 +8,15 @@ from sqlalchemy.orm import relationship
 from app.database.base import Base
 from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
 from ._mixins import CreationMixin, IDMixin
+from .enums.alias import AliasType, ImageProxyFormatType, ProxyUserAgentType
+from ..mixins.model_preference import ModelPreference
 
 __all__ = [
-    "AliasType",
-    "ImageProxyFormatType",
     "EmailAlias",
 ]
 
 
-class AliasType(str, enum.Enum):
-    RANDOM = "RANDOM"
-    CUSTOM = "CUSTOM"
-
-
-class ImageProxyFormatType(str, enum.Enum):
-    WEBP = "webp"
-    PNG = "png"
-    JPEG = "jpeg"
-
-    def __str__(self) -> str:
-        return str(self.value).split(".")[-1]
-
-
-class ProxyUserAgentType(str, enum.Enum):
-    APPLE_MAIL = "apple-mail"
-    GOOGLE_MAIL = "google-mail"
-    OUTLOOK_WINDOWS = "outlook-windows"
-    OUTLOOK_MACOS = "outlook-macos"
-    FIREFOX = "firefox"
-    CHROME = "chrome"
-
-
-class EmailAlias(Base, IDMixin):
+class EmailAlias(Base, IDMixin, ModelPreference):
     __tablename__ = "email_alias"
 
     if TYPE_CHECKING:
@@ -49,16 +25,18 @@ class EmailAlias(Base, IDMixin):
 
         local: str
         domain: str
+        type: AliasType
         is_active: bool
-        remove_trackers: bool
-        create_mail_report: bool
-        proxy_images: bool
-        image_proxy_format: ImageProxyFormatType
-        image_proxy_user_agent: ProxyUserAgentType
         encrypted_notes: str
-        user: User
         user_id: str
+        user: User
         image_proxies: list[ImageProxy]
+
+        pref_remove_trackers: bool
+        pref_create_mail_report: bool
+        pref_proxy_images: bool
+        pref_image_proxy_format: ImageProxyFormatType
+        pref_image_proxy_user_agent: ProxyUserAgentType
     else:
         local = sa.Column(
             sa.String(64),
@@ -79,29 +57,6 @@ class EmailAlias(Base, IDMixin):
             default=True,
             nullable=False,
         )
-        remove_trackers = sa.Column(
-            sa.Boolean,
-            default=True,
-            nullable=False,
-        )
-        create_mail_report = sa.Column(
-            sa.Boolean,
-            default=True,
-            nullable=False,
-        )
-        proxy_images = sa.Column(
-            sa.Boolean,
-            default=False,
-            nullable=False,
-        )
-        image_proxy_format = sa.Column(
-            sa.Enum(ImageProxyFormatType),
-            default=ImageProxyFormatType.JPEG,
-        )
-        image_proxy_user_agent = sa.Column(
-            sa.Enum(ProxyUserAgentType),
-            default=ProxyUserAgentType.FIREFOX,
-        )
         encrypted_notes = sa.Column(
             sa.String(MAX_ENCRYPTED_NOTES_SIZE),
             nullable=False,
@@ -116,9 +71,55 @@ class EmailAlias(Base, IDMixin):
             backref="email_alias",
         )
 
+        pref_remove_trackers = sa.Column(
+            sa.Boolean,
+            default=None,
+            nullable=True,
+        )
+        pref_create_mail_report = sa.Column(
+            sa.Boolean,
+            default=None,
+            nullable=True,
+        )
+        pref_proxy_images = sa.Column(
+            sa.Boolean,
+            default=False,
+            nullable=False,
+        )
+        pref_image_proxy_format = sa.Column(
+            sa.Enum(ImageProxyFormatType),
+            default=None,
+            nullable=True,
+        )
+        pref_image_proxy_user_agent = sa.Column(
+            sa.Enum(ProxyUserAgentType),
+            default=None,
+            nullable=True,
+        )
+
     @property
     def address(self) -> str:
         return f"{self.local}@{self.domain}"
+
+    @property
+    def remove_trackers(self) -> bool:
+        return self.get_preference_value("remove_trackers")
+
+    @property
+    def create_mail_report(self) -> bool:
+        return self.get_preference_value("create_mail_report")
+
+    @property
+    def proxy_images(self) -> bool:
+        return self.get_preference_value("proxy_images")
+
+    @property
+    def proxy_image_format(self) -> ImageProxyFormatType:
+        return self.get_preference_value("proxy_image_format")
+
+    @property
+    def image_proxy_user_agent(self) -> ProxyUserAgentType:
+        return self.get_preference_value("image_proxy_user_agent")
 
 
 class DeletedEmailAlias(Base, IDMixin, CreationMixin):

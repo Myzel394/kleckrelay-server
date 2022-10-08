@@ -26,6 +26,7 @@ class User(Base, IDMixin, CreationMixin):
         from .alias import EmailAlias
         from .email_login import EmailLoginToken
         from .email_report import EmailReport
+        from .user_preferences import UserPreferences
         email: Email
         language: LanguageType
         public_key: Optional[str]
@@ -34,6 +35,7 @@ class User(Base, IDMixin, CreationMixin):
         email_aliases: list[EmailAlias]
         email_reports: list[EmailReport]
         email_login_token: EmailLoginToken
+        preferences: UserPreferences
     else:
         email = relationship(
             "Email",
@@ -69,6 +71,11 @@ class User(Base, IDMixin, CreationMixin):
         )
         email_login_token = relationship(
             "EmailLoginToken",
+            backref="user",
+            uselist=False,
+        )
+        preferences = relationship(
+            "UserPreferences",
             backref="user",
             uselist=False,
         )

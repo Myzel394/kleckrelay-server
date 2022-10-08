@@ -13,26 +13,33 @@ __all__ = [
     "Alias",
 ]
 
+from app.models.enums.alias import ProxyUserAgentType
+
 
 class AliasBase(BaseModel):
     is_active: bool = Field(
         default=True,
     )
-    remove_trackers: bool = Field(
-        default=True,
-    )
-    create_mail_report: bool = Field(
-        default=True,
-    )
-    proxy_images: bool = Field(
-        default=False,
-    )
     encrypted_notes: str = Field(
         max_length=MAX_ENCRYPTED_NOTES_SIZE,
         default="",
     )
+
+    # Preferences
+    remove_trackers: bool = Field(
+        default=None,
+    )
+    create_mail_report: bool = Field(
+        default=None,
+    )
+    proxy_images: bool = Field(
+        default=None,
+    )
     image_proxy_format: ImageProxyFormatType = Field(
-        default=ImageProxyFormatType.JPEG,
+        default=None,
+    )
+    image_proxy_user_agent: ProxyUserAgentType = Field(
+        default=None,
     )
 
 

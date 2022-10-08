@@ -9,3 +9,5 @@ from .email_report import *
 from .image_proxy import *
 # noinspection PyUnresolvedReferences
 from .user import *
+# noinspection PyUnresolvedReferences
+from .user_preferences import *
