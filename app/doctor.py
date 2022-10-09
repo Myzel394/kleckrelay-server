@@ -59,7 +59,7 @@ def create_image_proxy_storage_path():
     path = constants.ROOT_DIR / life_constants.IMAGE_PROXY_STORAGE_PATH
 
     logger.logger.info(
-        f"Proxied images will be stored in {path}"
+        f"Doctor: Proxied images will be stored in {path}"
     )
 
     path.mkdir(parents=True, exist_ok=True)
@@ -77,9 +77,7 @@ def check_life_constants() -> None:
         life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
     )
 
-    logger.logger.info("Doctor: Caching dictionary")
     _get_words()
-    logger.logger.info("Doctor: Caching dictionary --- DONE!")
 
     logger.logger.info(
         f"Doctor: The entropy of Email-Token-based authentication is about "
@@ -120,7 +118,7 @@ def check_life_constants() -> None:
         )
     else:
         logger.logger.info(
-            "Doctor: Users are NOW allowed to register with disposable email.s"
+            "Doctor: Users are NOT allowed to register with disposable email."
         )
 
     if life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS:
