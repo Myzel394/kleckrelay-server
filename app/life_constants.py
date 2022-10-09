@@ -36,6 +36,8 @@ __all__ = [
     "IMAGE_PROXY_TIMEOUT_IN_SECONDS",
     "IMAGE_PROXY_STORAGE_PATH",
     "ENABLE_IMAGE_PROXY",
+    "USER_EMAIL_ENABLE_DISPOSABLE_EMAILS",
+    "USER_EMAIL_ENABLE_OTHER_RELAYS",
 ]
 
 
@@ -63,6 +65,18 @@ def get_float(name: str, default: Optional[str] = None) -> float:
 
 def get_str(name: str, default: Optional[str] = None) -> str:
     return _get_raw_value(name, default)
+
+
+def get_list(name: str, default: list = None) -> list:
+    default = default or []
+
+    if (value := _get_raw_value(f"{name}_add", default="")) != "":
+        return [
+            *default,
+            *value.split(",")
+        ]
+
+    return _get_raw_value(name).split(",")
 
 
 DB_URI = get_str("DB_URI")
@@ -98,3 +112,7 @@ IMAGE_PROXY_TIMEOUT_IN_SECONDS = get_int("IMAGE_PROXY_TIMEOUT_IN_SECONDS")
 IMAGE_PROXY_STORAGE_PATH = get_str("IMAGE_PROXY_STORAGE_PATH")
 # This only affects new mails. Existing mails will still be able to proxy their requests.
 ENABLE_IMAGE_PROXY = get_bool("ENABLE_IMAGE_PROXY")
+USER_EMAIL_ENABLE_DISPOSABLE_EMAILS = get_bool("USER_EMAIL_ENABLE_DISPOSABLE_EMAILS")
+USER_EMAIL_ENABLE_OTHER_RELAYS = get_str("USER_EMAIL_ENABLE_OTHER_RELAYS")
+# Can be used to block certain domains.
+USER_EMAIL_OTHER_RELAY_DOMAINS = get_list("USER_EMAIL_OTHER_RELAY_DOMAINS")

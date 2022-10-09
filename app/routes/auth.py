@@ -4,7 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app import logger
+from app import life_constants, logger
 from app.authentication.errors import (
     EmailIncorrectTokenError, EmailLoginTokenExpiredError,
     EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
@@ -20,6 +20,8 @@ from app.controllers.user import (
     get_user_by_email, get_user_by_id,
 )
 from app.database.dependencies import get_db
+from app.helpers.check_email_is_disposable import check_if_email_is_disposable
+from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.schemas.authentication import (
@@ -48,6 +50,22 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=400,
             detail="Email already in use.",
+        )
+
+    if not life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS \
+            and check_if_email_is_from_relay(user.email):
+        logger.info("Request: Signup -> Email is from another relay.")
+        raise HTTPException(
+            status_code=400,
+            detail="Email is from another relay. This instance does not allow using another email relay.",
+        )
+
+    if not life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS \
+            and check_if_email_is_disposable(user.email):
+        logger.info("Request: Signup -> Email is disposable.")
+        raise HTTPException(
+            status_code=400,
+            detail="Email is disposable. This instance does not allow using disposable emails.",
         )
 
     logger.info(f"Request: Signup -> Create user {user.email}.")

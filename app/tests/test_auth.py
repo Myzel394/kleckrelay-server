@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
+from app import life_constants
 from app.models import User
 
 PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
@@ -33,8 +34,8 @@ def test_can_create_account_with_minimum_valid_data(
 
 
 def test_can_create_account_with_valid_data_with_public_key(
-        db: Session,
-        client: TestClient,
+    db: Session,
+    client: TestClient,
 ):
     response = client.post(
         "/auth/signup",
@@ -47,8 +48,8 @@ def test_can_create_account_with_valid_data_with_public_key(
 
 
 def test_can_create_account_with_valid_data_with_all_data(
-        db: Session,
-        client: TestClient,
+    db: Session,
+    client: TestClient,
 ):
     response = client.post(
         "/auth/signup",
@@ -60,6 +61,34 @@ def test_can_create_account_with_valid_data_with_all_data(
         }
     )
     assert response.status_code == 200, "Status code should be 200"
+
+
+def test_can_not_create_account_with_blocked_relays(
+    db: Session,
+    client: TestClient,
+):
+    life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS = False
+    response = client.post(
+        "/auth/signup",
+        json={
+            "email": f"email@{life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS[0]}"
+        }
+    )
+    assert response.status_code == 400, "Status could should be 400"
+
+
+def test_can_create_account_with_user_email_enable_other_relays_false(
+        db: Session,
+        client: TestClient,
+):
+    life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS = False
+    response = client.post(
+        "/auth/signup",
+        json={
+            "email": f"email@example.com"
+        }
+    )
+    assert response.status_code == 200, "Status could should be 200"
 
 
 def test_can_verify_email_with_correct_token(
