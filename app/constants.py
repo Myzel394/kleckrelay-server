@@ -42,8 +42,8 @@ EMAIL_VERIFICATION_TOKEN_LENGTH = 80
 # This is an edge case scenario and will probably never occur.
 MAX_RANDOM_ALIAS_ID_GENERATION = 200
 IS_TESTING = False
-PUBLIC_KEY_MAX_LENGTH = 90_000
-ENCRYPTED_PRIVATE_KEY_MAX_LENGTH = 90_000
+PUBLIC_KEY_MAX_LENGTH = 10_000
+ENCRYPTED_PRIVATE_KEY_MAX_LENGTH = 10_000
 PUBLIC_KEY_REGEX = r"-----BEGIN PUBLIC KEY-----(\n|\r|\r\n)([0-9a-zA-Z\+\/=]{64}(\n|\r|\r\n))*([0-9a-zA-Z\+\/=]{1,63}(\n|\r|\r\n))?-----END PUBLIC KEY-----"
 EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
