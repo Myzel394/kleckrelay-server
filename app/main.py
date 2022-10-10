@@ -1,6 +1,7 @@
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
-from . import constants, doctor
+from . import constants, doctor, life_constants
 from .routes import routers
 
 app = FastAPI()
@@ -16,3 +17,13 @@ def show_information():
 
 app.include_router(routers)
 
+if life_constants.IS_DEBUG:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://127.0.0.1:3000",
+        ],
+        allow_methods=["*"],
+        allow_headers=["*"],
+        allow_credentials=True,
+    )

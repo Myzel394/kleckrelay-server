@@ -2,9 +2,11 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
-from app import constants
+from app import constants, life_constants, logger
+from app.helpers.check_email_is_disposable import check_if_email_is_disposable
+from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
 from app.models.user import LanguageType
 
 __all__ = [
@@ -43,6 +45,24 @@ class UserCreate(UserBase):
             )
 
         return values
+
+    @validator("email")
+    def validate_email(cls, value: str) -> str:
+        if not life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS \
+                and check_if_email_is_from_relay(value):
+            logger.info("Request: Signup -> Email is from another relay.")
+            raise ValueError(
+                "Email is from another relay. This instance does not allow using another email relay."
+            )
+
+        if not life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS \
+                and check_if_email_is_disposable(value):
+            logger.info("Request: Signup -> Email is disposable.")
+            raise ValueError(
+                "Email is disposable. This instance does not allow using disposable emails.",
+            )
+
+        return value
 
 
 class Email(BaseModel):

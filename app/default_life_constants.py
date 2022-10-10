@@ -17,6 +17,7 @@ EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS = "True"
 IS_DEBUG = "False"
 DOMAIN = "kleckrelay.com"
 MAIL_DOMAIN = "mail.kleckrelay.com"
+APP_DOMAIN = "app.kleckrelay.com"
 RANDOM_EMAIL_ID_MIN_LENGTH = 6
 RANDOM_EMAIL_ID_CHARS = string.ascii_letters + string.digits
 RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE = 0.4
