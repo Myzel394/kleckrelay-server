@@ -25,7 +25,7 @@ from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExcepti
 from app.schemas.authentication import (
     AuthenticationCredentialsResponseModel,
     EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, LoginWithEmailTokenModel,
-    VerifyEmailModel,
+    SignupResponseModel, VerifyEmailModel,
 )
 from app.schemas.user import UserCreate
 
@@ -34,6 +34,7 @@ router = APIRouter()
 
 @router.post(
     "/signup",
+    response_model=SignupResponseModel,
     responses={
         400: {
             "model": HTTPBadRequestExceptionModel
@@ -51,11 +52,13 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
         )
 
     logger.info(f"Request: Signup -> Create user {user.email}.")
-    await create_user(db, user=user)
+    db_user = await create_user(db, user=user)
 
     logger.info("Request: Signup -> Return Response.")
 
-    return {}
+    return {
+        "normalized_email": db_user.email.address,
+    }
 
 
 @router.post(
