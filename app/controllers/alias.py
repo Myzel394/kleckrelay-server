@@ -21,7 +21,7 @@ __all__ = [
 
 
 def get_aliases_amount(db: Session, /, domain: str) -> int:
-    return db.query(EmailAlias.domain).filter(EmailAlias.domain == domain).count()
+    return db.query(EmailAlias).filter_by(domain=domain).count()
 
 
 def generate_id(length: int = RANDOM_EMAIL_ID_MIN_LENGTH) -> str:
@@ -45,8 +45,8 @@ def generate_suffix(length: int = CUSTOM_EMAIL_SUFFIX_LENGTH) -> str:
 def check_if_local_exists(db: Session, /, local: str, domain: str) -> bool:
     return db.query(db
         .query(EmailAlias)
-        .filter(EmailAlias.domain == domain)
-        .filter(EmailAlias.local == local)
+        .filter_by(domain=domain)
+        .filter_by(local=local)
         .exists()
     ).scalar()
 

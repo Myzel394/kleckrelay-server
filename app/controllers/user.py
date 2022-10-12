@@ -65,7 +65,7 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 
 def get_user_by_id(db: Session, /, user_id: str) -> User:
     try:
-        return db.query(User).filter(User.id == UUID(user_id)).one()
+        return db.query(User).filter_by(id=UUID(user_id)).one()
     except NoResultFound:
         raise HTTPException(
             status_code=401,

@@ -53,7 +53,7 @@ def find_image_by_url(
 ) -> ImageProxy:
     instance = db\
         .query(ImageProxy)\
-        .filter(ImageProxy.id == UUID(id))\
+        .filter_by(id=UUID(id))\
         .one()
 
     if verify_fast_hash(instance.hashed_url, url):

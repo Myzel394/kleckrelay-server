@@ -114,7 +114,7 @@ def test_can_create_email_login_token(
     user: User = create_user(is_verified=True)
 
     response = client.post(
-        "/auth/login/email_token",
+        "/auth/login/email-token",
         json={
             "email": user.email.address,
         }
@@ -131,7 +131,7 @@ def test_can_verify_login_token(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.post(
-        "/auth/login/email_token/verify",
+        "/auth/login/email-token/verify",
         json={
             "email": user.email.address,
             "token": token,

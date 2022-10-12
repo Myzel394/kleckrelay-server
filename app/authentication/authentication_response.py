@@ -1,4 +1,4 @@
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 from app import life_constants
 from app.authentication.handler import access_security, refresh_security
@@ -33,7 +33,7 @@ def set_authentication_cookies(response: Response, user: User) -> None:
 
 
 def create_authentication_response(user: User) -> Response:
-    response = Response(user.to_response_object())
+    response = JSONResponse(user.to_response_object())
 
     set_authentication_cookies(response, user)
 

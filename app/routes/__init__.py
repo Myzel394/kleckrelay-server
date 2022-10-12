@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from .account import router as account_router
 from .alias import router as alias_router
-from .auth import router as auth_router
+from .authentication import router as auth_router
 from .image_proxy import router as image_proxy_router
 from .settings import router as settings_router
 from .user_preferences import router as user_preferences_router

@@ -109,7 +109,7 @@ async def sanitize_email(email: str) -> str:
 
 
 def get_local_email(db: Session, /, email: str) -> Optional[Email]:
-    return db.query(Email).filter(Email.address == email).first()
+    return db.query(Email).filter_by(address=email).first()
 
 
 def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
@@ -117,8 +117,8 @@ def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
 
     return db\
         .query(EmailAlias)\
-        .filter(EmailAlias.local == local)\
-        .filter(EmailAlias.domain == domain)\
+        .filter_by(local=local)\
+        .filter_by(domain=domain)\
         .first()
 
 

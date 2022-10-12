@@ -4,16 +4,15 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app import logger, life_constants
+from app import logger
+from app.authentication.authentication_response import (
+    create_authentication_response,
+)
 from app.authentication.errors import (
     EmailIncorrectTokenError, EmailLoginTokenExpiredError,
     EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
 )
-from app.authentication.handler import access_security, refresh_security
-from app.authentication.authentication_response import (
-    create_authentication_response,
-    set_authentication_cookies,
-)
+from app.authentication.handler import refresh_security
 from app.controllers.email import get_email_by_address, verify_email
 from app.controllers.email_login import (
     create_email_login_token,
@@ -133,7 +132,7 @@ def signup_verify_email(
 
 
 @router.post(
-    "/login/email_token",
+    "/login/email-token",
     response_model=EmailLoginTokenResponseModel,
     responses={
         404: {
@@ -174,7 +173,7 @@ async def login_with_email_token(
 
 
 @router.post(
-    "/login/email_token/verify",
+    "/login/email-token/verify",
     response_model=AuthenticationCredentialsResponseModel,
     responses={
         404: {
