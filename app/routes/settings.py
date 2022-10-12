@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app import life_constants
+from app import constants, life_constants
 from app.schemas.settings import SettingsModel
 
 router = APIRouter()
@@ -17,4 +17,6 @@ def get_settings():
         "disposable_emails_enabled": life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS,
         "other_relays_enabled": life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS,
         "other_relay_domains": life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS,
+        "email_verification_chars": constants.EMAIL_VERIFICATION_TOKEN_CHARS,
+        "email_verification_length": constants.EMAIL_VERIFICATION_TOKEN_LENGTH,
     }
