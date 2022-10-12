@@ -4,12 +4,16 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app import logger
+from app import logger, life_constants
 from app.authentication.errors import (
     EmailIncorrectTokenError, EmailLoginTokenExpiredError,
     EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
 )
 from app.authentication.handler import access_security, refresh_security
+from app.authentication.authentication_response import (
+    create_authentication_response,
+    set_authentication_cookies,
+)
 from app.controllers.email import get_email_by_address, verify_email
 from app.controllers.email_login import (
     create_email_login_token,
@@ -101,10 +105,7 @@ def signup_verify_email(
             f"Request: Verify Email -> Done verifying {email.address}. Returning credentials."
         )
 
-        return {
-            "access_token": access_security.create_access_token(subject=email.user.to_jwt_object()),
-            "refresh_token": refresh_security.create_refresh_token(subject=email.user.to_jwt_object()),
-        }
+        return create_authentication_response(email.user)
     except NoResultFound:
         logger.info(f"Request: Verify Email -> Email {input_data.email} not found.")
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
@@ -277,10 +278,8 @@ async def verify_email_token(
             logger.info(
                 f"Request: Verify Email Token -> Returning credentials for {input_data.email}"
             )
-            return {
-                "access_token": access_security.create_access_token(subject=user.to_jwt_object()),
-                "refresh_token": refresh_security.create_refresh_token(subject=user.to_jwt_object()),
-            }
+
+            return create_authentication_response(user)
     else:
         logger.info(
             f"Request: Verify Email Token -> No Login Token for {input_data.email} found."
@@ -311,8 +310,5 @@ async def refresh_token(
     user = get_user_by_id(db, credentials["id"])
 
     logger.info("Request: Refresh -> Returning new credentials.")
-    return {
-        "access_token": access_security.create_access_token(subject=user.to_jwt_object()),
-        "refresh_token": refresh_security.create_refresh_token(subject=user.to_jwt_object()),
-    }
 
+    return create_authentication_response(user)

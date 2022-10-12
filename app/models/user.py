@@ -83,6 +83,11 @@ class User(Base, IDMixin, CreationMixin):
     def to_jwt_object(self) -> dict[str, Any]:
         return {
             "id": str(self.id),
+        }
+
+    def to_response_object(self) -> dict[str, Any]:
+        return {
+            "id": str(self.id),
             "created_at": self.created_at.isoformat(),
             "email": {
                 "address": self.email.address,
