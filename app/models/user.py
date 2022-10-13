@@ -84,20 +84,3 @@ class User(Base, IDMixin, CreationMixin):
         return {
             "id": str(self.id),
         }
-
-    def to_response_object(self) -> dict[str, Any]:
-        return {
-            "id": str(self.id),
-            "created_at": self.created_at.isoformat(),
-            "email": {
-                "address": self.email.address,
-                "is_verified": self.email.is_verified
-            },
-            "preferences": {
-                "alias_remove_trackers": self.preferences.alias_remove_trackers,
-                "alias_create_mail_report": self.preferences.alias_create_mail_report,
-                "alias_proxy_images": self.preferences.alias_proxy_images,
-                "alias_image_proxy_format": self.preferences.alias_image_proxy_format,
-                "alias_image_proxy_user_agent": self.preferences.alias_image_proxy_user_agent,
-            }
-        }

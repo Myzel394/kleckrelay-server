@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, HTTPException, Response, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 
 from app import logger
 from app.authentication.authentication_response import (
-    create_authentication_response,
+    set_authentication_cookies,
 )
 from app.authentication.errors import (
     EmailIncorrectTokenError, EmailLoginTokenExpiredError,
@@ -80,6 +80,7 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
     }
 )
 def signup_verify_email(
+    response: Response,
     input_data: VerifyEmailModel,
     db: Session = Depends(get_db),
 ):
@@ -104,7 +105,11 @@ def signup_verify_email(
             f"Request: Verify Email -> Done verifying {email.address}. Returning credentials."
         )
 
-        return create_authentication_response(email.user)
+        set_authentication_cookies(response, email.user)
+
+        return {
+            "user": email.user,
+        }
     except NoResultFound:
         logger.info(f"Request: Verify Email -> Email {input_data.email} not found.")
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
@@ -185,6 +190,7 @@ async def login_with_email_token(
     }
 )
 async def verify_email_token(
+    response: Response,
     input_data: EmailLoginTokenVerifyModel,
     db: Session = Depends(get_db),
 ):
@@ -278,7 +284,11 @@ async def verify_email_token(
                 f"Request: Verify Email Token -> Returning credentials for {input_data.email}"
             )
 
-            return create_authentication_response(user)
+            set_authentication_cookies(response, user)
+
+            return {
+                "user": user,
+            }
     else:
         logger.info(
             f"Request: Verify Email Token -> No Login Token for {input_data.email} found."
@@ -301,6 +311,7 @@ async def verify_email_token(
     response_model=AuthenticationCredentialsResponseModel,
 )
 async def refresh_token(
+    response: Response,
     credentials: JwtAuthorizationCredentials = Security(refresh_security),
     db: Session = Depends(get_db),
 ):
@@ -310,4 +321,8 @@ async def refresh_token(
 
     logger.info("Request: Refresh -> Returning new credentials.")
 
-    return create_authentication_response(user)
+    set_authentication_cookies(response, user)
+
+    return {
+        "user": user,
+    }

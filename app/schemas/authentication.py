@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.constants import EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH, EMAIL_REGEX, MAX_EMAIL_LENGTH
 from app.life_constants import EMAIL_LOGIN_TOKEN_LENGTH
+from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 
 __all__ = [
     "EmailLoginTokenResponseModel",
@@ -17,8 +18,18 @@ __all__ = [
 ]
 
 
+class UserPreferences(BaseModel):
+    alias_remove_trackers: bool
+    alias_create_mail_report: bool
+    alias_proxy_images: bool
+    alias_image_proxy_format: ImageProxyFormatType
+    alias_image_proxy_user_agent: ProxyUserAgentType
+
+    class Config:
+        orm_mode = True
+
+
 class Email(BaseModel):
-    id: uuid.UUID
     address: str
     is_verified: bool
 
@@ -30,6 +41,7 @@ class User(BaseModel):
     id: uuid.UUID
     created_at: datetime
     email: Email
+    preferences: UserPreferences
 
     class Config:
         orm_mode = True
@@ -53,8 +65,7 @@ class EmailLoginTokenVerifyModel(BaseModel):
 
 
 class AuthenticationCredentialsResponseModel(BaseModel):
-    access_token: str
-    refresh_token: str
+    user: User
 
 
 class VerifyEmailModel(BaseModel):

@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from app import life_constants
+from app import constants, life_constants
 from app.models import User
+from app.tests.helpers import is_a_jwt_token
 
 PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAm3pAntNs9dx+yhL/pkFQ
@@ -105,6 +106,10 @@ def test_can_verify_email_with_correct_token(
         }
     )
     assert response.status_code == 200, "Status code should be 200"
+    assert is_a_jwt_token(response.cookies[constants.ACCESS_TOKEN_COOKIE_NAME]), \
+        f"Cookie {constants.ACCESS_TOKEN_COOKIE_NAME} should be a jwt token."
+    assert is_a_jwt_token(response.cookies[constants.REFRESH_TOKEN_COOKIE_NAME]), \
+        f"Cookie {constants.REFRESH_TOKEN_COOKIE_NAME} should be a jwt token."
 
 
 def test_can_create_email_login_token(

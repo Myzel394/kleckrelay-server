@@ -22,6 +22,8 @@ __all__ = [
     "PUBLIC_KEY_MAX_LENGTH",
     "EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH",
     "ROOT_DIR",
+    "ACCESS_TOKEN_COOKIE_NAME",
+    "REFRESH_TOKEN_COOKIE_NAME",
 ]
 
 
@@ -45,6 +47,8 @@ IS_TESTING = False
 PUBLIC_KEY_MAX_LENGTH = 10_000
 ENCRYPTED_PRIVATE_KEY_MAX_LENGTH = 10_000
 PUBLIC_KEY_REGEX = r"-----BEGIN PUBLIC KEY-----(\n|\r|\r\n)([0-9a-zA-Z\+\/=]{64}(\n|\r|\r\n))*([0-9a-zA-Z\+\/=]{1,63}(\n|\r|\r\n))?-----END PUBLIC KEY-----"
+ACCESS_TOKEN_COOKIE_NAME = "access_token_cookie"
+REFRESH_TOKEN_COOKIE_NAME = "refresh_token_cookie"
 EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 
