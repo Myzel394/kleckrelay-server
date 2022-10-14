@@ -15,6 +15,7 @@ __all__ = [
     "LoginWithEmailTokenModel",
     "User",
     "SignupResponseModel",
+    "ResendEmailModel",
 ]
 
 
@@ -66,6 +67,10 @@ class EmailLoginTokenVerifyModel(BaseModel):
 
 class AuthenticationCredentialsResponseModel(BaseModel):
     user: User
+
+
+class ResendEmailModel(BaseModel):
+    email: str
 
 
 class VerifyEmailModel(BaseModel):

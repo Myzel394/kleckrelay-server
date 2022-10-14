@@ -16,6 +16,7 @@ __all__ = [
     "create_email",
     "verify_email",
     "get_email_by_address",
+    "send_verification_email",
 ]
 
 
@@ -23,6 +24,13 @@ def generate_token() -> str:
     return "".join(
         secrets.choice(EMAIL_VERIFICATION_TOKEN_CHARS)
         for _ in range(EMAIL_VERIFICATION_TOKEN_LENGTH)
+    )
+
+
+def send_verification_email(email: Email) -> None:
+    send_email_verification(
+        address=email.address,
+        token=email.token,
     )
 
 
@@ -47,10 +55,7 @@ async def create_email(db: Session, /, address: str) -> Email:
     db.commit()
     db.refresh(email)
 
-    send_email_verification(
-        address=address,
-        token=token,
-    )
+    send_verification_email(email)
 
     logger.info(f"Create Email: {address} created successfully.")
 

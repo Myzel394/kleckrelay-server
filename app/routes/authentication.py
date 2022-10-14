@@ -13,7 +13,7 @@ from app.authentication.errors import (
     EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
 )
 from app.authentication.handler import refresh_security
-from app.controllers.email import get_email_by_address, verify_email
+from app.controllers.email import get_email_by_address, send_verification_email, verify_email
 from app.controllers.email_login import (
     create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, is_token_valid,
@@ -28,7 +28,7 @@ from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExcepti
 from app.schemas.authentication import (
     AuthenticationCredentialsResponseModel,
     EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, LoginWithEmailTokenModel,
-    SignupResponseModel, VerifyEmailModel,
+    ResendEmailModel, SignupResponseModel, VerifyEmailModel,
 )
 from app.schemas.user import UserCreate
 
@@ -65,6 +65,39 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post(
+    "/resend-email",
+    responses={
+        404: {
+            "model": HTTPNotFoundExceptionModel,
+            "description": "Email address not found."
+        },
+        202: {
+            "model": {},
+            "description": "Email is already verified. No verification email sent."
+        }
+    }
+)
+def resend_email(
+    input_data: ResendEmailModel,
+    db: Session = Depends(get_db),
+):
+    logger.info("Request: Resend Email -> New Request.")
+
+    try:
+        email = get_email_by_address(db, address=input_data.email)
+
+        send_verification_email(email)
+    except NoResultFound:
+        if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
+            raise HTTPException(
+                detail="Email address not found.",
+                status_code=404,
+            )
+
+    return JSONResponse({}, status_code=200)
+
+
+@router.post(
     "/verify-email",
     response_model=AuthenticationCredentialsResponseModel,
     responses={
@@ -76,6 +109,7 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
         },
         202: {
             "model": {},
+            "description": "Email is already verified."
         }
     }
 )
