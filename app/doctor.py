@@ -132,3 +132,8 @@ def check_life_constants() -> None:
         )
 
     create_image_proxy_storage_path()
+
+    if life_constants.IS_DEBUG:
+        logger.logger.warning(
+            f"Doctor: <=== DEBUG MODE IS ENABLED, REMEMBER TO DISABLE IT IN PRODUCTION!!! ===>"
+        )
