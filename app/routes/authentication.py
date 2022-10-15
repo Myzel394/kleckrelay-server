@@ -4,7 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app import logger
+from app import constants, logger
 from app.authentication.authentication_response import (
     set_authentication_cookies,
 )
@@ -51,7 +51,7 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
         logger.info("Request: Signup -> Email does not exist.")
         raise HTTPException(
             status_code=400,
-            detail="Email already in use.",
+            detail="This email address is already registered.",
         )
 
     logger.info(f"Request: Signup -> Create user {user.email}.")
@@ -366,4 +366,20 @@ async def refresh_token(
     return {
         "user": user,
         "detail": "Token refreshed successfully!"
+    }
+
+
+@router.post(
+    "/logout",
+)
+async def logout(
+    response: Response,
+):
+    logger.info("Request: Logout -> New Request.")
+
+    response.delete_cookie(constants.ACCESS_TOKEN_COOKIE_NAME)
+    response.delete_cookie(constants.REFRESH_TOKEN_COOKIE_NAME)
+
+    return{
+        "detail": "Logout successfully!"
     }
