@@ -61,6 +61,7 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
 
     return {
         "normalized_email": db_user.email.address,
+        "detail": "Created account successfully! Please verify your email now."
     }
 
 
@@ -94,7 +95,9 @@ def resend_email(
                 status_code=404,
             )
 
-    return JSONResponse({}, status_code=200)
+    return JSONResponse({
+        "detail": "Verification code was resent."
+    }, status_code=200)
 
 
 @router.post(
@@ -143,6 +146,7 @@ def signup_verify_email(
 
         return {
             "user": email.user,
+            "detail": "Email verified successfully!"
         }
     except NoResultFound:
         logger.info(f"Request: Verify Email -> Email {input_data.email} not found.")
@@ -208,6 +212,7 @@ async def login_with_email_token(
 
     return {
         "same_request_token": token_data[1],
+        "detail": "An email was sent."
     }
 
 
@@ -322,6 +327,7 @@ async def verify_email_token(
 
             return {
                 "user": user,
+                "detail": "Logged in successfully!"
             }
     else:
         logger.info(
@@ -359,4 +365,5 @@ async def refresh_token(
 
     return {
         "user": user,
+        "detail": "Token refreshed successfully!"
     }

@@ -51,6 +51,6 @@ def update_user_preferences(
             db.refresh(alias)
 
     return JSONResponse({
-        "detail": "Successfully updated preferences."
+        "detail": "Updated preferences successfully."
     })
 
