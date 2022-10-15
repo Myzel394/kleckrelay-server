@@ -112,6 +112,26 @@ def test_can_verify_email_with_correct_token(
         f"Cookie {constants.REFRESH_TOKEN_COOKIE_NAME} should be a jwt token."
 
 
+def test_can_verify_email_again(
+    create_user,
+    client: TestClient,
+):
+    user: User = create_user(is_verified=True)
+
+    response = client.post(
+        "/auth/verify-email",
+        json={
+            "email": user.email.address,
+            "token": "abc",
+        }
+    )
+    assert response.status_code == 202, "Status code should be 200"
+    assert response.cookies.get(constants.ACCESS_TOKEN_COOKIE_NAME, default=None) is None, \
+        f"Cookie {constants.ACCESS_TOKEN_COOKIE_NAME} should not be set."
+    assert response.cookies.get(constants.REFRESH_TOKEN_COOKIE_NAME, default=None) is None, \
+        f"Cookie {constants.REFRESH_TOKEN_COOKIE_NAME} should not be set."
+
+
 def test_can_resend_email(
     create_user,
     client: TestClient,

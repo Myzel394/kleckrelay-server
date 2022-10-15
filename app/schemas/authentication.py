@@ -50,6 +50,7 @@ class User(BaseModel):
 
 class EmailLoginTokenResponseModel(BaseModel):
     same_request_token: str
+    detail: str
 
 
 class EmailLoginTokenVerifyModel(BaseModel):
@@ -67,6 +68,7 @@ class EmailLoginTokenVerifyModel(BaseModel):
 
 class AuthenticationCredentialsResponseModel(BaseModel):
     user: User
+    detail: str
 
 
 class ResendEmailModel(BaseModel):
@@ -84,4 +86,5 @@ class LoginWithEmailTokenModel(BaseModel):
 
 class SignupResponseModel(BaseModel):
     normalized_email: str
+    detail: str
 

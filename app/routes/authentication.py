@@ -111,7 +111,7 @@ def resend_email(
             "model": HTTPNotFoundExceptionModel,
         },
         202: {
-            "model": {},
+            "model": AuthenticationCredentialsResponseModel,
             "description": "Email is already verified."
         }
     }
@@ -131,10 +131,13 @@ def signup_verify_email(
             logger.info(
                 f"Request: Verify Email -> Email {email.address} already verified. Returning 202."
             )
-            return JSONResponse(
-                {},
-                status_code=202,
-            )
+
+            response.status_code = 202
+
+            return {
+                "user": email.user,
+                "detail": "Email has already been verified."
+            }
 
         logger.info(f"Request: Verify Email -> Verifying email {email.address}.")
         verify_email(db, email=email, token=input_data.token)

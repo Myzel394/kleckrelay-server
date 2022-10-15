@@ -14,3 +14,5 @@ class SettingsModel(BaseModel):
     disposable_emails_enabled: bool
     other_relays_enabled: bool
     other_relay_domains: list[str]
+    email_verification_chars: str
+    email_verification_length: int
