@@ -26,11 +26,10 @@ from app.database.dependencies import get_db
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.schemas.authentication import (
-    AuthenticationCredentialsResponseModel,
     EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, LoginWithEmailTokenModel,
     ResendEmailModel, SignupResponseModel, VerifyEmailModel,
 )
-from app.schemas.user import UserCreate
+from app.schemas.user import SimpleUserResponseModel, UserCreate
 
 router = APIRouter()
 
@@ -102,7 +101,7 @@ def resend_email(
 
 @router.post(
     "/verify-email",
-    response_model=AuthenticationCredentialsResponseModel,
+    response_model=SimpleUserResponseModel,
     responses={
         400: {
             "model": HTTPBadRequestExceptionModel,
@@ -111,7 +110,7 @@ def resend_email(
             "model": HTTPNotFoundExceptionModel,
         },
         202: {
-            "model": AuthenticationCredentialsResponseModel,
+            "model": SimpleUserResponseModel,
             "description": "Email is already verified."
         }
     }
@@ -221,7 +220,7 @@ async def login_with_email_token(
 
 @router.post(
     "/login/email-token/verify",
-    response_model=AuthenticationCredentialsResponseModel,
+    response_model=SimpleUserResponseModel,
     responses={
         404: {
             "model": HTTPNotFoundExceptionModel,
@@ -351,7 +350,7 @@ async def verify_email_token(
 
 @router.post(
     "/refresh",
-    response_model=AuthenticationCredentialsResponseModel,
+    response_model=SimpleUserResponseModel,
 )
 async def refresh_token(
     response: Response,

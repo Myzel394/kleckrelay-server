@@ -17,6 +17,7 @@ __all__ = [
     "get_user_by_email",
     "create_user",
     "get_user_by_id",
+    "set_password",
 ]
 
 
@@ -49,10 +50,12 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
     db_user = User(
         email=db_email,
         preferences=preferences,
-        hashed_password=hash_slowly(password) if password is not None else None,
         public_key=user.public_key,
         encrypted_private_key=user.encrypted_private_key,
     )
+
+    if password is not None:
+        set_password(db_user, password)
 
     db.add(db_user)
     db.commit()
@@ -61,6 +64,10 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
     logger.info(f"Create user: Created user {db_email.address} successfully. ID is: {db_user.id}.")
 
     return db_user
+
+
+def set_password(user: User, password: str) -> None:
+    user.hashed_password = hash_slowly(password)
 
 
 def get_user_by_id(db: Session, /, user_id: str) -> User:

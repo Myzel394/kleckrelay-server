@@ -7,11 +7,16 @@ from pydantic import BaseModel, Field, root_validator, validator
 from app import constants, life_constants, logger
 from app.helpers.check_email_is_disposable import check_if_email_is_disposable
 from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
+from app.models import User
+from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 from app.models.user import LanguageType
 
 __all__ = [
     "UserCreate",
+    "UserUpdate",
     "User",
+    "UserPreferences",
+    "SimpleUserResponseModel",
 ]
 
 
@@ -65,6 +70,10 @@ class UserCreate(UserBase):
         return value
 
 
+class UserUpdate(UserBase):
+    password: Optional[str]
+
+
 class Email(BaseModel):
     id: uuid.UUID
     address: str
@@ -74,10 +83,27 @@ class Email(BaseModel):
         orm_mode = True
 
 
+class UserPreferences(BaseModel):
+    alias_remove_trackers: bool
+    alias_create_mail_report: bool
+    alias_proxy_images: bool
+    alias_image_proxy_format: ImageProxyFormatType
+    alias_image_proxy_user_agent: ProxyUserAgentType
+
+    class Config:
+        orm_mode = True
+
+
 class User(UserBase):
     id: uuid.UUID
     created_at: datetime
     email: Email
+    preferences: UserPreferences
 
     class Config:
         orm_mode = True
+
+
+class SimpleUserResponseModel(BaseModel):
+    user: User
+    detail: str
