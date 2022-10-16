@@ -6,18 +6,16 @@ from sqlalchemy.orm import Session
 
 from app.controllers.email import create_email, get_email_by_address
 from app.controllers.user_preferences import create_user_preferences
-from app.life_constants import USER_PASSWORD_HASH_SALT
 from app.logger import logger
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.utils import hash_slowly, normalize_email
+from app.utils import normalize_email
 
 __all__ = [
     "check_if_email_exists",
     "get_user_by_email",
     "create_user",
     "get_user_by_id",
-    "set_password",
 ]
 
 
@@ -45,17 +43,12 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 
     logger.info(f"Create user: Creating user with email {db_email.address}.")
 
-    password = f"{user.password}:{USER_PASSWORD_HASH_SALT}" if user.password is not None else None
-
     db_user = User(
         email=db_email,
         preferences=preferences,
         public_key=user.public_key,
-        encrypted_private_key=user.encrypted_private_key,
+        encrypted_notes=user.encrypted_notes,
     )
-
-    if password is not None:
-        set_password(db_user, password)
 
     db.add(db_user)
     db.commit()
@@ -64,10 +57,6 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
     logger.info(f"Create user: Created user {db_email.address} successfully. ID is: {db_user.id}.")
 
     return db_user
-
-
-def set_password(user: User, password: str) -> None:
-    user.hashed_password = hash_slowly(password)
 
 
 def get_user_by_id(db: Session, /, user_id: str) -> User:

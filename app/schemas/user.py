@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, validator
 
 from app import constants, life_constants, logger
 from app.helpers.check_email_is_disposable import check_if_email_is_disposable
@@ -26,8 +26,8 @@ class UserBase(BaseModel):
         max_length=constants.PUBLIC_KEY_MAX_LENGTH,
         default=None,
     )
-    encrypted_private_key: Optional[str] = Field(
-        max_length=constants.ENCRYPTED_PRIVATE_KEY_MAX_LENGTH,
+    encrypted_notes: Optional[str] = Field(
+        max_length=constants.ENCRYPTED_NOTES_MAX_LENGTH,
         defualt=None,
     )
     language: LanguageType = Field(
@@ -40,16 +40,6 @@ class UserCreate(UserBase):
         regex=constants.EMAIL_REGEX,
         max_length=constants.MAX_EMAIL_LENGTH,
     )
-    password: Optional[str]
-
-    @root_validator()
-    def validate_public_key(cls, values: dict) -> dict:
-        if "password" and "encrypted_private_key" not in values:
-            raise ValueError(
-                "If a `password` is set, the `encrypted_private_key` must also be set."
-            )
-
-        return values
 
     @validator("email")
     def validate_email(cls, value: str) -> str:
@@ -71,7 +61,7 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    password: Optional[str]
+    pass
 
 
 class Email(BaseModel):

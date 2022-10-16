@@ -57,8 +57,7 @@ def test_can_create_account_with_valid_data_with_all_data(
         json={
             "email": "email@example.com",
             "public_key": PUBLIC_KEY,
-            "encrypted_private_key": "abc",
-            "password": "abc",
+            "encrypted_notes": "abc",
         }
     )
     assert response.status_code == 200, "Status code should be 200"

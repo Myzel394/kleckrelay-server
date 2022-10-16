@@ -15,7 +15,7 @@ from app.main import app
 from app.models import Email, EmailAlias, EmailLoginToken, User, UserPreferences
 from app.models.enums.alias import AliasType
 from app.tests.helpers import create_item
-from app.utils import hash_fast, hash_slowly
+from app.utils import hash_fast
 
 SQLALCHEMY_DATABASE_URL = "postgresql://user:password@127.0.0.1:35432/mail"
 
@@ -83,7 +83,6 @@ def create_user(db, email):
             db,
             {
                 "email": email,
-                "hashed_password": hash_slowly(password) if password is not None else None,
             },
             User,
         )

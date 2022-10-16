@@ -30,8 +30,7 @@ class User(Base, IDMixin, CreationMixin):
         email: Email
         language: LanguageType
         public_key: Optional[str]
-        encrypted_private_key: Optional[str]
-        hashed_password: Optional[str]
+        encrypted_notes: Optional[str]
         email_aliases: list[EmailAlias]
         email_reports: list[EmailReport]
         email_login_token: EmailLoginToken
@@ -51,13 +50,8 @@ class User(Base, IDMixin, CreationMixin):
             default=None,
             nullable=True,
         )
-        encrypted_private_key = sa.Column(
-            sa.String(constants.ENCRYPTED_PRIVATE_KEY_MAX_LENGTH),
-            default=None,
-            nullable=True,
-        )
-        hashed_password = sa.Column(
-            sa.String(),
+        encrypted_notes = sa.Column(
+            sa.String(constants.ENCRYPTED_NOTES_MAX_LENGTH),
             default=None,
             nullable=True,
         )
