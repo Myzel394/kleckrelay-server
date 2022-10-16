@@ -25,7 +25,7 @@ router = APIRouter()
 )
 def get_all_aliases(
     credentials: JwtAuthorizationCredentials = Security(access_security),
-                                               db: Session = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     logger.info("Request: Get all aliases -> New Request.")
 
