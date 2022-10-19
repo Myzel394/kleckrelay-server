@@ -1,7 +1,9 @@
+import base64
 from math import log
 
 from . import constants, default_life_constants, life_constants, logger
 from .controllers.alias import generate_id, generate_suffix
+from .gpg_handler import gpg
 from .utils import _get_words
 
 __all__ = [
@@ -63,6 +65,18 @@ def create_image_proxy_storage_path():
     )
 
     path.mkdir(parents=True, exist_ok=True)
+
+
+def check_server_private_key():
+    key_data = base64.b64decode(life_constants.SERVER_PRIVATE_KEY)
+
+    key = gpg.import_keys(key_data)
+
+    if len(key.fingerprints) == 0:
+        logger.warning(
+            f"Doctor: Your `SERVER_PRIVATE_KEY` is not a valid GPG key. We strongly recommend "
+            f"that you create one for more safety and privacy of your users."
+        )
 
 
 def check_life_constants() -> None:
@@ -132,6 +146,8 @@ def check_life_constants() -> None:
         )
 
     create_image_proxy_storage_path()
+
+    check_server_private_key()
 
     if life_constants.IS_DEBUG:
         logger.logger.warning(

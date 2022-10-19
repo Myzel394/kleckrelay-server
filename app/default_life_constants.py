@@ -52,3 +52,4 @@ USER_EMAIL_OTHER_RELAY_DOMAINS = ",".join({
     "anonaddy.me"
 })
 GNUPG_HOME_DIR = "/usr/bin/gpg"
+SERVER_PRIVATE_KEY = ""
