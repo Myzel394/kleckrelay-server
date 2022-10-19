@@ -41,14 +41,14 @@ class UserBase(BaseModel):
     @validator("public_key")
     def validate_public_key(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
-            return value
+            return None
 
         if len(gpg.import_keys(value).fingerprints) == 0:
             raise ValueError(
                 "Public key could not be imported."
             )
 
-        return value
+        return str(value)
 
 
 class UserCreate(UserBase):
