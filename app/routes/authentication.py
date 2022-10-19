@@ -4,7 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app import constants, logger
+from app import constants, life_constants, logger
 from app.authentication.authentication_response import (
     set_authentication_cookies,
 )
@@ -57,6 +57,13 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
     db_user = await create_user(db, user=user)
 
     logger.info("Request: Signup -> Return Response.")
+
+    if life_constants.IS_DEBUG:
+        logger.info(
+            f"Request: Verify Email Token -> URL to verify email is: "
+            f"http://127.0.0.1:5173/auth/verify-email?email={db_user.email.address}&token="
+            f"{db_user.email.token}"
+        )
 
     return {
         "normalized_email": db_user.email.address,

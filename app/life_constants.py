@@ -40,6 +40,7 @@ __all__ = [
     "ENABLE_IMAGE_PROXY",
     "USER_EMAIL_ENABLE_DISPOSABLE_EMAILS",
     "USER_EMAIL_ENABLE_OTHER_RELAYS",
+    "GNUPG_HOME_DIR",
 ]
 
 
@@ -67,6 +68,16 @@ def get_float(name: str, default: Optional[str] = None) -> float:
 
 def get_str(name: str, default: Optional[str] = None) -> str:
     return _get_raw_value(name, default)
+
+
+def get_path(name: str, default: Optional[str] = None, must_exist: bool = True) -> str:
+    value = _get_raw_value(name, default)
+
+    if must_exist and not os.path.exists(value):
+        raise OSError(
+            f"Doctor: Tried to get path {value} for constant {name}, but it does not exist. "
+            f"Please create it or specify a different path."
+        )
 
 
 def get_list(name: str, default: list = None) -> list:
@@ -120,3 +131,4 @@ USER_EMAIL_ENABLE_DISPOSABLE_EMAILS = get_bool("USER_EMAIL_ENABLE_DISPOSABLE_EMA
 USER_EMAIL_ENABLE_OTHER_RELAYS = get_bool("USER_EMAIL_ENABLE_OTHER_RELAYS")
 # Can be used to block certain domains.
 USER_EMAIL_OTHER_RELAY_DOMAINS = get_list("USER_EMAIL_OTHER_RELAY_DOMAINS")
+GNUPG_HOME_DIR = get_path("GNUPG_HOME_DIR")

@@ -5,20 +5,38 @@ from app import constants, life_constants
 from app.models import User
 from app.tests.helpers import is_a_jwt_token
 
-PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAm3pAntNs9dx+yhL/pkFQ
-js4W6pCS0OSb837j/XHwkG1kRVVS+SxJRFqTL0vwe0sM7udjZpDIVQpmnNcJoZOQ
-7Ra6r8rUPO3F18Ka4RvjJxiHIIRMcTDCXE4T5UzOuJnxfb4+tSvcNX2j7k6X+sGt
-svuyFTmmSsMSNrNXRrbJKiFoViPgQhfOAPHTTdtzyfZLKQuKx7gmeuO1ehZ4QSvt
-MMITv/aRCse3IIGAYGIvTXeCO7Qv7UUNBYUGsO+64BKHC24YA9j35zYXynnmXbZj
-7+1E5J1/G1f5gL0CrlYA3l2Vh8ab+idalH8c3JusK+WkQ8QqdrrZTqeB+cglLb+E
-ixU9WAqRfP292LWqq5tVPq9x226QzdrA422J9RcXXm22HqPayjYOzJdcabJshqna
-MWef8MYIGhW2nGa1Mow38bM70RT9LmEoYHMuRTQeDKvbrObe6eoawDN9b3VYXQ2D
-nHTLJN9ToaYtbRsDrf8pD2TCeUh8IDvad5aepf8bX+tkwT5xqQZODLfl4eriucWo
-yYk4XUz9eiFyulyhc2wzLQgibs+Ml8xfoL4JrMpHLIEMlX/we190DIGlvtyqovCM
-Il0PFeoiGtg/OT6KiPwHvOcS4owrV/Rc08fQWCYMK4pG6hArNt+htBPns/BYvTlU
-xoXL4GatdKD+og4oHVMKmdUCAwEAAQ==
------END PUBLIC KEY-----"""
+PUBLIC_KEY = """-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBGNO6kcBCAC4Jl3YYGZSL5C57/otKDWujBo5Oz8isWY4NEGMgPEo7q+P
+n8nUlFbh5pWMbNnXmhc86KhuCQjMkma8b8UEodlKAXoOxDkhMVEFP6ygWaFS
+kMmG3e2K2TiQj3Vf+AibmsWtqJvq/kUSFFe9apP08cjMR2noSLc4sHM91HZq
+AYn0XOjtRF8LPHcd/sUjUutO5MncqxxBWZxSIMMuy2xxtBqNbOaRjQmoXDiK
+AEWhsQ3Q/I6PlnUOWc9k6pHrwpz5pRCQd9Yzo6N7sbinkbT/PxW8cJ9QqcNX
++qjhx7M/xNj/EHrATmUKGnS4Lskz2vWjAy8cq0R/X/T4QQHZzR3wDBSnABEB
+AAHNHUpvaG4gU21pdGggPGpvaG5AZXhhbXBsZS5jb20+wsCKBBABCAA+BQJj
+TupHBAsJBwgJEDAdaXsdpqWdAxUICgQWAAIBAhkBAhsDAh4BFiEEd0/AAnpp
+odlZy7emMB1pex2mpZ0AAMhoCACGon5dP8cTZOLiwDg8AC4di1zjcIXuqlny
+N4BWa0riR9CKIHkZ9yE2+UtQRq1041H9FiqO8xYXYM7Pabnno3oZtzCuAO3i
+VIXVuHrLVgT6xkCq3rvSaESgy54EBCbBTEKWzlD5MTRRwZuwoIr03Tadrztu
+HV2p58f6fgBl6AU7j3jRkNhHYBmtWzEFRVvFW/VIRfQhtkZwOLmGswJ27r73
+BfpC+Fo/G+RLkMadJW4wMKQkXW6nhHpYE2DG/uwH0tlGdDD93vdlydGrfNKt
+Zl1WeOSHrEsZE4Cu6RCND+5enXllBzMzMAZnVxbrBAeKH+X4LzzgomK5KSRJ
+8UE0bsVbzsBNBGNO6kcBCADKyBvboWEnzlx/Hn7e5e3CipV7VAlqvaHHhoWY
+ZMJOEOb0/WzuPqpSUiIPSX8t68MpM+JRAVXBJNrXVx6IK74XCxx1IpCgCwgx
+wTu67KAviii6T4u9yQvOSiq1KZB60hep9Je7latfT4+Rn60LLJylKreeuUVD
+4TOP3dzM1YtVz0P/f7sHGBVBUmyeuJF/qqLhj2BMen7m6R1XkmPveJRodTVD
+K/4Vb7bp7eGngjWtujcljwFPhnpCLaQDomDkO0Wn+X2sgtUFGg15qte/eeqQ
+V6RyehO4Jwyg/db5KlyzLGNqjhkaRC+ggHAWdanaSRUhsQdqy7mkOpivB70S
+3Ff9ABEBAAHCwHYEGAEIACoFAmNO6kcJEDAdaXsdpqWdAhsMFiEEd0/AAnpp
+odlZy7emMB1pex2mpZ0AAJboB/9xOQbp1xIJOyzCLIx0gCVC2FBczfw28Tm3
+XQAIhhibh4qhtMYc98x6RwRudBpF/+CxIvhFQmrdBcZIRu84uRMxtLahZxSk
+x0af7kbi+R7RmC7MpRxedhS3hxlCN3tfmXnbSBOUSxYlT8po1ecMBdxmVADQ
+E+VhWnXe16i8EFvYK5o8N10Ec9AOLETETPUSw57UQ6hXk6LCy9kANopwaTSD
+Je0/exrSMrLLebXnR6mN4TLDgCEwuNoT3aHkxqKXWIlsekj+bJeu8qf8tYHx
+BCApP+r4epdoEU2tE3tkiiVpqY2rV/Go2E6EQVGmJFTkO4919f7J3LWONh9p
+wQ4pBgRf
+=XPl4
+-----END PGP PUBLIC KEY BLOCK-----"""
 
 
 def test_can_create_account_with_minimum_valid_data(
@@ -61,6 +79,23 @@ def test_can_create_account_with_valid_data_with_all_data(
         }
     )
     assert response.status_code == 200, "Status code should be 200"
+
+
+def test_can_not_create_account_with_invalid_public_key(
+    db: Session,
+    client: TestClient,
+):
+    response = client.post(
+        "/auth/signup",
+        json={
+            "email": "email@example.com",
+            "public_key": """-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+-----END PGP PUBLIC KEY BLOCK-----""",
+            "encrypted_notes": "abc",
+        }
+    )
+    assert response.status_code == 422, "Status code should be 422"
 
 
 def test_can_not_create_account_with_blocked_relays(

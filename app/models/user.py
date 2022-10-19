@@ -31,6 +31,7 @@ class User(Base, IDMixin, CreationMixin):
         language: LanguageType
         public_key: Optional[str]
         encrypted_notes: Optional[str]
+        encrypted_password: Optional[str]
         email_aliases: list[EmailAlias]
         email_reports: list[EmailReport]
         email_login_token: EmailLoginToken
@@ -52,6 +53,11 @@ class User(Base, IDMixin, CreationMixin):
         )
         encrypted_notes = sa.Column(
             sa.String(constants.ENCRYPTED_NOTES_MAX_LENGTH),
+            default=None,
+            nullable=True,
+        )
+        encrypted_password = sa.Column(
+            sa.String(constants.ENCRYPTED_PASSWORD_MAX_LENGTH),
             default=None,
             nullable=True,
         )

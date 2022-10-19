@@ -51,3 +51,4 @@ USER_EMAIL_OTHER_RELAY_DOMAINS = ",".join({
     "anonaddy.com",
     "anonaddy.me"
 })
+GNUPG_HOME_DIR = "/usr/bin/gpg"

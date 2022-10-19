@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, validator
 
 from app import constants, life_constants, logger
+from app.gpg_handler import gpg
 from app.helpers.check_email_is_disposable import check_if_email_is_disposable
 from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
 from app.models import User
@@ -22,17 +23,32 @@ __all__ = [
 
 class UserBase(BaseModel):
     public_key: Optional[str] = Field(
-        regex=constants.PUBLIC_KEY_REGEX,
         max_length=constants.PUBLIC_KEY_MAX_LENGTH,
         default=None,
     )
     encrypted_notes: Optional[str] = Field(
         max_length=constants.ENCRYPTED_NOTES_MAX_LENGTH,
-        defualt=None,
+        default=None,
+    )
+    encrypted_password: Optional[str] = Field(
+        max_length=constants.ENCRYPTED_PASSWORD_MAX_LENGTH,
+        default=None,
     )
     language: LanguageType = Field(
         default=LanguageType.EN_US
     )
+
+    @validator("public_key")
+    def validate_public_key(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return value
+
+        if len(gpg.import_keys(value).fingerprints) == 0:
+            raise ValueError(
+                "Public key could not be imported."
+            )
+
+        return value
 
 
 class UserCreate(UserBase):
