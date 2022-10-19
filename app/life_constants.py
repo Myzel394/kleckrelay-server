@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Optional
 
 from . import default_life_constants
@@ -73,6 +74,9 @@ def get_str(name: str, default: Optional[str] = None) -> str:
 
 def get_path(name: str, default: Optional[str] = None, must_exist: bool = True) -> str:
     value = _get_raw_value(name, default)
+
+    if value.startswith("~/"):
+        value = Path.home() / value[2:]
 
     if must_exist and not os.path.exists(value):
         raise OSError(
