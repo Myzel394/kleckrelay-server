@@ -28,4 +28,3 @@ class UserPreferencesUpdate(BaseModel):
             raise ValueError("You must set at least one preference to update.")
 
         return values
-
