@@ -63,7 +63,6 @@ def create_alias(
         is_active=alias_data.is_active,
         type=alias_data.type,
         user_id=user.id,
-        pref_encrypted_notes=alias_data.encrypted_notes,
 
         pref_remove_trackers=alias_data.remove_trackers or user.preferences.alias_remove_trackers,
         pref_create_mail_report=alias_data.create_mail_report or user.preferences.alias_create_mail_report,

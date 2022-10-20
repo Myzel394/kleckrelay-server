@@ -21,4 +21,5 @@ def get_settings():
         "email_verification_length": constants.EMAIL_VERIFICATION_TOKEN_LENGTH,
         "email_login_token_chars": life_constants.EMAIL_LOGIN_TOKEN_CHARS,
         "email_login_token_length": life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
+        "email_resend_wait_time": life_constants.EMAIL_RESEND_WAIT_TIME_IN_SECONDS,
     }

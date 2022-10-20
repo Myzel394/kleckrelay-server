@@ -16,3 +16,6 @@ class SettingsModel(BaseModel):
     other_relay_domains: list[str]
     email_verification_chars: str
     email_verification_length: int
+    email_login_token_chars: str
+    email_login_token_length: int
+    email_resend_wait_time: int

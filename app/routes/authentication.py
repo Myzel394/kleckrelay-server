@@ -388,7 +388,7 @@ async def resend_email_login_token(
         )
 
         return {
-            "detail": "Sent email successfully!"
+            "detail": "Login code was resent."
         }
     else:
         logger.info(
