@@ -19,4 +19,6 @@ def get_settings():
         "other_relay_domains": life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS,
         "email_verification_chars": constants.EMAIL_VERIFICATION_TOKEN_CHARS,
         "email_verification_length": constants.EMAIL_VERIFICATION_TOKEN_LENGTH,
+        "email_login_token_chars": life_constants.EMAIL_LOGIN_TOKEN_CHARS,
+        "email_login_token_length": life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
     }

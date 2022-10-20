@@ -2,6 +2,7 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import logger
@@ -63,7 +64,7 @@ def is_token_valid(
 
     logger.info(f"Is token valid: {instance.user.email.address} saved successfully.")
 
-    return verify_fast_hash(instance.hashed_token, token)
+    return instance.token == token
 
 
 def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToken, str]:
@@ -74,10 +75,11 @@ def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToke
 
     # Delete existing email login tokens, there can only be one token
     if user.email_login_token is not None:
-        with logger.info_block(
+        logger.info(
             f"Create email login token: Deleting existing email login token for {user.email.address}."
-        ):
-            delete_email_login_token(db, user.email_login_token)
+        )
+
+        delete_email_login_token(db, user.email_login_token)
 
     logger.info(f"Create email login token: Generating tokens for {user.email.address}.")
     token = generate_token()
@@ -85,7 +87,7 @@ def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToke
     logger.info(f"Create email login token: Generating new email login token for {user.email.address}.")
     instance = EmailLoginToken(
         user=user,
-        hashed_token=hash_fast(token),
+        token=token,
         hashed_same_request_token=hash_fast(same_request_token)
     )
 
@@ -113,12 +115,12 @@ def delete_email_login_token(db: Session, /, instance: EmailLoginToken):
 
 
 async def get_email_login_token_from_email(db: Session, /, email: str) -> Optional[EmailLoginToken]:
-    user = await get_user_by_email(db, email)
+    try:
+        user = await get_user_by_email(db, email=email)
 
-    if user is None:
+        return user.email_login_token
+    except NoResultFound:
         return None
-
-    return user.email_login_token
 
 
 def generate_token() -> str:

@@ -24,9 +24,14 @@ from app.controllers.user import (
 )
 from app.database.dependencies import get_db
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
-from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
+from app.mails.send_email_login_token import send_email_login_token
+from app.schemas._basic import (
+    HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel,
+    SimpleDetailResponseModel,
+)
 from app.schemas.authentication import (
-    EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel, LoginWithEmailTokenModel,
+    EmailLoginResendMailModel, EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel,
+    LoginWithEmailTokenModel,
     ResendEmailModel, SignupResponseModel, VerifyEmailModel,
 )
 from app.schemas.user import SimpleUserResponseModel, UserCreate
@@ -353,6 +358,46 @@ async def verify_email_token(
                 status_code=400,
                 detail=default_error_message,
             )
+
+
+@router.post(
+    "/login/email-token/resend-email",
+    response_model=SimpleDetailResponseModel,
+    responses={
+        404: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "No current email login token found. Please request one."
+        }
+    }
+)
+async def resend_email_login_token(
+    input_data: EmailLoginResendMailModel,
+    db: Session = Depends(get_db),
+):
+    logger.info(
+        f"Request: Resend Email Login Token: New Request for {input_data.email}."
+    )
+
+    if (email := await get_email_login_token_from_email(db, email=input_data.email)) is not None:
+        logger.info(
+            f"Request: Resend Email Login Token: Valid token for {input_data.email} found."
+        )
+        send_email_login_token(
+            user=email.user,
+            token=email.token,
+        )
+
+        return {
+            "detail": "Sent email successfully!"
+        }
+    else:
+        logger.info(
+            f"Request: Resend Email Login Token: No token for {input_data.email} found."
+        )
+        raise HTTPException(
+            status_code=404,
+            detail="No current email login token found. Please request one.",
+        )
 
 
 @router.post(

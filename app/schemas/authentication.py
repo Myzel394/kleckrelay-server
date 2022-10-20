@@ -12,12 +12,18 @@ __all__ = [
     "User",
     "SignupResponseModel",
     "ResendEmailModel",
+    "EmailLoginResendMailModel",
 ]
 
 
 class EmailLoginTokenResponseModel(BaseModel):
     same_request_token: str
     detail: str
+
+
+class EmailLoginResendMailModel(BaseModel):
+    email: str
+    same_request_token: str
 
 
 class EmailLoginTokenVerifyModel(BaseModel):

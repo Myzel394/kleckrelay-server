@@ -122,7 +122,7 @@ def create_email_token(db):
             db,
             {
                 "user_id": user.id,
-                "hashed_token": hash_fast(token),
+                "token": token,
                 "hashed_same_request_token": hash_fast(same_request_token),
             },
             EmailLoginToken

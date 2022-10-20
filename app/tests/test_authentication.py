@@ -228,3 +228,57 @@ def test_can_verify_login_token(
         }
     )
     assert response.status_code == 200, "Status code should be 200"
+
+
+def test_can_resend_valid_email_verification_code(
+        create_user,
+        create_email_token,
+        client: TestClient,
+):
+    user: User = create_user(is_verified=True)
+    email_login, token, same_request_token = create_email_token(user=user)
+
+    response = client.post(
+        "/auth/login/email-token/resend-email",
+        json={
+            "email": user.email.address,
+            "same_request_token": same_request_token,
+        }
+    )
+    assert response.status_code == 200, "Status code should be 200"
+
+
+def test_can_not_resend_email_verification_code_with_invalid_email(
+        create_user,
+        create_email_token,
+        client: TestClient,
+):
+    user: User = create_user(is_verified=True)
+    email_login, token, same_request_token = create_email_token(user=user)
+
+    response = client.post(
+        "/auth/login/email-token/resend-email",
+        json={
+            "email": "a" + user.email.address,
+            "same_request_token": same_request_token,
+        }
+    )
+    assert response.status_code == 404, "Status code should be 404"
+
+
+def test_can_not_resend_email_verification_code_with_invalid_same_request_token(
+        create_user,
+        create_email_token,
+        client: TestClient,
+):
+    user: User = create_user(is_verified=True)
+    email_login, token, same_request_token = create_email_token(user=user)
+
+    response = client.post(
+        "/auth/login/email-token/resend-email",
+        json={
+            "email": "a" + user.email.address,
+            "same_request_token": "a" * len(same_request_token)
+        }
+    )
+    assert response.status_code == 404, "Status code should be 404"

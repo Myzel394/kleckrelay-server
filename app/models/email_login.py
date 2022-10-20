@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 import sqlalchemy as sa
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
+from app import life_constants
 from app.database.base import Base
 from app.models._mixins import CreationMixin, IDMixin
 from app.utils import hash_fast
@@ -19,14 +19,14 @@ class EmailLoginToken(Base, IDMixin, CreationMixin):
 
     if TYPE_CHECKING:
         from .user import User
-        hashed_token: str
+        token: str
         hashed_same_request_token: str
         tries: int
         user: User
         user_id: str
     else:
-        hashed_token = sa.Column(
-            sa.String(len(hash_fast("1234"))),
+        token = sa.Column(
+            sa.String(life_constants.EMAIL_LOGIN_TOKEN_LENGTH),
             nullable=False,
         )
         hashed_same_request_token = sa.Column(
