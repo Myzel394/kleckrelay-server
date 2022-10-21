@@ -4,7 +4,9 @@ from aiosmtpd.smtp import Envelope
 from sqlalchemy.orm import Session
 
 from app import life_constants, logger
+from app.controllers.email_report import create_email_report_from_report_data
 from app.database.dependencies import with_db
+from app.email_report_data import EmailReportData
 from app.models import LanguageType, User
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, EmailHandlerError
@@ -26,6 +28,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
     """Returns [FROM, TO]."""
 
     logger.info(f"Checking if FROM mail {envelope.mail_from} is locally saved.")
+
     if email := get_local_email(db, email=envelope.mail_from):
         # LOCALLY saved user wants to send a mail FROM its private mail TO the outside.
         local_alias, forward_address = parse_destination_email(
@@ -50,15 +53,26 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
         # OUTSIDE user wants to send a mail TO a locally saved user's private mail.
         validate_alias(alias)
 
+        report = EmailReportData(
+            mail_from=envelope.mail_from,
+            mail_to=alias.user.email.address,
+        )
         content = message.as_string()
 
         if alias.remove_trackers:
-            content = remove_single_pixel_image_trackers(html=content)
+            content = remove_single_pixel_image_trackers(report, html=content)
 
         if life_constants.ENABLE_IMAGE_PROXY and alias.proxy_images:
-            content = convert_images(db, alias=alias, html=content)
+            content = convert_images(db, report, alias=alias, html=content)
 
             message.set_payload(content, "utf-8")
+
+        if alias.create_mail_report and alias.user.public_key is not None:
+            create_email_report_from_report_data(
+                db,
+                report_data=report,
+                user=alias.user,
+            )
 
         logger.info(
             f"Email {envelope.mail_from} is from outside and wants to send to alias "
@@ -66,7 +80,11 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
             f"Relaying email to locally saved user {alias.user.email.address}."
         )
 
-        return envelope.mail_from, alias.user.email.address, alias.user
+        return (
+            alias.user.email.create_outside_email(envelope.mail_from),
+            alias.user.email.address,
+            alias.user
+        )
 
     logger.info(
         f"Mail {envelope.mail_from} is neither a locally saved user nor does it want to "

@@ -44,3 +44,6 @@ class Email(Base, IDMixin):
             UUID(as_uuid=True),
             ForeignKey("user.id"),
         )
+
+    def create_outside_email(self, email: str) -> str:
+        return f"{email.replace('@', '_at_')}_{self.address}"

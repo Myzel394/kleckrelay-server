@@ -4,7 +4,7 @@ from typing import Any, Optional, TYPE_CHECKING
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
-from app import constants
+from app import constants, gpg_handler
 from app.database.base import Base
 from ._mixins import CreationMixin, IDMixin
 
@@ -84,3 +84,6 @@ class User(Base, IDMixin, CreationMixin):
         return {
             "id": str(self.id),
         }
+
+    def encrypt(self, message: str) -> str:
+        return gpg_handler.encrypt_message(message, self.public_key)

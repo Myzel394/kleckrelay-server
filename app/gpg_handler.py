@@ -7,6 +7,7 @@ from app import life_constants
 __all__ = [
     "gpg",
     "sign_and_encrypt_message",
+    "encrypt_message",
 ]
 
 gpg = gnupg.GPG()
@@ -28,3 +29,9 @@ def sign_and_encrypt_message(message: str, public_key_in_str: str) -> str:
     encrypted_message = gpg.encrypt(str(message), result.fingerprints[0])
 
     return str(encrypted_message)
+
+
+def encrypt_message(message: str, public_key_in_str: str) -> str:
+    public_key = gpg.import_keys(public_key_in_str)
+
+    return gpg.encrypt(message, public_key.fingerprints[0])
