@@ -102,7 +102,7 @@ def check_life_constants() -> None:
         f"{format(calculate_email_token_probability() * 100, '.3f')}%."
     )
     logger.logger.info(
-        f"Doctor: The domain for the app is: {life_constants.DOMAIN}."
+        f"Doctor: The domain for the app is: {life_constants.API_DOMAIN}."
     )
     logger.logger.info(
         f"Doctor: The domain for the mails is: {life_constants.MAIL_DOMAIN}."

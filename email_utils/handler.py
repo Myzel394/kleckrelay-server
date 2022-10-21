@@ -8,11 +8,10 @@ from app.database.dependencies import with_db
 from app.models import LanguageType, User
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, EmailHandlerError
-from email_utils.proxy_images import convert_images
+from email_utils.html_handler import convert_images, remove_single_pixel_image_trackers
 from email_utils.send_mail import (
     send_error_mail, send_mail,
 )
-from email_utils.trackers_handler import remove_trackers
 from email_utils.utils import (
     get_alias_by_email, get_local_email, parse_destination_email,
 )
@@ -54,7 +53,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
         content = message.as_string()
 
         if alias.remove_trackers:
-            content = remove_trackers(html=content)
+            content = remove_single_pixel_image_trackers(html=content)
 
         if life_constants.ENABLE_IMAGE_PROXY and alias.proxy_images:
             content = convert_images(db, alias=alias, html=content)

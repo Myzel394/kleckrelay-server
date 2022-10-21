@@ -8,8 +8,7 @@ from sqlalchemy.orm import Session
 
 from app import life_constants, logger
 from app.constants import ROOT_DIR
-from app.models import ImageProxy
-from app.schemas.alias import Alias
+from app.models import EmailAlias, ImageProxy
 from app.utils import hash_fast, verify_fast_hash
 
 __all__ = [
@@ -24,7 +23,7 @@ STORAGE_PATH = ROOT_DIR / life_constants.IMAGE_PROXY_STORAGE_PATH
 def create_image_proxy(
     db: Session,
     /,
-    alias: Alias,
+    alias: EmailAlias,
     url: str,
 ) -> ImageProxy:
     image = ImageProxy(
@@ -40,6 +39,7 @@ def create_image_proxy(
         db,
         instance=image,
         url=url,
+        user_agent=alias.get_user_agent_string(),
     )
 
     return image

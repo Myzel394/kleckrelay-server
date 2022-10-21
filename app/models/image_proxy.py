@@ -10,7 +10,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from ._mixins import CreationMixin, IDMixin
 from .. import constants, life_constants
 from ..database.base import Base
-from ..life_constants import DOMAIN
+from ..life_constants import API_DOMAIN
 
 __all__ = [
     "ImageProxy",
@@ -45,7 +45,7 @@ class ImageProxy(Base, IDMixin, CreationMixin):
         )
 
     def generate_url(self, url: str) -> str:
-        return f"https://{DOMAIN}/image-proxy/" \
+        return f"https://{API_DOMAIN}/image-proxy/" \
                f"{base64.b64encode(url.encode('utf-8')).decode('utf-8')}" \
                f"?proxy_id={self.id}"
 
