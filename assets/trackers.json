@@ -16,7 +16,7 @@
                 "url": "https://actionkit.com",
                 "patterns": [
                     {
-                        "pattern": "*://track.sp.actionkit.com/q/*(*)",
+                        "pattern": "*://track.sp.actionkit.com/q/**",
                         "type": "glob"
                     }
                 ]
@@ -42,7 +42,7 @@
                         "type": "domain"
                     },
                     {
-                        "pattern": "*://magento.com/trk*(*)",
+                        "pattern": "*://magento.com/trk**",
                         "type": "glob"
                     },
                     {
@@ -60,7 +60,7 @@
                 "url": "https://active.com",
                 "patterns": [
                     {
-                        "pattern": "*://click.email.active.com/q*(*)",
+                        "pattern": "*://click.email.active.com/q**",
                         "type": "glob"
                     }
                 ]
@@ -70,7 +70,7 @@
                 "url": "https://agilecrm.com",
                 "patterns": [
                     {
-                        "pattern": "*://agle2.me/open*(*)",
+                        "pattern": "*://agle2.me/open**",
                         "type": "glob"
                     }
                 ]
@@ -80,7 +80,7 @@
                 "url": "https://airbnb.com",
                 "patterns": [
                     {
-                        "pattern": "*://email.airbnb.com/wf/open*(*)",
+                        "pattern": "*://email.airbnb.com/wf/open**",
                         "type": "glob"
                     }
                 ]
@@ -94,15 +94,15 @@
                         "type": "domain"
                     },
                     {
-                        "pattern": "*://amazonappservices.com/trk*(*)",
+                        "pattern": "*://amazonappservices.com/trk**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://amazonappservices.com/r/*(*)",
+                        "pattern": "*://amazonappservices.com/r/**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://awscloud.com/trk*(*)",
+                        "pattern": "*://awscloud.com/trk**",
                         "type": "glob"
                     }
                 ]
@@ -112,7 +112,7 @@
                 "url": "https://apple.com",
                 "patterns":  [
                     {
-                        "pattern": "*://apple.com/report/2/its_mail_sf*(*)",
+                        "pattern": "*://apple.com/report/2/its_mail_sf**",
                         "type": "glob"
                     }
                 ]
@@ -132,7 +132,7 @@
                 "url": "https://theatlantic.com",
                 "patterns":  [
                     {
-                        "pattern": "*://links.e.theatlantic.com/open/log*(*)",
+                        "pattern": "*://links.e.theatlantic.com/open/log**",
                         "type": "glob"
                     }
                     ]
@@ -172,11 +172,11 @@
                 "url": "https://blueshift.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)blueshiftmail.com/wf/open*(*)",
+                        "pattern": "*://*(*.)blueshiftmail.com/wf/open**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)getblueshift.com/track*(*)",
+                        "pattern": "*://*(*.)getblueshift.com/track**",
                         "type": "glob"
                     }
                 ]
@@ -186,7 +186,7 @@
                 "url": "https://boomeranggmail.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mailstat.us/tr*(*)",
+                        "pattern": "*://*(*.)mailstat.us/tr**",
                         "type": "glob"
                     }
                 ]
@@ -196,7 +196,7 @@
                 "url": "https://boots.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)boots.com/rts/open.aspx*(*)",
+                        "pattern": "*://*(*.)boots.com/rts/open.aspx**",
                         "type": "glob"
                     }
                 ]
@@ -206,7 +206,8 @@
                 "url": "https://boxbe.com",
                 "patterns": [
                     {
-                        "pattern": "*//*(*.)boxbe.com/stfopen*"
+                        "pattern": "*//*(*.)boxbe.com/stfopen*",
+                        "type": "glob"
                     }
                 ]
             },
@@ -215,7 +216,7 @@
                 "url": "https://browserstack.com",
                 "patterns": [
                     {
-                        "pattern": "*://browserstack.com/images/mail/track-open*(*)",
+                        "pattern": "*://browserstack.com/images/mail/track-open**",
                         "type": "glob"
                     }
                     ]
@@ -265,7 +266,7 @@
                 "url": "https://clickmeter.com",
                 "patterns": [
                     {
-                        "pattern": "*://*.pixel.watch/*(*)",
+                        "pattern": "*://*.pixel.watch/**",
                         "type": "glob"
                     }
                 ]
@@ -275,7 +276,7 @@
                 "url": "https://clio.com",
                 "patterns": [
                     {
-                        "pattern": "*://market.clio.com/trk*(*)",
+                        "pattern": "*://market.clio.com/trk**",
                         "type": "glob"
                     }
                 ]
@@ -285,7 +286,7 @@
                 "url": "https://close.io",
                 "patterns": [
                     {
-                        "pattern": "*://close.{io,com}/email_opened*(*)",
+                        "pattern": "*://close.{io,com}/email_opened**",
                         "type": "glob"
                     }
                 ]
@@ -309,7 +310,7 @@
                 "url": "https://coda.io",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)coda.io/logging/ping*(*)",
+                        "pattern": "*://*(*.)coda.io/logging/ping**",
                         "type": "glob"
                     }
                 ]
@@ -329,11 +330,11 @@
                 "url": "https://constantcontact.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)constantcontact.com/images/p1x1.gif*(*)",
+                        "pattern": "*://*(*.)constantcontact.com/images/p1x1.gif**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)rs6.net/on.jsp*(*)",
+                        "pattern": "*://*(*.)rs6.net/on.jsp**",
                         "type": "glob"
                     }
                 ]
@@ -343,7 +344,7 @@
                 "url": "https://contactmonkey.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)contactmonkey.com/api/v1/tracker*(*)",
+                        "pattern": "*://*(*.)contactmonkey.com/api/v1/tracker**",
                         "type": "glob"
                     }
                 ]
@@ -441,7 +442,7 @@
                 "url": "https://dzone.com",
                 "patterns": [
                     {
-                        "pattern": "*://mailer.dzone.com/open.php*(*)",
+                        "pattern": "*://mailer.dzone.com/open.php**",
                         "type": "glob"
                     }
                 ]
@@ -451,7 +452,7 @@
                 "url": "https://emarsys.com",
                 "patterns": [
                     {
-                        "pattern": "*://*.emarsys.com/e2t/o*(*)",
+                        "pattern": "*://*.emarsys.com/e2t/o**",
                         "type": "glob"
                     }
                 ]
@@ -461,7 +462,7 @@
                 "url": "https://eventbrite.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)eventbrite.com/emails/action*(*)",
+                        "pattern": "*://*(*.)eventbrite.com/emails/action**",
                         "type": "glob"
                     }
                 ]
@@ -471,7 +472,8 @@
                 "url": "https://everyaction.com",
                 "patterns": [
                     {
-                        "pattern": "*://click.everyaction.com/j/*(*)"
+                        "pattern": "*://click.everyaction.com/j/**",
+                        "type": "glob"
                     }
                 ]
             },
@@ -480,11 +482,11 @@
                 "url": "https://evite.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)pippio.com/api/sync*(*)",
+                        "pattern": "*://*(*.)pippio.com/api/sync**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://nli.evite.com/imp*(*)",
+                        "pattern": "*://nli.evite.com/imp**",
                         "type": "glob"
                     }
                 ]
@@ -494,11 +496,11 @@
                 "url": "https://www.facebook.com",
                 "patterns": [
                     {
-                        "pattern": "*://facebook.com/email_open_log_pic.php*(*)",
+                        "pattern": "*://facebook.com/email_open_log_pic.php**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://facebookdevelopers.com/trk*(*)",
+                        "pattern": "*://facebookdevelopers.com/trk**",
                         "type": "glob"
                     },
                     {
@@ -512,7 +514,7 @@
                 "url": "https://flipkart.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)flipkart.com/t/open*(*)",
+                        "pattern": "*://*(*.)flipkart.com/t/open**",
                         "type": "glob"
                     }
                 ]
@@ -532,7 +534,7 @@
                 "url": "https://front.com",
                 "patterns": [
                     {
-                        "pattern": "*://app.frontapp.com/*(*)/seen",
+                        "pattern": "*://app.frontapp.com/**/seen",
                         "type": "glob"
                     }
                 ]
@@ -542,7 +544,7 @@
                 "url": "https://fullcontact.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)fullcontact.com/wf/open*(*)",
+                        "pattern": "*://*(*.)fullcontact.com/wf/open**",
                         "type": "glob"
                     }
                 ]
@@ -552,7 +554,7 @@
                 "url": "https://gearbest.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)appinthestore.com/marketing/mail-user-deal/open*(*)",
+                        "pattern": "*://*(*.)appinthestore.com/marketing/mail-user-deal/open**",
                         "type": "glob"
                     }
                 ]
@@ -562,7 +564,7 @@
                 "url": "https://getmailspring.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)getmailspring.com/open*(*)",
+                        "pattern": "*://*(*.)getmailspring.com/open**",
                         "type": "glob"
                     }
                 ]
@@ -582,7 +584,7 @@
                 "url": "https://getpocket.com",
                 "patterns": [
                     {
-                        "pattern": "*://email.getpocket.com/wf/open*(*)",
+                        "pattern": "*://email.getpocket.com/wf/open**",
                         "type": "glob"
                     }
                 ]
@@ -602,7 +604,7 @@
                 "url": "https://github.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)github.com/notifications/beacon*(*)",
+                        "pattern": "*://*(*.)github.com/notifications/beacon**",
                         "type": "glob"
                     }
                 ]
@@ -612,7 +614,7 @@
                 "url": "https://glassdoor.com",
                 "patterns": [
                     {
-                        "pattern": "*://mail.glassdoor.com/pub/as*(*)",
+                        "pattern": "*://mail.glassdoor.com/pub/as**",
                         "type": "glob"
                     }
                 ]
@@ -642,7 +644,7 @@
                 "url": "https://growthdot.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)growthdot.com/api/mail-tracking*(*)",
+                        "pattern": "*://*(*.)growthdot.com/api/mail-tracking**",
                         "type": "glob"
                     }
                 ]
@@ -656,11 +658,11 @@
                         "type": "domain"
                     },
                     {
-                        "pattern": "*://*(*.)google-analytics.com/collect*(*)",
+                        "pattern": "*://*(*.)google-analytics.com/collect**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)google.com/appserve/mkt/img*(*)",
+                        "pattern": "*://*(*.)google.com/appserve/mkt/img**",
                         "type": "glob"
                     }
                 ]
@@ -689,7 +691,7 @@
                 "name": "ICPTrack",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)icptrack.com/icp/track*(*)",
+                        "pattern": "*://*(*.)icptrack.com/icp/track**",
                         "type": "glob"
                     }
                 ]
@@ -699,7 +701,7 @@
                 "url": "https://infusionsoft.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)infusionsoft.com/app/emailOpened*(*)",
+                        "pattern": "*://*(*.)infusionsoft.com/app/emailOpened**",
                         "type": "glob"
                     }
                 ]
@@ -709,7 +711,7 @@
                 "url": "https://insightly.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)insgly.net/api/trk*(*)",
+                        "pattern": "*://*(*.)insgly.net/api/trk**",
                         "type": "glob"
                     }
                 ]
@@ -763,7 +765,7 @@
                 "url": "https://linkedin.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)linkedin.com/emimp*(*)",
+                        "pattern": "*://*(*.)linkedin.com/emimp**",
                         "type": "glob"
                     }
                 ]
@@ -803,7 +805,7 @@
                 "url": "https://mailchimp.com",
                 "patterns": [
                     {
-                        "pattern": "*://list-manage.com/track*(*)",
+                        "pattern": "*://list-manage.com/track**",
                         "type": "glob"
                     }
                 ]
@@ -813,7 +815,8 @@
                 "url": "https://mailcoral.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mailcoral.com/open*(*)"
+                        "pattern": "*://*(*.)mailcoral.com/open**",
+                        "type": "glob"
                     }
                 ]
             },
@@ -822,7 +825,7 @@
                 "url": "https://mailinfinity.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mailinfinity.com/ptrack*(*)",
+                        "pattern": "*://*(*.)mailinfinity.com/ptrack**",
                         "type": "glob"
                     }
                 ]
@@ -832,7 +835,7 @@
                 "url": "https://mailjet.com",
                 "patterns": [
                     {
-                        "pattern": "*://mjt.lu/oo*(*)",
+                        "pattern": "*://mjt.lu/oo**",
                         "type": "glob"
                     }
                 ]
@@ -852,7 +855,7 @@
                 "url": "https://mailbutler.io",
                 "patterns": [
                     {
-                        "pattern": "*//*(*.)mailbutler.io/tracking*(*)",
+                        "pattern": "*//*(*.)mailbutler.io/tracking**",
                         "type": "glob"
                     }
                 ]
@@ -862,7 +865,8 @@
                 "url": "https://mailtag.io",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mailtag.io/email-event*(*)"
+                        "pattern": "*://*(*.)mailtag.io/email-event**",
+                        "type": "glob"
                     }
                 ]
             },
@@ -871,11 +875,11 @@
                 "url": "https://mailtrack.io",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mailtrack.com/trace*(*)",
+                        "pattern": "*://*(*.)mailtrack.com/trace**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)mltrk.io/pixel*(*)",
+                        "pattern": "*://*(*.)mltrk.io/pixel**",
                         "type": "glob"
                     }
                 ]
@@ -885,7 +889,7 @@
                 "url": "https://mailzter.in",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mailzter.in/ltrack*(*)",
+                        "pattern": "*://*(*.)mailzter.in/ltrack**",
                         "type": "glob"
                     }
                 ]
@@ -895,7 +899,7 @@
                 "url": "https://mandrillapp.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mandrillapp.com/track*(*)",
+                        "pattern": "*://*(*.)mandrillapp.com/track**",
                         "type": "glob"
                     },
                     {
@@ -903,11 +907,11 @@
                         "type": "regex"
                     },
                     {
-                        "pattern": "*://*.list-manage.com/track/open*(*)",
+                        "pattern": "*://*.list-manage.com/track/open**",
                         "type": "glob"
                     },
                     {
-                        "pattern":  "*://*.list-manage1.com/track/open*(*)",
+                        "pattern":  "*://*.list-manage1.com/track/open**",
                         "type": "glob"
                     }
                 ]
@@ -917,7 +921,7 @@
                 "url": "https://marketo.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)marketo.com/trk*(*)",
+                        "pattern": "*://*(*.)marketo.com/trk**",
                         "type": "glob"
                     }
                 ]
@@ -927,7 +931,7 @@
                 "url": "https://mention.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mention.com/e/o*(*)",
+                        "pattern": "*://*(*.)mention.com/e/o**",
                         "type": "glob"
                     }
                 ]
@@ -937,7 +941,7 @@
                 "url": "https://metadata.io",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)metadata.io/e1t/o*(*)",
+                        "pattern": "*://*(*.)metadata.io/e1t/o**",
                         "type": "glob"
                     }
                 ]
@@ -947,11 +951,11 @@
                 "url": "https://mixmax.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mixmax.com/api/track*(*)",
+                        "pattern": "*://*(*.)mixmax.com/api/track**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)mixmax.com/e/o*(*)",
+                        "pattern": "*://*(*.)mixmax.com/e/o**",
                         "type": "glob"
                     },
                     {
@@ -965,7 +969,8 @@
                 "url": "https://mixpanel.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)mixpanel.com/{trk,track}*(*)"
+                        "pattern": "*://*(*.)mixpanel.com/{trk,track}**",
+                        "type": "glob"
                     }
                 ]
             },
@@ -974,11 +979,12 @@
                 "url": "https://nationbuilder.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)nationbuilder.com/r/o*(*)",
+                        "pattern": "*://*(*.)nationbuilder.com/r/o**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)nationbuilder.com/wf/open*(*)"
+                        "pattern": "*://*(*.)nationbuilder.com/wf/open**",
+                        "type": "glob"
                     }
                 ]
             },
@@ -987,7 +993,7 @@
                 "url": "https://netecart.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)netecart.com/ltrack*(*)",
+                        "pattern": "*://*(*.)netecart.com/ltrack**",
                         "type": "glob"
                     }
                 ]
@@ -997,7 +1003,7 @@
                 "url": "https://nethunt.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)nethunt.com/api/v1/track/email*(*)",
+                        "pattern": "*://*(*.)nethunt.com/api/v1/track/email**",
                         "type": "glob"
                     },
                     {
@@ -1021,23 +1027,23 @@
                 "url": "https://oracle.com",
                 "patterns": [
                     {
-                        "pattern": "*://tags.bluekai.com/site*(*)",
+                        "pattern": "*://tags.bluekai.com/site**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://en25.com/e*(*)",
+                        "pattern": "*://en25.com/e**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://dynect.net/trk.php*(*)",
+                        "pattern": "*://dynect.net/trk.php**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://bm23.com/t*(*)",
+                        "pattern": "*://bm23.com/t**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://bm5150.com/t*(*)",
+                        "pattern": "*://bm5150.com/t**",
                         "type": "glob"
                     }
                 ]
@@ -1047,11 +1053,11 @@
                 "url": "https://outreach.io",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)outreach.io/api/mailings/opened*(*)",
+                        "pattern": "*://*(*.)outreach.io/api/mailings/opened**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)getoutreach.com/api/mailings/opened*(*)",
+                        "pattern": "*://*(*.)getoutreach.com/api/mailings/opened**",
                         "type": "glob"
                     }
                 ]
@@ -1061,11 +1067,11 @@
                 "url": "https://payback.in",
                 "patterns": [
                     {
-                        "pattern": "*://*(*)email.payback.in/a*(*)",
+                        "pattern": "*://**email.payback.in/a**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*)mail.payback.in/tr*(*)",
+                        "pattern": "*://**mail.payback.in/tr**",
                         "type": "glob"
                     }
                 ]
@@ -1075,7 +1081,7 @@
                 "url": "https://www.paypal.com",
                 "patterns": [
                     {
-                        "pattern": "*://paypal-communication.com/o*(*)",
+                        "pattern": "*://paypal-communication.com/o**",
                         "type": "glob"
                     }
                 ]
@@ -1085,7 +1091,7 @@
                 "url": "https://www.paytm.com",
                 "patterns": [
                     {
-                        "pattern": "*://email.paytm.com/wf/open*(*)",
+                        "pattern": "*://email.paytm.com/wf/open**",
                         "type": "glob"
                     },
                     {
@@ -1099,7 +1105,7 @@
                 "url": "https://pipedrive.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)pipedrive.com/wf/open*(*)",
+                        "pattern": "*://*(*.)pipedrive.com/wf/open**",
                         "type": "glob"
                     }
                 ]
@@ -1109,7 +1115,7 @@
                 "url": "https://www.producthunt.com",
                 "patterns": [
                     {
-                        "pattern": "*://links.producthunt.com/oo*(*)",
+                        "pattern": "*://links.producthunt.com/oo**",
                         "type": "glob"
                     }
                 ]
@@ -1119,7 +1125,7 @@
                 "url": "https://prolificmail.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)prolificmail.com/ltrack*(*)",
+                        "pattern": "*://*(*.)prolificmail.com/ltrack**",
                         "type": "glob"
                     }
                 ]
@@ -1129,7 +1135,7 @@
                 "url": "https://quora.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)quora.com/qemail/mark_read*(*)",
+                        "pattern": "*://*(*.)quora.com/qemail/mark_read**",
                         "type": "glob"
                     }
                 ]
@@ -1148,7 +1154,7 @@
                 "url": "https://returnpath.net",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)returnpath.net/pixel.gif*(*)",
+                        "pattern": "*://*(*.)returnpath.net/pixel.gif**",
                         "type": "glob"
                     }
                 ]
@@ -1158,7 +1164,7 @@
                 "url": "https://runtastic.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)runtastic.com/mo*(*)",
+                        "pattern": "*://*(*.)runtastic.com/mo**",
                         "type": "glob"
                     }
                 ]
@@ -1168,7 +1174,7 @@
                 "url": "https://sailthru.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)sailthru.com/trk*(*)",
+                        "pattern": "*://*(*.)sailthru.com/trk**",
                         "type": "glob"
                     }
                 ]
@@ -1178,7 +1184,7 @@
                 "url": "https://www.salesforce.com",
                 "patterns": [
                     {
-                        "pattern": "*://salesforceiq.com/t.png*(*)",
+                        "pattern": "*://salesforceiq.com/t.png**",
                         "type": "glob"
                     },
                     {
@@ -1186,7 +1192,7 @@
                         "type": "domain"
                     },
                     {
-                        "pattern": "*://app.relateiq.com/t.png*(*)",
+                        "pattern": "*://app.relateiq.com/t.png**",
                         "type": "glob"
                     },
                     {
@@ -1200,7 +1206,7 @@
                 "url": "https://saleshandy.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)saleshandy.com/web/email/countopened*(*)",
+                        "pattern": "*://*(*.)saleshandy.com/web/email/countopened**",
                         "type": "glob"
                     }
                 ]
@@ -1210,7 +1216,7 @@
                 "url": "https://salesloft.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)salesloft.com/email_trackers*(*)",
+                        "pattern": "*://*(*.)salesloft.com/email_trackers**",
                         "type": "glob"
                     }
                 ]
@@ -1220,7 +1226,7 @@
                 "url": "https://segment.com",
                 "patterns": [
                     {
-                        "pattern": "*://email.segment.com/e/o*(*)",
+                        "pattern": "*://email.segment.com/e/o**",
                         "type": "glob"
                     }
                 ]
@@ -1230,7 +1236,7 @@
                 "url": "https://selligent.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)strongview.com/t/*(*)",
+                        "pattern": "*://*(*.)strongview.com/t/**",
                         "type": "glob"
                     }
                 ]
@@ -1254,19 +1260,19 @@
                 "url": "https://sendgrid.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)sendgrid.{net,com}/wf/open*(*)",
+                        "pattern": "*://*(*.)sendgrid.{net,com}/wf/open**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)sendgrid.{net,com}/trk*(*)",
+                        "pattern": "*://*(*.)sendgrid.{net,com}/trk**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)sendgrid.{net,com}/mpss/o*(*)",
+                        "pattern": "*://*(*.)sendgrid.{net,com}/mpss/o**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)sendgrid.{net,com}/ss/o*(*)",
+                        "pattern": "*://*(*.)sendgrid.{net,com}/ss/o**",
                         "type": "glob"
                     }
                 ]
@@ -1485,7 +1491,7 @@
                 "url": "https://skillsoft.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)skillsoft.com/trk*(*)",
+                        "pattern": "*://*(*.)skillsoft.com/trk**",
                         "type": "glob"
                     }
                 ]
@@ -1495,7 +1501,7 @@
                 "url": "https://streak.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)streak.com/e/o*(*)",
+                        "pattern": "*://*(*.)streak.com/e/o**",
                         "type": "glob"
                     }
                 ]
@@ -1515,15 +1521,15 @@
                 "url": "https://trackapp.io",
                 "patterns": [
                     {
-                        "pattern": "*://*(.*)trackapp.io/b*(*)",
+                        "pattern": "*://*(.*)trackapp.io/b**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(.*)trackapp.io/r*(*)",
+                        "pattern": "*://*(.*)trackapp.io/r**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(.*)trackapp.io/static/img/track.gif*(*)",
+                        "pattern": "*://*(.*)trackapp.io/static/img/track.gif**",
                         "type": "glob"
                     }
                 ]
@@ -1533,7 +1539,7 @@
                 "url": "https://wise.com",
                 "patterns": [
                     {
-                        "pattern": "*://links.transferwise.com/track*(*)",
+                        "pattern": "*://links.transferwise.com/track**",
                         "type": "glob"
                     }
                 ]
@@ -1543,11 +1549,11 @@
                 "url": "https://trello.com",
                 "patterns": [
                     {
-                        "pattern": "*://sptrack.trello.com/q*(*)",
+                        "pattern": "*://sptrack.trello.com/q**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://i.trellomail.com/e/eo*(*)",
+                        "pattern": "*://i.trellomail.com/e/eo**",
                         "type": "glob"
                     }
                 ]
@@ -1557,7 +1563,7 @@
                 "url": "https://udacity.com",
                 "patterns": [
                     {
-                        "pattern": "*://*.udacity.com/wf/open*(*)",
+                        "pattern": "*://*.udacity.com/wf/open**",
                         "type": "glob"
                     }
                 ]
@@ -1567,7 +1573,7 @@
                 "url": "https://unsplash.com",
                 "patterns": [
                     {
-                        "pattern": "*://email.unsplash.com/o*(*)",
+                        "pattern": "*://email.unsplash.com/o**",
                         "type": "glob"
                     }
                 ]
@@ -1577,7 +1583,7 @@
                 "url": "https://upwork.com",
                 "patterns": [
                     {
-                        "pattern": "*://email.mg.upwork.com/o*(*)",
+                        "pattern": "*://email.mg.upwork.com/o**",
                         "type": "glob"
                     }
                 ]
@@ -1597,11 +1603,11 @@
                 "url": "https://wildapricot.com",
                 "patterns": [
                     {
-                        "pattern": "*://*(*.)wildapricot.com/o*(*)",
+                        "pattern": "*://*(*.)wildapricot.com/o**",
                         "type": "glob"
                     },
                     {
-                        "pattern": "*://*(*.)wildapricot.org/emailtracker*(*)",
+                        "pattern": "*://*(*.)wildapricot.org/emailtracker**",
                         "type": "glob"
                     }
                 ]
@@ -1625,7 +1631,7 @@
                         "type": "domain"
                     },
                     {
-                        "pattern": "*://*(*.)yesware.com/trk*(*)",
+                        "pattern": "*://*(*.)yesware.com/trk**",
                         "type": "glob"
                     }
                 ]
