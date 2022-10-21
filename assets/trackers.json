@@ -2,273 +2,6 @@
     "trackers": {
         "blacklist": [
             {
-                "name": "Sidekick",
-                "patterns": [
-                    {
-                    "pattern": "track.getsidekick.com",
-                    "type": "domain"
-                },
-                    {
-                    "pattern": "t.sigopn01.com",
-                    "type": "domain"
-                    },
-                    {
-                    "pattern": "t.senaluno.com",
-                    "type": "domain"
-                    },
-                    {
-                    "pattern": "t.senaldos.com",
-                    "type": "domain"
-                    },
-                    {
-                    "pattern": "t.senaltres.com",
-                    "type": "domain"
-                    }, {
-                    "pattern": "t.senalquatro.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.senalcinco.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sigopn02.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sigopn03.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sigopn04.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sigopn05.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxun.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxdeux.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxtrois.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxquatre.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxcinq.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxsix.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxsept.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxhuit.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxdix.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signauxneuf.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signaleuna.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signaledue.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signaletre.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signalequattro.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.signalecinque.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk01.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk02.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk03.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk04.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk05.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk06.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk07.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk08.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk09.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk10.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk11.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk12.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.strk13.email",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen01.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen02.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen03.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen04.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen05.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen06.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen07.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen08.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen09.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen10.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen11.com",
-                    "type": "domain"
-                }, {
-                    "pattern": "t.sidekickopen12.co",
-                    "type": "domain"
-                }]
-            },
-            {
-                "name": "Mandrill",
-                "url": "https://mandrillapp.com",
-                "patterns": [
-                    {
-                        "pattern": "*://*.mandrillapp.com/track/open*(*)",
-                        "type": "glob"
-                    },
-                    {
-                        "pattern": "*://*.list-manage.com/track/open*(*)",
-                        "type": "glob"
-                    },
-                    {
-                        "pattern":  "*://*.list-manage1.com/track/open*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
-                "name": "SendGrid",
-                "url": "https://sendgrid.com",
-                "patterns": [
-                    {
-                        "pattern": "*://*(*.)sendgrid.{net,com}/wf/open*(*)",
-                        "type": "glob"
-                    },
-                    {
-                        "pattern": "*://*(*.)sendgrid.{net,com}/trk*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
-                "name": "ICPTrack",
-                "patterns": [
-                    {
-                        "pattern": "*://*(*.)icptrack.com/icp/track*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
-                "name": "BananaTag",
-                "url": "https://bananatag.com",
-                "patterns": [
-                    {
-                        "pattern": "bl-1.com",
-                        "type": "domain"
-                    }
-                ]
-            },
-            {
-                "name": "ConstantContact",
-                "url": "https://constantcontact.com",
-                "patterns": [
-                    {
-                        "pattern": "*://*(*.)constantcontact.com/images/p1x1.gif*(*)",
-                        "type": "glob"
-                    },
-                    {
-                        "pattern": "*://*(*.)rs6.net/on.jsp*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
-                "name": "MixPanel",
-                "url": "https://mixpanel.com",
-                "patterns": [
-                    {
-                        "pattern": "*://*(*.)mixpanel.com/{trk,track}*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
-                "name": "Selligent",
-                "url": "https://selligent.com",
-                "patterns": [
-                    {
-                        "pattern": "*://*(*.)strongview.com/t/*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
-                "name": "ClickMeter",
-                "url": "https://clickmeter.com",
-                "patterns": [
-                    {
-                        "pattern": "*://*.pixel.watch/*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
-                "name": "Codepen",
-                "url": "https://codepen.io",
-                "patterns": [
-                    {
-                        "pattern": "*://mailer.codepen.io/q*(*)",
-                        "type": "glob"
-                    }
-                ]
-            },
-            {
                 "name": "365offers",
                 "url": "https://365offers.trade",
                 "patterns": [
@@ -425,6 +158,16 @@
                 ]
             },
             {
+                "name": "BananaTag",
+                "url": "https://bananatag.com",
+                "patterns": [
+                    {
+                        "pattern": "bl-1.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
                 "name": "Blueshift",
                 "url": "https://blueshift.com",
                 "patterns": [
@@ -518,6 +261,16 @@
                 ]
             },
             {
+                "name": "ClickMeter",
+                "url": "https://clickmeter.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*.pixel.watch/*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
                 "name": "Clio",
                 "url": "https://clio.com",
                 "patterns": [
@@ -567,6 +320,20 @@
                 "patterns": [
                     {
                         "pattern": "*://mailer.codepen.io/q*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ConstantContact",
+                "url": "https://constantcontact.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)constantcontact.com/images/p1x1.gif*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)rs6.net/on.jsp*(*)",
                         "type": "glob"
                     }
                 ]
@@ -919,6 +686,15 @@
                 ]
             },
             {
+                "name": "ICPTrack",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)icptrack.com/icp/track*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
                 "name": "Infusionsoft",
                 "url": "https://infusionsoft.com",
                 "patterns": [
@@ -1115,7 +891,7 @@
                 ]
             },
             {
-                "name": "MandrillApp",
+                "name": "Mandrill",
                 "url": "https://mandrillapp.com",
                 "patterns": [
                     {
@@ -1125,6 +901,14 @@
                     {
                         "pattern": "mandrill.\\S+\\/track\\/open.php",
                         "type": "regex"
+                    },
+                    {
+                        "pattern": "*://*.list-manage.com/track/open*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern":  "*://*.list-manage1.com/track/open*(*)",
+                        "type": "glob"
                     }
                 ]
             },
@@ -1442,6 +1226,16 @@
                 ]
             },
             {
+                "name": "Selligent",
+                "url": "https://selligent.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)strongview.com/t/*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
                 "name": "SendInBlue",
                 "url": "https://sendinblue.com",
                 "patterns": [
@@ -1474,6 +1268,215 @@
                     {
                         "pattern": "*://*(*.)sendgrid.{net,com}/ss/o*(*)",
                         "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Sidekick",
+                "patterns": [
+                    {
+                        "pattern": "track.getsidekick.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sigopn01.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.senaluno.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.senaldos.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.senaltres.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.senalquatro.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.senalcinco.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sigopn02.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sigopn03.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sigopn04.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sigopn05.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxun.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxdeux.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxtrois.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxquatre.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxcinq.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxsix.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxsept.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxhuit.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxdix.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signauxneuf.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signaleuna.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signaledue.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signaletre.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signalequattro.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.signalecinque.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk01.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk02.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk03.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk04.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk05.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk06.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk07.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk08.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk09.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk10.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk11.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk12.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.strk13.email",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen01.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen02.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen03.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen04.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen05.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen06.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen07.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen08.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen09.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen10.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen11.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.sidekickopen12.com",
+                        "type": "domain"
                     }
                 ]
             },
