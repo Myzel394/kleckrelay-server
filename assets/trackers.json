@@ -1,0 +1,1666 @@
+{
+    "trackers": {
+        "blacklist": [
+            {
+                "name": "Sidekick",
+                "patterns": [
+                    {
+                    "pattern": "track.getsidekick.com",
+                    "type": "domain"
+                },
+                    {
+                    "pattern": "t.sigopn01.com",
+                    "type": "domain"
+                    },
+                    {
+                    "pattern": "t.senaluno.com",
+                    "type": "domain"
+                    },
+                    {
+                    "pattern": "t.senaldos.com",
+                    "type": "domain"
+                    },
+                    {
+                    "pattern": "t.senaltres.com",
+                    "type": "domain"
+                    }, {
+                    "pattern": "t.senalquatro.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.senalcinco.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sigopn02.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sigopn03.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sigopn04.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sigopn05.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxun.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxdeux.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxtrois.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxquatre.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxcinq.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxsix.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxsept.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxhuit.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxdix.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signauxneuf.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signaleuna.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signaledue.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signaletre.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signalequattro.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.signalecinque.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk01.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk02.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk03.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk04.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk05.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk06.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk07.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk08.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk09.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk10.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk11.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk12.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.strk13.email",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen01.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen02.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen03.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen04.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen05.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen06.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen07.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen08.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen09.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen10.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen11.com",
+                    "type": "domain"
+                }, {
+                    "pattern": "t.sidekickopen12.co",
+                    "type": "domain"
+                }]
+            },
+            {
+                "name": "Mandrill",
+                "url": "https://mandrillapp.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*.mandrillapp.com/track/open*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*.list-manage.com/track/open*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern":  "*://*.list-manage1.com/track/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "SendGrid",
+                "url": "https://sendgrid.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)sendgrid.{net,com}/wf/open*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)sendgrid.{net,com}/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ICPTrack",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)icptrack.com/icp/track*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "BananaTag",
+                "url": "https://bananatag.com",
+                "patterns": [
+                    {
+                        "pattern": "bl-1.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "ConstantContact",
+                "url": "https://constantcontact.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)constantcontact.com/images/p1x1.gif*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)rs6.net/on.jsp*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MixPanel",
+                "url": "https://mixpanel.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mixpanel.com/{trk,track}*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Selligent",
+                "url": "https://selligent.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)strongview.com/t/*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ClickMeter",
+                "url": "https://clickmeter.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*.pixel.watch/*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Codepen",
+                "url": "https://codepen.io",
+                "patterns": [
+                    {
+                        "pattern": "*://mailer.codepen.io/q*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "365offers",
+                "url": "https://365offers.trade",
+                "patterns": [
+                    {
+                        "pattern": "trk.365offers.trade",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "ActionKit",
+                "url": "https://actionkit.com",
+                "patterns": [
+                    {
+                        "pattern": "*://track.sp.actionkit.com/q/*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Adobe",
+                "url": "https://adobe.com",
+                "patterns": [
+                    {
+                        "pattern": "demdex.net",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.info.adobesystems.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "toutapp.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "sparkpostmail2.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "*://magento.com/trk*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://magento.com/wf/open*(*.",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "go.rjmetrics.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Active",
+                "url": "https://active.com",
+                "patterns": [
+                    {
+                        "pattern": "*://click.email.active.com/q*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "AgileCRM",
+                "url": "https://agilecrm.com",
+                "patterns": [
+                    {
+                        "pattern": "*://agle2.me/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Airbnb",
+                "url": "https://airbnb.com",
+                "patterns": [
+                    {
+                        "pattern": "*://email.airbnb.com/wf/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Amazon",
+                "url": "https://amazon.com",
+                "patterns": [
+                    {
+                        "pattern": "awstrack.me",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "*://amazonappservices.com/trk*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://amazonappservices.com/r/*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://awscloud.com/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Apple",
+                "url": "https://apple.com",
+                "patterns":  [
+                    {
+                        "pattern": "*://apple.com/report/2/its_mail_sf*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Asus",
+                "url": "https://asus.com",
+                "patterns":  [
+                    {
+                        "pattern": "emditpison.asus.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "The Atlantic",
+                "url": "https://theatlantic.com",
+                "patterns":  [
+                    {
+                        "pattern": "*://links.e.theatlantic.com/open/log*(*)",
+                        "type": "glob"
+                    }
+                    ]
+            },
+            {
+                "name": "AWeber",
+                "url": "https://aweber.com",
+                "patterns": [
+                    {
+                        "pattern": "openrate.aweber.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Axios",
+                "url": "https://axios.com",
+                "patterns": [
+                    {
+                        "pattern": "*://link.axios.com/img/*.gif",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Blueshift",
+                "url": "https://blueshift.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)blueshiftmail.com/wf/open*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)getblueshift.com/track*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Boomerang for Gmail",
+                "url": "https://boomeranggmail.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mailstat.us/tr*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Boots",
+                "url": "https://boots.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)boots.com/rts/open.aspx*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Boxbe.com",
+                "url": "https://boxbe.com",
+                "patterns": [
+                    {
+                        "pattern": "*//*(*.)boxbe.com/stfopen*"
+                    }
+                ]
+            },
+            {
+                "name": "BrowserStack",
+                "url": "https://browserstack.com",
+                "patterns": [
+                    {
+                        "pattern": "*://browserstack.com/images/mail/track-open*(*)",
+                        "type": "glob"
+                    }
+                    ]
+            },
+            {
+                "name": "Buzzstream",
+                "url": "https://buzzstream.com",
+                "patterns": [
+                    {
+                        "pattern": "tx.buzzstream.com",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "CampaignMonitor.com",
+                "url": "https://campaignmonitor.com",
+                "patterns": [
+                    {
+                        "pattern": "cmail(d{1,2}).com\\/t\\/",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "Canary Mail",
+                "url": "https://canarymail.io",
+                "patterns": [
+                    {
+                        "pattern": "canarymail.io(:\\d+)?\\/track",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "Cirrus Insight",
+                "url": "https://cirrusinsight.com",
+                "patterns": [
+                    {
+                        "pattern": "tracking.cirrusinsight.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Clio",
+                "url": "https://clio.com",
+                "patterns": [
+                    {
+                        "pattern": "*://market.clio.com/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Close.io",
+                "url": "https://close.io",
+                "patterns": [
+                    {
+                        "pattern": "*://close.{io,com}/email_opened*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "cloudHQ",
+                "url": "https://cloudhq.io",
+                "patterns": [
+                    {
+                        "pattern": "*://cloudhq.io/mail_track*",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "cloudhq-mkt\\d.net\\/mail_track",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "Coda.io",
+                "url": "https://coda.io",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)coda.io/logging/ping*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "CodePen",
+                "url": "https://codepen.io",
+                "patterns": [
+                    {
+                        "pattern": "*://mailer.codepen.io/q*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ContactMonkey",
+                "url": "https://contactmonkey.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)contactmonkey.com/api/v1/tracker*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ConvertKit",
+                "url": "https://convertkit.com",
+                "patterns": [
+                    {
+                        "pattern": "open.convertkit-mail\\d?.com",
+                        "type": "regex"
+                    },
+                    {
+                        "pattern": "convertkit-mail.com\\/o\\/",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "Copper",
+                "url": "https://copper.com",
+                "patterns": [
+                    {
+                        "pattern": "prosperworks.com\\/tp\\/t",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "CreditMantri",
+                "url": "https://creditmantri.com",
+                "patterns": [
+                    {
+                        "pattern": "*://mailer.creditmantri.com/t/*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Critical Impact",
+                "url": "https://criticalimpact.com",
+                "patterns": [
+                    {
+                        "pattern": "*//portal.criticalimpact.com/c2/*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Dell",
+                "url": "https://dell.com",
+                "patterns": [
+                    {
+                        "pattern": "ind.dell.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "DidTheyReadIt",
+                "url": "https://didtheyreadit.com",
+                "patterns": [
+                    {
+                        "pattern": "xpostmail.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "DotDigital",
+                "url": "https://dotdigital.com",
+                "patterns": [
+                    {
+                        "pattern": "trackedlink.net",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "dmtrk.net",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Dropbox",
+                "url": "https://dropbox.com",
+                "patterns": [
+                    {
+                        "pattern": "*://dropbox.com/l/*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "DZone",
+                "url": "https://dzone.com",
+                "patterns": [
+                    {
+                        "pattern": "*://mailer.dzone.com/open.php*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Emarsys.com",
+                "url": "https://emarsys.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*.emarsys.com/e2t/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Eventbrite",
+                "url": "https://eventbrite.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)eventbrite.com/emails/action*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "EveryAction",
+                "url": "https://everyaction.com",
+                "patterns": [
+                    {
+                        "pattern": "*://click.everyaction.com/j/*(*)"
+                    }
+                ]
+            },
+            {
+                "name": "Evite.com",
+                "url": "https://evite.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)pippio.com/api/sync*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://nli.evite.com/imp*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Facebook",
+                "url": "https://www.facebook.com",
+                "patterns": [
+                    {
+                        "pattern": "*://facebook.com/email_open_log_pic.php*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://facebookdevelopers.com/trk*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://fb.com/trk*(*.)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Flipkart",
+                "url": "https://flipkart.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)flipkart.com/t/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "FreeLancer",
+                "url": "https://freelancer.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)freelancer.com/1px.gif",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Front",
+                "url": "https://front.com",
+                "patterns": [
+                    {
+                        "pattern": "*://app.frontapp.com/*(*)/seen",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "FullContact",
+                "url": "https://fullcontact.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)fullcontact.com/wf/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "GearBest",
+                "url": "https://gearbest.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)appinthestore.com/marketing/mail-user-deal/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "GetMailSpring",
+                "url": "https://getmailspring.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)getmailspring.com/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "GetNotify",
+                "url": "https://getnotify.com",
+                "patterns": [
+                    {
+                        "pattern": "email81.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Pocket",
+                "url": "https://getpocket.com",
+                "patterns": [
+                    {
+                        "pattern": "*://email.getpocket.com/wf/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "GetResponse",
+                "url": "https://getresponse.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)getresponse.com/open.html?x=*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "GitHub",
+                "url": "https://github.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)github.com/notifications/beacon*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "GlassDoor",
+                "url": "https://glassdoor.com",
+                "patterns": [
+                    {
+                        "pattern": "*://mail.glassdoor.com/pub/as*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Gmelius",
+                "url": "https://gmelius.com",
+                "patterns": [
+                    {
+                        "pattern": "gml.email",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Granicus",
+                "url": "https://granicus.com",
+                "patterns": [
+                    {
+                        "pattern": "govdelivery.com(:\\d+)?\\/track",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "GrowthDot",
+                "url": "https://growthdot.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)growthdot.com/api/mail-tracking*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Google Analytics",
+                "url": "https://www.google.com/analytics",
+                "patterns": [
+                    {
+                        "pattern": "ad.doubleclick.net",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "*://*(*.)google-analytics.com/collect*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)google.com/appserve/mkt/img*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Homeaway",
+                "url": "https://homeaway.com",
+                "patterns": [
+                    {
+                        "pattern": "trk.homeaway.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "HubSpot",
+                "url": "https://hubspot.com",
+                "patterns": [
+                    {
+                        "pattern": "*://t.{hubspotemail,hubspotfree,signaux,senal,signale,sidekickopen,sigopn,hsmsdd}.*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Infusionsoft",
+                "url": "https://infusionsoft.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)infusionsoft.com/app/emailOpened*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Insightly",
+                "url": "https://insightly.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)insgly.net/api/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Intercom",
+                "url": "https://intercom.com",
+                "patterns": [
+                    {
+                        "pattern": "intercom-mail[a-zA-Z0-9-.]*.com\\/(via\\/)?(o|q)",
+                        "type": "regex"
+                    },
+                    {
+                        "pattern": "*://via.intercom.io/o*(*.)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Is Tracking Pixel API",
+                "url": "https://is-tracking-pixel-api-prod.appspot.com",
+                "patterns": [
+                    {
+                        "pattern": "is-tracking-pixel-api-prod.appspot.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Klaviyo",
+                "url": "https://klaviyo.com",
+                "patterns": [
+                    {
+                        "pattern": "trk.klaviyomail.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "BuySellAds",
+                "url": "https://buysellads.com",
+                "patterns": [
+                    {
+                        "pattern": "launchbit.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "LinkedIn",
+                "url": "https://linkedin.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)linkedin.com/emimp*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Litmus",
+                "url": "https://litmus.com",
+                "patterns": [
+                    {
+                        "pattern": "emltrk.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "LogDNA",
+                "url": "https://logdna.com",
+                "patterns": [
+                    {
+                        "pattern": "ping.answerbook.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Mailcastr",
+                "url": "https://mailcastr.com",
+                "patterns": [
+                    {
+                        "pattern": "mailcastr.com\\/image\\/[a-zA-Z0-9-_]{64}",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "MailChimp",
+                "url": "https://mailchimp.com",
+                "patterns": [
+                    {
+                        "pattern": "*://list-manage.com/track*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MailCoral",
+                "url": "https://mailcoral.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mailcoral.com/open*(*)"
+                    }
+                ]
+            },
+            {
+                "name": "MailInfinity",
+                "url": "https://mailinfinity.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mailinfinity.com/ptrack*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MailJet",
+                "url": "https://mailjet.com",
+                "patterns": [
+                    {
+                        "pattern": "*://mjt.lu/oo*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MailGun",
+                "url": "https://mailgun.com",
+                "patterns": [
+                    {
+                        "pattern": "email.(mailgun|mg)(.*)\\?\\/o\\/",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "MailButler",
+                "url": "https://mailbutler.io",
+                "patterns": [
+                    {
+                        "pattern": "*//*(*.)mailbutler.io/tracking*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MailTag",
+                "url": "https://mailtag.io",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mailtag.io/email-event*(*)"
+                    }
+                ]
+            },
+            {
+                "name": "MailTrack",
+                "url": "https://mailtrack.io",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mailtrack.com/trace*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)mltrk.io/pixel*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Mailzter",
+                "url": "https://mailzter.in",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mailzter.in/ltrack*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MandrillApp",
+                "url": "https://mandrillapp.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mandrillapp.com/track*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "mandrill.\\S+\\/track\\/open.php",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "Marketo",
+                "url": "https://marketo.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)marketo.com/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Mention",
+                "url": "https://mention.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mention.com/e/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MetaData",
+                "url": "https://metadata.io",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)metadata.io/e1t/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MixMax",
+                "url": "https://mixmax.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mixmax.com/api/track*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)mixmax.com/e/o*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://{email,track}.mixmax.com/*",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "MixPanel",
+                "url": "https://mixpanel.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)mixpanel.com/{trk,track}*(*)"
+                    }
+                ]
+            },
+            {
+                "name": "Nation Builder",
+                "url": "https://nationbuilder.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)nationbuilder.com/r/o*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)nationbuilder.com/wf/open*(*)"
+                    }
+                ]
+            },
+            {
+                "name": "NeteCart",
+                "url": "https://netecart.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)netecart.com/ltrack*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Nethunt",
+                "url": "https://nethunt.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)nethunt.com/api/v1/track/email*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "nethunt.co(.*)\\?\\/pixel.gif",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "Opicle",
+                "url": "https://opicle.com",
+                "patterns": [
+                    {
+                        "pattern": "track.opicle.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Oracle",
+                "url": "https://oracle.com",
+                "patterns": [
+                    {
+                        "pattern": "*://tags.bluekai.com/site*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://en25.com/e*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://dynect.net/trk.php*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://bm23.com/t*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://bm5150.com/t*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Outreach",
+                "url": "https://outreach.io",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)outreach.io/api/mailings/opened*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)getoutreach.com/api/mailings/opened*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "PayBack",
+                "url": "https://payback.in",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*)email.payback.in/a*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*)mail.payback.in/tr*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "PayPal",
+                "url": "https://www.paypal.com",
+                "patterns": [
+                    {
+                        "pattern": "*://paypal-communication.com/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Paytm",
+                "url": "https://www.paytm.com",
+                "patterns": [
+                    {
+                        "pattern": "*://email.paytm.com/wf/open*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "trk.paytmemail.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "PipeDrive",
+                "url": "https://pipedrive.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)pipedrive.com/wf/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ProductHunt",
+                "url": "https://www.producthunt.com",
+                "patterns": [
+                    {
+                        "pattern": "*://links.producthunt.com/oo*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ProlificMail",
+                "url": "https://prolificmail.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)prolificmail.com/ltrack*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Quora",
+                "url": "https://quora.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)quora.com/qemail/mark_read*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "ReplyCal",
+                "patterns": [
+                    {
+                        "pattern": "replycal.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Return Path",
+                "url": "https://returnpath.net",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)returnpath.net/pixel.gif*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Runtastic",
+                "url": "https://runtastic.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)runtastic.com/mo*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Sailthru",
+                "url": "https://sailthru.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)sailthru.com/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Salesforce",
+                "url": "https://www.salesforce.com",
+                "patterns": [
+                    {
+                        "pattern": "*://salesforceiq.com/t.png*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "beacon.krxd.net",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "*://app.relateiq.com/t.png*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "nova.collect.igodigital.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "SalesHandy",
+                "url": "https://saleshandy.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)saleshandy.com/web/email/countopened*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "SalesLoft",
+                "url": "https://salesloft.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)salesloft.com/email_trackers*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Segment",
+                "url": "https://segment.com",
+                "patterns": [
+                    {
+                        "pattern": "*://email.segment.com/e/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "SendInBlue",
+                "url": "https://sendinblue.com",
+                "patterns": [
+                    {
+                        "pattern": "sendinbtd.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "sendibw{2}.com\\/track\\/",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "SendGrid",
+                "url": "https://sendgrid.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)sendgrid.{net,com}/wf/open*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)sendgrid.{net,com}/trk*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)sendgrid.{net,com}/mpss/o*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)sendgrid.{net,com}/ss/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Skillsoft",
+                "url": "https://skillsoft.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)skillsoft.com/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Streak",
+                "url": "https://streak.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)streak.com/e/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "TinyLetter",
+                "url": "https://tinyletter.com",
+                "patterns": [
+                    {
+                        "pattern": "tinyletterapp.com\\.*\\?open.gif",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "TrackApp",
+                "url": "https://trackapp.io",
+                "patterns": [
+                    {
+                        "pattern": "*://*(.*)trackapp.io/b*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(.*)trackapp.io/r*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(.*)trackapp.io/static/img/track.gif*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Wise",
+                "url": "https://wise.com",
+                "patterns": [
+                    {
+                        "pattern": "*://links.transferwise.com/track*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Trello",
+                "url": "https://trello.com",
+                "patterns": [
+                    {
+                        "pattern": "*://sptrack.trello.com/q*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://i.trellomail.com/e/eo*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Udacity",
+                "url": "https://udacity.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*.udacity.com/wf/open*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Unsplash",
+                "url": "https://unsplash.com",
+                "patterns": [
+                    {
+                        "pattern": "*://email.unsplash.com/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Upwork",
+                "url": "https://upwork.com",
+                "patterns": [
+                    {
+                        "pattern": "*://email.mg.upwork.com/o*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "vCommission",
+                "url": "https://vcommission.com",
+                "patterns": [
+                    {
+                        "pattern": "tracking.vcommission.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "WildApricot",
+                "url": "https://wildapricot.com",
+                "patterns": [
+                    {
+                        "pattern": "*://*(*.)wildapricot.com/o*(*)",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*://*(*.)wildapricot.org/emailtracker*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Wix.com",
+                "url": "https://wix.com",
+                "patterns": [
+                    {
+                        "pattern": "shoutout.wix.com\\/[a-zA-Z0-9-.]*\\/pixel\\/",
+                        "type": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "Yesware",
+                "url": "https://www.yesware.com/",
+                "patterns": [
+                    {
+                        "pattern": "t.yesware.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "*://*(*.)yesware.com/trk*(*)",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "name": "Zendesk",
+                "url": "https://zendesk.com",
+                "patterns": [
+                    {
+                        "pattern": "*://futuresimple.com/api/v1/sprite.png",
+                        "type": "glob"
+                    }
+                ]
+            },
+            {
+                "patterns": [
+                    {
+                        "pattern": "\\/track\\/open",
+                        "type": "regex"
+                    },
+                    {
+                        "pattern": "\\/open\\.aspx\\?tp\\=",
+                        "type": "regex"
+                    },
+                    {
+                        "pattern": "\\/WebEvent\\/SetCookie\\.gif\\?tp\\=",
+                        "type": "regex"
+                    },
+                    {
+                        "pattern": "email\\.[a-zA-Z0-9-.]+\\/o\\/[a-zA-Z0-9-_.]{64}",
+                        "type": "regex"
+                    },
+                    {
+                        "pattern": "\\/smtp\\.mailopen",
+                        "type": "regex"
+                    }
+                ]
+            }
+        ]
+    }
+}
