@@ -6,7 +6,7 @@ from .authentication import router as auth_router
 from .image_proxy import router as image_proxy_router
 from .report import router as report_router
 from .settings import router as settings_router
-from .user_preferences import router as user_preferences_router
+from .user_preference import router as user_preferences_router
 
 __all__ = [
     "routers",

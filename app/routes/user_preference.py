@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
 
 from app.authentication.handler import access_security
 from app.controllers.user import get_user_by_id
@@ -50,7 +49,6 @@ def update_user_preferences(
             db.commit()
             db.refresh(alias)
 
-    return JSONResponse({
+    return {
         "detail": "Updated preferences successfully!"
-    })
-
+    }

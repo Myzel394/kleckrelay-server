@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi_pagination import Page, paginate, Params
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
@@ -14,16 +15,17 @@ from app.schemas.report import Report
 router = APIRouter()
 
 
-@router.get("/", response_model=list[Report])
+@router.get("/", response_model=Page[Report])
 def get_reports(
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
+    params: Params = Depends(),
 ):
     logger.info("Request: Get all Reports -> New Request.")
 
     user = get_user_by_id(db, credentials["id"])
 
-    return user.email_reports
+    return paginate(user.email_reports, params)
 
 
 @router.delete("/{id}", response_model=SimpleDetailResponseModel)

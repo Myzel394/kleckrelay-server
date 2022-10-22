@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi_pagination import Page, paginate, Params
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
@@ -21,17 +22,18 @@ router = APIRouter()
 
 @router.get(
     "/",
-    response_model=list[Alias]
+    response_model=Page[Alias]
 )
 def get_all_aliases(
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
+    params: Params = Depends(),
 ):
     logger.info("Request: Get all aliases -> New Request.")
 
     user = get_user_by_id(db, credentials["id"])
 
-    return user.email_aliases
+    return paginate(user.email_aliases, params)
 
 
 @router.post(
@@ -82,7 +84,7 @@ def create_alias(
 
 @router.patch(
     "/{id}",
-    response_model=Alias,
+    response_model=Page[Alias],
     responses={
         404: {
             "model": HTTPNotFoundExceptionModel
@@ -119,4 +121,3 @@ def update_alias(
 
         logger.info(f"Request: Update Alias -> Alias {id} saved successfully.")
         return alias
-

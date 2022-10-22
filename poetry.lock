@@ -298,6 +298,32 @@ test = ["isort (>=5.10.1,<6.0.0)", "flake8 (>=4.0.0,<8.0.0)", "mypy (>=0.910)", 
 docs = ["mike (>=1.1.0,<2.0.0)", "mkdocs-awesome-pages-plugin (>=2.6.0,<3.0.0)", "mkdocs-include-markdown-plugin (>=3.2.0,<4.0.0)", "lazydocs (>=0.4.5,<1.0.0)", "MkAutoDoc (>=0.1.0,<1.0.0)", "mkdocs-material (>=8.0.0,<9.0.0)", "mkdocs (>=1.2.0,<2.0.0)"]
 
 [[package]]
+name = "fastapi-pagination"
+version = "0.10.0"
+description = "FastAPI pagination"
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+fastapi = ">=0.80.0"
+pydantic = ">=1.9.1"
+
+[package.extras]
+sqlmodel = ["sqlmodel (>=0.0.8,<0.0.9)"]
+all = ["sqlmodel (>=0.0.8,<0.0.9)", "mongoengine (>=0.23.1,<0.25.0)", "motor (>=2.5.1,<4.0.0)", "piccolo (>=0.89.0,<0.90.0)", "Django (<3.3.0)", "ormar (>=0.11.2)", "asyncpg (>=0.24.0)", "tortoise-orm (>=0.16.18,<0.20.0)", "orm (>=0.3.1)", "databases (>=0.6.0)", "SQLAlchemy (>=1.3.20)"]
+mongoengine = ["mongoengine (>=0.23.1,<0.25.0)"]
+motor = ["motor (>=2.5.1,<4.0.0)"]
+piccolo = ["piccolo (>=0.89.0,<0.90.0)"]
+django = ["Django (<3.3.0)", "databases (>=0.6.0)"]
+ormar = ["ormar (>=0.11.2)"]
+asyncpg = ["asyncpg (>=0.24.0)", "SQLAlchemy (>=1.3.20)"]
+tortoise = ["tortoise-orm (>=0.16.18,<0.20.0)"]
+orm = ["orm (>=0.3.1)", "databases (>=0.6.0)"]
+databases = ["databases (>=0.6.0)"]
+sqlalchemy = ["SQLAlchemy (>=1.3.20)"]
+
+[[package]]
 name = "fastapi-users"
 version = "10.2.0"
 description = "Ready-to-use and customizable users management for FastAPI"
@@ -839,7 +865,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.4.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "9373a84ce04662be7aa8689874e92a67aa7f51be04bfbb67a7b584d8bbaa2152"
+content-hash = "e2fbc93af4303d2427d42691623c01fb4cc0940aedf6f85979bdbb6184ae493f"
 
 [metadata.files]
 aiodns = []
@@ -865,6 +891,7 @@ email-normalize = []
 email-validator = []
 fastapi = []
 fastapi-jwt = []
+fastapi-pagination = []
 fastapi-users = []
 fastapi-users-db-sqlalchemy = []
 greenlet = []
