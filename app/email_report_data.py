@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass, field
+from typing import Optional
 
 _all__ = [
     "EmailReportProxyImageData",
@@ -40,6 +41,8 @@ class EmailReportData:
     mail_from: str
     mail_to: str
     subject: str
+    message_id: str
+    report_id: Optional[str] = None
     proxied_images: list[EmailReportProxyImageData] = field(
         default_factory=lambda: []
     )
@@ -48,10 +51,15 @@ class EmailReportData:
     )
 
     def as_dict(self) -> dict:
+        assert self.report_id is not None, \
+            "`report_id` is missing. This value must be set manually."
+
         return {
             "version": self.version,
+            "id": str(self.report_id),
             "message_details": {
                 "meta": {
+                    "message_id": self.message_id,
                     "from": self.mail_from,
                     "to": self.mail_to,
                     "created_at": datetime.datetime.now().isoformat(),

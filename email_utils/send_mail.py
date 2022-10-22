@@ -9,7 +9,7 @@ from app.models import LanguageType
 from . import formatters, headers
 from .errors import EmailHandlerError
 from .template_renderer import render
-from .utils import generate_message_id, message_to_bytes
+from .utils import message_to_bytes
 
 __all__ = [
     "send_error_mail",
@@ -59,7 +59,6 @@ def send_mail(
         mail=from_mail,
     )
     message[headers.TO] = to_mail
-    message[headers.MESSAGE_ID] = generate_message_id()
 
     if life_constants.DEBUG_MAILS:
         _debug_email(

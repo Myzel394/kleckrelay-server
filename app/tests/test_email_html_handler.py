@@ -21,6 +21,8 @@ def test_can_convert_images(
         mail_from="from@example.com",
         mail_to="to@example.com",
         subject="Awesome Subject here",
+        message_id="",
+        report_id="",
     )
     new_html = html_handler.convert_images(db, report, alias=alias, html=html)
 
@@ -41,6 +43,8 @@ def test_can_remove_single_pixel_tracker_images_by_url():
         mail_from="from@example.com",
         mail_to="to@example.com",
         subject="Awesome Subject here",
+        message_id="",
+        report_id="",
     )
     new_html = html_handler.remove_single_pixel_image_trackers(report, html=html)
 
@@ -57,6 +61,8 @@ def test_can_remove_single_pixel_tracker_image_by_size():
         mail_from="from@example.com",
         mail_to="to@example.com",
         subject="Awesome Subject here",
+        message_id="",
+        report_id="",
     )
     new_html = html_handler.remove_single_pixel_image_trackers(report, html=html)
 

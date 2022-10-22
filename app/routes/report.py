@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import logger
 from app.authentication.handler import access_security
-from app.controllers.email_report import get_report_by_id
+from app.controllers.email_report import get_report_by_id, get_report_from_user_by_id
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.schemas._basic import SimpleDetailResponseModel
@@ -28,6 +28,28 @@ def get_reports(
     return paginate(user.email_reports, params)
 
 
+@router.get("/{id}", response_model=Report)
+def get_report(
+    id: str,
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+    db: Session = Depends(get_db),
+):
+    logger.info("Request: Get Report -> New Request.")
+
+    user = get_user_by_id(db, credentials["id"])
+
+    try:
+        report = get_report_from_user_by_id(db, user=user, id=id)
+    except NoResultFound:
+        logger.info(f"Request: Get Report -> Report with {id=} not found.")
+        raise HTTPException(
+            status_code=404,
+            detail="Report not found."
+        )
+    else:
+        return report
+
+
 @router.delete("/{id}", response_model=SimpleDetailResponseModel)
 def delete_report(
     id: str,
@@ -43,7 +65,7 @@ def delete_report(
         logger.info(f"Request: Delete Report -> Report with {id=} not found.")
         raise HTTPException(
             status_code=404,
-            detail="Alias not found."
+            detail="Report not found."
         )
     else:
         db.delete(report)

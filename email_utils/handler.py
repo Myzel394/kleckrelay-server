@@ -15,7 +15,8 @@ from email_utils.send_mail import (
     send_error_mail, send_mail,
 )
 from email_utils.utils import (
-    get_alias_by_email, get_header_unicode, get_local_email, parse_destination_email,
+    generate_message_id, get_alias_by_email, get_header_unicode, get_local_email,
+    parse_destination_email,
 )
 from email_utils.validators import validate_alias
 from . import headers
@@ -58,6 +59,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
             mail_from=envelope.mail_from,
             mail_to=alias.address,
             subject=get_header_unicode(message[headers.SUBJECT]),
+            message_id=message[headers.MESSAGE_ID],
         )
         content = message.as_string()
 
@@ -102,6 +104,7 @@ def handle(envelope: Envelope, message: Message) -> str:
         user = None
 
         try:
+            message[headers.MESSAGE_ID] = generate_message_id()
             from_mail, to_mail, user = _get_targets(db, envelope, message)
 
             send_mail(
