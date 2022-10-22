@@ -133,9 +133,9 @@ def proxy_image(
                 return StreamingResponse(
                     convert_image_to_type(
                         proxy_instance.absolute_path.read_bytes(),
-                        preferred_type=proxy_instance.email_alias.image_proxy_format,
+                        preferred_type=proxy_instance.email_alias.proxy_image_format,
                     ),
-                    media_type=f"image/{str(proxy_instance.email_alias.image_proxy_format).lower()}",
+                    media_type=f"image/{str(proxy_instance.email_alias.proxy_image_format).lower()}",
                 )
             except (UnidentifiedImageError, ValueError, IOError):
                 logger.info(
@@ -149,8 +149,8 @@ def proxy_image(
         return StreamingResponse(
             download_image_on_fly(
                 url=url,
-                preferred_type=proxy_instance.email_alias.image_proxy_format,
+                preferred_type=proxy_instance.email_alias.proxy_image_format,
                 user_agent=proxy_instance.email_alias.get_user_agent_string(),
             ),
-            media_type=f"image/{str(proxy_instance.email_alias.image_proxy_format).lower()}",
+            media_type=f"image/{str(proxy_instance.email_alias.proxy_image_format).lower()}",
         )

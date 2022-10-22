@@ -122,7 +122,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
 
     @property
     def proxy_image_format(self) -> ImageProxyFormatType:
-        return self.get_preference_value("proxy_image_format")
+        return self.get_preference_value("image_proxy_format")
 
     @property
     def image_proxy_user_agent(self) -> ProxyUserAgentType:

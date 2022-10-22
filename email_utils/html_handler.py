@@ -40,6 +40,8 @@ def convert_images(
             EmailReportProxyImageData(
                 url=source,
                 image_proxy_id=image_proxy.id,
+                created_at=image_proxy.created_at,
+                server_url=image_proxy.generate_url(source),
             )
         )
 

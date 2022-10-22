@@ -61,7 +61,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
             subject=get_header_unicode(message[headers.SUBJECT]),
             message_id=message[headers.MESSAGE_ID],
         )
-        content = message.as_string()
+        content = message.get_payload()
 
         if alias.remove_trackers:
             content = remove_single_pixel_image_trackers(report, html=content)
@@ -69,7 +69,7 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
         if life_constants.ENABLE_IMAGE_PROXY and alias.proxy_images:
             content = convert_images(db, report, alias=alias, html=content)
 
-            message.set_payload(content, "utf-8")
+        message.set_payload(content, "utf-8")
 
         if alias.create_mail_report and alias.user.public_key is not None:
             create_email_report_from_report_data(
