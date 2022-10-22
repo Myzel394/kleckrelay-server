@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 __all__ = [
@@ -10,4 +12,8 @@ class ReportBase(BaseModel):
 
 
 class Report(ReportBase):
+    id: UUID
     encrypted_content: str
+
+    class Config:
+        orm_mode = True

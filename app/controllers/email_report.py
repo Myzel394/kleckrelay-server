@@ -7,6 +7,7 @@ from app.models import EmailReport, User
 
 __all__ = [
     "create_email_report_from_report_data",
+    "get_report_by_id"
 ]
 
 
@@ -18,7 +19,7 @@ def create_email_report_from_report_data(
 ) -> EmailReport:
     report = EmailReport(
         user_id=user.id,
-        encrypted_notes=user.encrypt(json.dumps(report_data.as_dict()))
+        encrypted_content=user.encrypt(json.dumps(report_data.as_dict()))
     )
 
     db.add(report)
@@ -26,3 +27,7 @@ def create_email_report_from_report_data(
     db.refresh(report)
 
     return report
+
+
+def get_report_by_id(db: Session, id: str) -> EmailReport:
+    return db.query(EmailReport).filter_by(id=id).one()

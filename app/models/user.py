@@ -86,4 +86,4 @@ class User(Base, IDMixin, CreationMixin):
         }
 
     def encrypt(self, message: str) -> str:
-        return gpg_handler.encrypt_message(message, self.public_key)
+        return str(gpg_handler.encrypt_message(message, self.public_key))

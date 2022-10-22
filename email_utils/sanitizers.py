@@ -42,3 +42,4 @@ def sanitize_message(message: Message) -> None:
     sanitize_message_header(message, "to")
     sanitize_message_header(message, "cc")
     sanitize_message_header(message, "reply-to")
+    sanitize_message_header(message, "subject")

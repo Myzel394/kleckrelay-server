@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass, field
 
 _all__ = [
@@ -15,7 +16,7 @@ class EmailReportProxyImageData:
     def as_dict(self) -> dict[str, str]:
         return {
             "url": self.url,
-            "image_proxy_id": self.image_proxy_id,
+            "image_proxy_id": str(self.image_proxy_id),
         }
 
 
@@ -38,6 +39,7 @@ class EmailReportData:
     version = "1.0"
     mail_from: str
     mail_to: str
+    subject: str
     proxied_images: list[EmailReportProxyImageData] = field(
         default_factory=lambda: []
     )
@@ -52,8 +54,10 @@ class EmailReportData:
                 "meta": {
                     "from": self.mail_from,
                     "to": self.mail_to,
+                    "created_at": datetime.datetime.now().isoformat(),
                 },
                 "content": {
+                    "subject": self.subject,
                     "proxied_images": [
                         image.as_dict()
                         for image in self.proxied_images

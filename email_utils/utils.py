@@ -4,6 +4,7 @@ import re
 import socket
 import time
 from email import policy
+from email.header import decode_header
 from email.message import Message
 from typing import Optional
 
@@ -12,6 +13,8 @@ from sqlalchemy.orm import Session
 
 from app import constants, life_constants
 from app.models import Email, EmailAlias, LanguageType, User
+from email_utils import status
+from email_utils.errors import AliasNotFoundError, InvalidEmailError
 
 __all__ = [
     "generate_message_id",
@@ -20,11 +23,8 @@ __all__ = [
     "get_local_email",
     "get_alias_by_email",
     "determine_text_language",
+    "get_header_unicode"
 ]
-
-from email_utils import status
-
-from email_utils.errors import AliasNotFoundError, InvalidEmailError
 
 
 def generate_message_id(
@@ -124,3 +124,27 @@ def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
 
 def determine_text_language(text: str) -> LanguageType:
     return LanguageType.EN_US
+
+
+def get_header_unicode(header: str) -> str:
+    if header is None:
+        return ""
+
+    value = ""
+    for to_decoded_str, charset in decode_header(header):
+        if charset is None:
+            if type(to_decoded_str) is bytes:
+                decoded_str = to_decoded_str.decode()
+            else:
+                decoded_str = to_decoded_str
+        else:
+            try:
+                decoded_str = to_decoded_str.decode(charset)
+            except (LookupError, UnicodeDecodeError):  # charset is unknown
+                try:
+                    decoded_str = to_decoded_str.decode("utf-8")
+                except UnicodeDecodeError:
+                    decoded_str = to_decoded_str.decode("utf-8", errors="replace")
+        value += decoded_str
+
+    return value

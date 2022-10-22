@@ -66,7 +66,7 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
     if life_constants.IS_DEBUG:
         logger.info(
             f"Request: Verify Email Token -> URL to verify email is: "
-            f"http://127.0.0.1:5173/auth/verify-email?email={db_user.email.address}&token="
+            f"http://localhost:5173/auth/verify-email?email={db_user.email.address}&token="
             f"{db_user.email.token}"
         )
 

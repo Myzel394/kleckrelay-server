@@ -15,9 +15,10 @@ from email_utils.send_mail import (
     send_error_mail, send_mail,
 )
 from email_utils.utils import (
-    get_alias_by_email, get_local_email, parse_destination_email,
+    get_alias_by_email, get_header_unicode, get_local_email, parse_destination_email,
 )
 from email_utils.validators import validate_alias
+from . import headers
 
 __all__ = [
     "handle",
@@ -55,7 +56,8 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
 
         report = EmailReportData(
             mail_from=envelope.mail_from,
-            mail_to=alias.user.email.address,
+            mail_to=alias.address,
+            subject=get_header_unicode(message[headers.SUBJECT]),
         )
         content = message.as_string()
 
