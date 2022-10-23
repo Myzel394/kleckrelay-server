@@ -26,19 +26,19 @@ class AliasBase(BaseModel):
     )
 
     # Preferences
-    remove_trackers: bool = Field(
+    pref_remove_trackers: bool = Field(
         default=None,
     )
-    create_mail_report: bool = Field(
+    pref_create_mail_report: bool = Field(
         default=None,
     )
-    proxy_images: bool = Field(
+    pref_proxy_images: bool = Field(
         default=None,
     )
-    image_proxy_format: ImageProxyFormatType = Field(
+    pref_image_proxy_format: ImageProxyFormatType = Field(
         default=None,
     )
-    image_proxy_user_agent: ProxyUserAgentType = Field(
+    pref_image_proxy_user_agent: ProxyUserAgentType = Field(
         default=None,
     )
 
