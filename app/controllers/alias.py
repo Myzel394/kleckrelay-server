@@ -1,5 +1,4 @@
 import secrets
-from typing import Optional
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -17,6 +16,7 @@ __all__ = [
     "generate_random_local_id",
     "create_local_with_suffix",
     "get_alias_from_user",
+    "get_alias_from_user_by_address",
 ]
 
 
@@ -94,9 +94,21 @@ def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
             return suggested_local
 
 
-def get_alias_from_user(db: Session, /, user: User, id: str) -> Optional[EmailAlias]:
+def get_alias_from_user(db: Session, /, user: User, id: str) -> EmailAlias:
     return db\
         .query(EmailAlias)\
         .filter(and_(EmailAlias.user == user, EmailAlias.id == id))\
         .one()
 
+
+def get_alias_from_user_by_address(
+    db: Session,
+    /,
+    user: User,
+    domain: str,
+    local: str
+) -> EmailAlias:
+    return db\
+       .query(EmailAlias)\
+       .filter(and_(EmailAlias.user == user, EmailAlias.domain == domain, EmailAlias.local == local))\
+       .one()

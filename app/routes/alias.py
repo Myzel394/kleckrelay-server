@@ -1,28 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from fastapi_pagination import Page, paginate, Params
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app import logger
+from app import constants, logger
 from app.authentication.handler import access_security
 from app.controllers.alias import (
     create_local_with_suffix, generate_random_local_id,
-    get_alias_from_user,
+    get_alias_from_user, get_alias_from_user_by_address,
 )
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN
 from app.models.alias import AliasType, EmailAlias
 from app.schemas._basic import HTTPNotFoundExceptionModel
-from app.schemas.alias import Alias, AliasCreate, AliasUpdate
+from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
 
 router = APIRouter()
 
 
 @router.get(
     "/",
-    response_model=Page[Alias]
+    response_model=Page[AliasList]
 )
 def get_all_aliases(
     credentials: JwtAuthorizationCredentials = Security(access_security),
@@ -38,7 +38,7 @@ def get_all_aliases(
 
 @router.post(
     "/",
-    response_model=Alias,
+    response_model=AliasList,
 )
 def create_alias(
     alias_data: AliasCreate,
@@ -84,7 +84,7 @@ def create_alias(
 
 @router.patch(
     "/{id}",
-    response_model=Page[Alias],
+    response_model=Page[AliasList],
     responses={
         404: {
             "model": HTTPNotFoundExceptionModel
@@ -120,4 +120,29 @@ def update_alias(
         db.refresh(alias)
 
         logger.info(f"Request: Update Alias -> Alias {id} saved successfully.")
+        return alias
+
+
+@router.get("/{alias}", response_model=AliasDetail)
+def get_alias(
+    alias: str = Query(regex=constants.EMAIL_REGEX),
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+    db: Session = Depends(get_db),
+):
+    user = get_user_by_id(db, credentials["id"])
+    local, domain = alias.split("@")
+
+    try:
+        alias = get_alias_from_user_by_address(
+            db,
+            user=user,
+            domain=domain,
+            local=local,
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Alias not found."
+        )
+    else:
         return alias

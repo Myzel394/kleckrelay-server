@@ -6,14 +6,14 @@ from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
 from app.life_constants import CUSTOM_EMAIL_SUFFIX_LENGTH, MAX_ENCRYPTED_NOTES_SIZE
 from app.logger import logger
 from app.models.alias import AliasType, ImageProxyFormatType
+from app.models.enums.alias import ProxyUserAgentType
 
 __all__ = [
     "AliasCreate",
     "AliasUpdate",
-    "Alias",
+    "AliasList",
+    "AliasDetail",
 ]
-
-from app.models.enums.alias import ProxyUserAgentType
 
 
 class AliasBase(BaseModel):
@@ -88,7 +88,17 @@ class AliasUpdate(AliasBase):
     )
 
 
-class Alias(AliasBase):
+class AliasList(BaseModel):
+    is_active: bool
+    id: UUID
+    domain: str
+    local: str
+
+    class Config:
+        orm_mode = True
+
+
+class AliasDetail(AliasBase):
     id: UUID
     domain: str
     local: str

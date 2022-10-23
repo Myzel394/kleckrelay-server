@@ -3,6 +3,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.collections import InstrumentedList
 
 from app import constants, gpg_handler
 from app.database.base import Base
@@ -32,8 +33,8 @@ class User(Base, IDMixin, CreationMixin):
         public_key: Optional[str]
         encrypted_notes: Optional[str]
         encrypted_password: Optional[str]
-        email_aliases: list[EmailAlias]
-        email_reports: list[EmailReport]
+        email_aliases: InstrumentedList[EmailAlias]
+        email_reports: InstrumentedList[EmailReport]
         email_login_token: EmailLoginToken
         preferences: UserPreferences
     else:
