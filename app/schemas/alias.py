@@ -76,6 +76,7 @@ class AliasList(BaseModel):
     id: UUID
     domain: str
     local: str
+    type: AliasType
 
     class Config:
         orm_mode = True
@@ -85,6 +86,7 @@ class AliasDetail(AliasBase):
     id: UUID
     domain: str
     local: str
+    type: AliasType
 
     class Config:
         orm_mode = True

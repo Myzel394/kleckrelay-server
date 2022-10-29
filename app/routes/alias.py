@@ -66,11 +66,11 @@ def create_alias(
         type=alias_data.type,
         user_id=user.id,
 
-        pref_remove_trackers=alias_data.remove_trackers,
-        pref_create_mail_report=alias_data.create_mail_report,
-        pref_proxy_images=alias_data.proxy_images,
-        pref_image_proxy_user_agent=alias_data.image_proxy_user_agent,
-        pref_image_proxy_format=alias_data.image_proxy_format,
+        pref_remove_trackers=alias_data.pref_remove_trackers,
+        pref_create_mail_report=alias_data.pref_create_mail_report,
+        pref_proxy_images=alias_data.pref_proxy_images,
+        pref_image_proxy_user_agent=alias_data.pref_image_proxy_user_agent,
+        pref_image_proxy_format=alias_data.pref_image_proxy_format,
     )
 
     logger.info("Request: Create Alias -> Saving instance.")

@@ -19,3 +19,4 @@ class SettingsModel(BaseModel):
     email_login_token_chars: str
     email_login_token_length: int
     email_resend_wait_time: int
+    custom_alias_suffix_length: int
