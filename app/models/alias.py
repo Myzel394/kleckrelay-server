@@ -85,7 +85,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         pref_proxy_images = sa.Column(
             sa.Boolean,
             default=False,
-            nullable=False,
+            nullable=True,
         )
         pref_image_proxy_format = sa.Column(
             sa.Enum(ImageProxyFormatType),

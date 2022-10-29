@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, root_validator
@@ -17,36 +18,22 @@ __all__ = [
 
 
 class AliasBase(BaseModel):
-    is_active: bool = Field(
-        default=True,
-    )
+    is_active: Optional[bool] = None
     encrypted_notes: str = Field(
         max_length=MAX_ENCRYPTED_NOTES_SIZE,
         default="",
     )
 
     # Preferences
-    pref_remove_trackers: bool = Field(
-        default=None,
-    )
-    pref_create_mail_report: bool = Field(
-        default=None,
-    )
-    pref_proxy_images: bool = Field(
-        default=None,
-    )
-    pref_image_proxy_format: ImageProxyFormatType = Field(
-        default=None,
-    )
-    pref_image_proxy_user_agent: ProxyUserAgentType = Field(
-        default=None,
-    )
+    pref_remove_trackers: Optional[bool] = None
+    pref_create_mail_report: Optional[bool] = None
+    pref_proxy_images: Optional[bool] = None
+    pref_image_proxy_format: Optional[ImageProxyFormatType] = None
+    pref_image_proxy_user_agent: Optional[ProxyUserAgentType] = None
 
 
 class AliasCreate(AliasBase):
-    type: AliasType = Field(
-        default=AliasType.RANDOM,
-    )
+    type: AliasType = AliasType.RANDOM
     local: str = Field(
         regex=LOCAL_REGEX,
         default=None,
@@ -81,11 +68,7 @@ class AliasCreate(AliasBase):
 
 
 class AliasUpdate(AliasBase):
-    is_active: bool = None
-    encrypted_notes: str = Field(
-        max_length=MAX_ENCRYPTED_NOTES_SIZE,
-        default=None,
-    )
+    pass
 
 
 class AliasList(BaseModel):

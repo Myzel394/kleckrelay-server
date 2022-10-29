@@ -84,7 +84,7 @@ def create_alias(
 
 @router.patch(
     "/{id}",
-    response_model=Page[AliasList],
+    response_model=AliasDetail,
     responses={
         404: {
             "model": HTTPNotFoundExceptionModel
