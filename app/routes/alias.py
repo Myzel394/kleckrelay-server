@@ -8,7 +8,7 @@ from app import constants, logger
 from app.authentication.handler import access_security
 from app.controllers.alias import (
     create_local_with_suffix, generate_random_local_id,
-    get_alias_from_user, get_alias_from_user_by_address,
+    get_alias_from_user, get_alias_from_user_by_address, get_aliases_from_user_ordered,
 )
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
@@ -33,7 +33,7 @@ def get_all_aliases(
 
     user = get_user_by_id(db, credentials["id"])
 
-    return paginate(user.email_aliases, params)
+    return paginate(get_aliases_from_user_ordered(db, user=user), params)
 
 
 @router.post(
@@ -65,6 +65,7 @@ def create_alias(
         is_active=alias_data.is_active,
         type=alias_data.type,
         user_id=user.id,
+        encrypted_notes=alias_data.encrypted_notes,
 
         pref_remove_trackers=alias_data.pref_remove_trackers,
         pref_create_mail_report=alias_data.pref_create_mail_report,

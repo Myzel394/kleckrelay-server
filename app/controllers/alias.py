@@ -17,6 +17,7 @@ __all__ = [
     "create_local_with_suffix",
     "get_alias_from_user",
     "get_alias_from_user_by_address",
+    "get_aliases_from_user_ordered",
 ]
 
 
@@ -112,3 +113,8 @@ def get_alias_from_user_by_address(
        .query(EmailAlias)\
        .filter(and_(EmailAlias.user == user, EmailAlias.domain == domain, EmailAlias.local == local))\
        .one()
+
+
+def get_aliases_from_user_ordered(db: Session, /, user: User):
+    return db.query(EmailAlias).filter_by(user_id=user.id).order_by(EmailAlias.local).all()
+
