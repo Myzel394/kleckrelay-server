@@ -28,7 +28,7 @@ async def get_email_login_token(
             detail="Email login token not found.",
         )
 
-    if email_login.hashed_same_request_token is not None and not verify_fast_hash(
+    if not email_login.bypass_same_request_token and not verify_fast_hash(
         email_login.hashed_same_request_token,
         input_data.same_request_token
     ):

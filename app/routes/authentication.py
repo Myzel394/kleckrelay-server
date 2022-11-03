@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Security
+from fastapi import APIRouter, Body, Depends, HTTPException, Response, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -32,7 +32,8 @@ from app.schemas._basic import (
     SimpleDetailResponseModel,
 )
 from app.schemas.authentication import (
-    EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel,
+    EmailLoginTokenChangeAllowFromDifferentDevicesModel, EmailLoginTokenResponseModel,
+    EmailLoginTokenVerifyModel,
     LoginWithEmailTokenModel,
     ResendEmailModel, SignupResponseModel, VerifyEmailModel,
 )
@@ -400,18 +401,20 @@ async def resend_email_login_token(
     }
 )
 async def email_login_allow_login_from_different_devices(
-    email_login: EmailLoginToken = Depends(get_email_login_token),
-    db: Session = Depends(get_db)
+    allow: bool = Body(bool),
+    db: Session = Depends(get_db),
+    email_login_token: EmailLoginToken = Depends(get_email_login_token),
 ):
     logger.info(
-        f"Request: Allow Login From Different Device: New Request for {email_login.user.email.address}."
+        f"Request: Allow Login From Different Device: New Request for "
+        f"{email_login_token.user.email.address}."
     )
 
-    email_login.hashed_same_request_token = None
+    email_login_token.bypass_same_request_token = allow
 
-    db.add(email_login)
+    db.add(email_login_token)
     db.commit()
-    db.refresh(email_login)
+    db.refresh(email_login_token)
 
     return {
         "detail": "Login from different devices allowed."

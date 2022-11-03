@@ -243,6 +243,7 @@ def test_can_verify_login_token_using_different_device(
         json={
             "email": user.email.address,
             "same_request_token": same_request_token,
+            "allow": True,
         }
     )
     assert response.status_code == 200, "Status code for allowing login from different " \
@@ -256,6 +257,24 @@ def test_can_verify_login_token_using_different_device(
         }
     )
     assert response.status_code == 200, "Status code for verifying email login token should be 200"
+
+
+def test_can_not_verify_login_token_using_different_device_when_not_available(
+    create_user,
+    create_email_token,
+    client: TestClient,
+):
+    user: User = create_user(is_verified=True)
+    email_login, token, same_request_token = create_email_token(user=user)
+
+    response = client.post(
+        "/auth/login/email-token/verify",
+        json={
+            "email": user.email.address,
+            "token": token,
+        }
+    )
+    assert response.status_code == 400, "Status code should be 400"
 
 
 def test_can_resend_valid_email_verification_code(

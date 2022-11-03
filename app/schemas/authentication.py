@@ -15,6 +15,7 @@ __all__ = [
     "SignupResponseModel",
     "ResendEmailModel",
     "EmailLoginTokenChangeModel",
+    "EmailLoginTokenChangeAllowFromDifferentDevicesModel",
 ]
 
 
@@ -24,8 +25,17 @@ class EmailLoginTokenResponseModel(BaseModel):
 
 
 class EmailLoginTokenChangeModel(BaseModel):
-    email: str
-    same_request_token: Optional[str] = None
+    email: str = Field(
+        regex=EMAIL_REGEX,
+        max_length=MAX_EMAIL_LENGTH,
+    )
+    same_request_token: str = Field(
+        max_length=EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH,
+    )
+
+
+class EmailLoginTokenChangeAllowFromDifferentDevicesModel(BaseModel):
+    allow: bool
 
 
 class EmailLoginTokenVerifyModel(BaseModel):
