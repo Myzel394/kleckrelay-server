@@ -1,4 +1,5 @@
 import base64
+import sys
 
 from pretty_bad_protocol import gnupg
 
@@ -10,7 +11,11 @@ __all__ = [
     "encrypt_message",
 ]
 
-gpg = gnupg.GPG()
+PATHS = {
+    "darwin": "/opt/homebrew/bin/gpg"
+}
+
+gpg = gnupg.GPG(PATHS[sys.platform] if sys.platform in PATHS else None)
 gpg.encoding = "utf-8"
 
 SERVER_PRIVATE_KEY = gpg.import_keys(base64.b64decode(life_constants.SERVER_PRIVATE_KEY))

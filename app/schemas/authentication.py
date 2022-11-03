@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from app.constants import EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH, EMAIL_REGEX, MAX_EMAIL_LENGTH
@@ -12,7 +14,7 @@ __all__ = [
     "User",
     "SignupResponseModel",
     "ResendEmailModel",
-    "EmailLoginResendMailModel",
+    "EmailLoginTokenChangeModel",
 ]
 
 
@@ -21,9 +23,9 @@ class EmailLoginTokenResponseModel(BaseModel):
     detail: str
 
 
-class EmailLoginResendMailModel(BaseModel):
+class EmailLoginTokenChangeModel(BaseModel):
     email: str
-    same_request_token: str
+    same_request_token: Optional[str] = None
 
 
 class EmailLoginTokenVerifyModel(BaseModel):
@@ -34,7 +36,7 @@ class EmailLoginTokenVerifyModel(BaseModel):
     token: str = Field(
         max_length=EMAIL_LOGIN_TOKEN_LENGTH,
     )
-    same_request_token: str = Field(
+    same_request_token: Optional[str] = Field(
         max_length=EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH,
     )
 

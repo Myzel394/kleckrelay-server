@@ -230,10 +230,38 @@ def test_can_verify_login_token(
     assert response.status_code == 200, "Status code should be 200"
 
 
+def test_can_verify_login_token_using_different_device(
+    create_user,
+    create_email_token,
+    client: TestClient,
+):
+    user: User = create_user(is_verified=True)
+    email_login, token, same_request_token = create_email_token(user=user)
+
+    response = client.patch(
+        "auth/login/email-token/allow-login-from-different-devices",
+        json={
+            "email": user.email.address,
+            "same_request_token": same_request_token,
+        }
+    )
+    assert response.status_code == 200, "Status code for allowing login from different " \
+                                        "devices should be 200"
+
+    response = client.post(
+        "/auth/login/email-token/verify",
+        json={
+            "email": user.email.address,
+            "token": token,
+        }
+    )
+    assert response.status_code == 200, "Status code for verifying email login token should be 200"
+
+
 def test_can_resend_valid_email_verification_code(
-        create_user,
-        create_email_token,
-        client: TestClient,
+    create_user,
+    create_email_token,
+    client: TestClient,
 ):
     user: User = create_user(is_verified=True)
     email_login, token, same_request_token = create_email_token(user=user)

@@ -31,7 +31,7 @@ class EmailLoginToken(Base, IDMixin, CreationMixin):
         )
         hashed_same_request_token = sa.Column(
             sa.String(len(hash_fast("1234"))),
-            nullable=False,
+            nullable=True,
         )
         tries = sa.Column(
             sa.SmallInteger(),

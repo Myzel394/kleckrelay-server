@@ -44,7 +44,8 @@ def is_token_valid(
         logger.info(f"Is token valid: Token for {instance.user.email.address} expired.")
         raise EmailLoginTokenExpiredError()
 
-    if not verify_fast_hash(instance.hashed_same_request_token, same_request_token):
+    if instance.hashed_same_request_token is not None and not \
+            verify_fast_hash(instance.hashed_same_request_token, same_request_token):
         logger.info(f"Is token valid: Same Request Token for {instance.user.email.address} is "
                     f"incorrect.")
         raise EmailLoginTokenSameRequestTokenInvalidError()

@@ -23,14 +23,16 @@ from app.controllers.user import (
     get_user_by_email, get_user_by_id,
 )
 from app.database.dependencies import get_db
+from app.dependencies.email_login import get_email_login_token
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.mails.send_email_login_token import send_email_login_token
+from app.models import EmailLoginToken
 from app.schemas._basic import (
     HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel,
     SimpleDetailResponseModel,
 )
 from app.schemas.authentication import (
-    EmailLoginResendMailModel, EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel,
+    EmailLoginTokenResponseModel, EmailLoginTokenVerifyModel,
     LoginWithEmailTokenModel,
     ResendEmailModel, SignupResponseModel, VerifyEmailModel,
 )
@@ -371,33 +373,49 @@ async def verify_email_token(
     }
 )
 async def resend_email_login_token(
-    input_data: EmailLoginResendMailModel,
-    db: Session = Depends(get_db),
+    email_login: EmailLoginToken = Depends(get_email_login_token),
 ):
     logger.info(
-        f"Request: Resend Email Login Token: New Request for {input_data.email}."
+        f"Request: Resend Email Login Token: New Request for {email_login.user.email.address}."
     )
 
-    if (email := await get_email_login_token_from_email(db, email=input_data.email)) is not None:
-        logger.info(
-            f"Request: Resend Email Login Token: Valid token for {input_data.email} found."
-        )
-        send_email_login_token(
-            user=email.user,
-            token=email.token,
-        )
+    send_email_login_token(
+        user=email_login.user,
+        token=email_login.token,
+    )
 
-        return {
-            "detail": "Login code was resent."
+    return {
+        "detail": "Login code was resent."
+    }
+
+
+@router.patch(
+    "/login/email-token/allow-login-from-different-devices",
+    response_model=SimpleDetailResponseModel,
+    responses={
+        404: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "No current email login token found. Please request one."
         }
-    else:
-        logger.info(
-            f"Request: Resend Email Login Token: No token for {input_data.email} found."
-        )
-        raise HTTPException(
-            status_code=404,
-            detail="No current email login token found. Please request one.",
-        )
+    }
+)
+async def email_login_allow_login_from_different_devices(
+    email_login: EmailLoginToken = Depends(get_email_login_token),
+    db: Session = Depends(get_db)
+):
+    logger.info(
+        f"Request: Allow Login From Different Device: New Request for {email_login.user.email.address}."
+    )
+
+    email_login.hashed_same_request_token = None
+
+    db.add(email_login)
+    db.commit()
+    db.refresh(email_login)
+
+    return {
+        "detail": "Login from different devices allowed."
+    }
 
 
 @router.post(
