@@ -239,7 +239,7 @@ def test_can_verify_login_token_using_different_device(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.patch(
-        "auth/login/email-token/allow-login-from-different-devices",
+        "/auth/login/email-token/allow-login-from-different-devices",
         json={
             "email": user.email.address,
             "same_request_token": same_request_token,
