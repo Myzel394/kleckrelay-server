@@ -15,10 +15,10 @@ __all__ = [
 
 routers = APIRouter()
 
-routers.include_router(auth_router, prefix="/auth")
-routers.include_router(alias_router, prefix="/alias")
-routers.include_router(account_router, prefix="/account")
-routers.include_router(image_proxy_router, prefix="/image-proxy")
-routers.include_router(user_preferences_router, prefix="/preferences")
-routers.include_router(settings_router, prefix="/settings")
-routers.include_router(report_router, prefix="/report")
+routers.include_router(auth_router, prefix="/v1/auth")
+routers.include_router(alias_router, prefix="/v1/alias")
+routers.include_router(account_router, prefix="/v1/account")
+routers.include_router(image_proxy_router, prefix="/v1/image-proxy")
+routers.include_router(user_preferences_router, prefix="/v1/preferences")
+routers.include_router(settings_router, prefix="/v1/settings")
+routers.include_router(report_router, prefix="/v1/report")

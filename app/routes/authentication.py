@@ -32,7 +32,7 @@ from app.schemas._basic import (
     SimpleDetailResponseModel,
 )
 from app.schemas.authentication import (
-    EmailLoginTokenChangeAllowFromDifferentDevicesModel, EmailLoginTokenResponseModel,
+    EmailLoginTokenResponseModel,
     EmailLoginTokenVerifyModel,
     LoginWithEmailTokenModel,
     ResendEmailModel, SignupResponseModel, VerifyEmailModel,
@@ -417,7 +417,7 @@ async def email_login_allow_login_from_different_devices(
     db.refresh(email_login_token)
 
     return {
-        "detail": "Login from different devices allowed."
+        "detail": "Login from different devices updated."
     }
 
 
