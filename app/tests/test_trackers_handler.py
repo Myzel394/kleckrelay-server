@@ -1,4 +1,4 @@
-from email_utils import trackers_handler
+from email_utils import handlers
 
 
 def test_returns_correct_tracker_for_domain():

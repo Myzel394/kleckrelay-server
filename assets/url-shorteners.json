@@ -1,0 +1,550 @@
+{
+    "shorteners": {
+        "blocklist": [
+            {
+                "name": "",
+                "url": "https://ab.cd",
+                "patterns": [
+                    {
+                        "pattern": "ab.cd",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "PPT.cc",
+                "url": "https://ppt.cc",
+                "patterns": [
+                    {
+                        "pattern": "ppt.cc",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Sina",
+                "url": "https://sina.lt",
+                "patterns": [
+                    {
+                        "pattern": "sina.lt",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "t.hk.uy",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "cn.hk.uy",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "x88.ltd",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "qq.cn.hn",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "tb.cn.hn",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "jd.cn.hn",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "dwz.date",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "dzw.win",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "gdURL.com",
+                "url": "https://gdurl.com",
+                "patterns": [
+                    {
+                        "pattern": "gdurl.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "6G6",
+                "url": "https://6g6.eu",
+                "patterns": [
+                    {
+                        "pattern": "6g6.eu",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "COGE.la",
+                "url": "https://coge.la",
+                "patterns": [
+                    {
+                        "pattern": "coge.la",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Tinylink:in",
+                "url": "https://tinylink.in",
+                "patterns": [
+                    {
+                        "pattern": "tinylink.in",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Scurt/2",
+                "url": "https://www.sp2.ro",
+                "patterns": [
+                    {
+                        "pattern": "www.sp2.ro",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Folu.me",
+                "url": "https://folu.me",
+                "patterns": [
+                    {
+                        "pattern": "folu.me",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Ad7.biz",
+                "url": "https://ad7.biz",
+                "patterns": [
+                    {
+                        "pattern": "ad7.biz",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "WW7",
+                "url": "https://ww7.fr",
+                "patterns": [
+                    {
+                        "pattern": "ww7.fr",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Shar.as",
+                "url": "https://shar.as",
+                "patterns": [
+                    {
+                        "pattern": "shar.as",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "To.ly",
+                "url": "https://to.ly",
+                "patterns": [
+                    {
+                        "pattern": "to.ly",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Bitly",
+                "url": "https://bitly.com",
+                "patterns": [
+                    {
+                        "pattern": "bitly.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "bit.ly",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "HideLink",
+                "url": "https://www.hidelinks.com",
+                "patterns": [
+                    {
+                        "pattern": "www.hidelinks.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "bit.do",
+                "url": "https://bit.do",
+                "patterns": [
+                    {
+                        "pattern": "bit.do",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "ShortURL.com",
+                "url": "https://shorturl.com",
+                "patterns": [
+                    {
+                        "pattern": "shorturl.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "Shrunken.com",
+                "url": "https://www.shrunken.com",
+                "patterns": [
+                    {
+                        "pattern": "www.shrunken.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "p.asia",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "g.asia",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "3.ly",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "0.gp",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "2.ly",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "4.gp",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "4.ly",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "6.ly",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "7.ly",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "8.ly",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "9.ly",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "2.gp",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "6.gp",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "5.gp",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "ur3.us",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "tiny.pl",
+                "url": "https://tiny.pl",
+                "patterns": [
+                    {
+                        "pattern": "tiny.pl",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "lnk.sk",
+                "url": "https://lnk.sk",
+                "patterns": [
+                    {
+                        "pattern": "lnk.sk",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "v.gd",
+                "url": "https://v.gd",
+                "patterns": [
+                    {
+                        "pattern": "v.gd",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "shortner.com",
+                "url": "https://www.shortner.com",
+                "patterns": [
+                    {
+                        "pattern": "shortner.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "TURL.ca",
+                "url": "https://turl.ca",
+                "patterns": [
+                    {
+                        "pattern": "turl.ca",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "TrustURL",
+                "url": "https://trusturl.com",
+                "patterns": [
+                    {
+                        "pattern": "trusturl.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "T.LY",
+                "url": "https://t.ly",
+                "patterns": [
+                    {
+                        "pattern": "t.ly",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "FirstUrl.de",
+                "url": "https://firsturl.de",
+                "patterns": [
+                    {
+                        "pattern": "firsturl.de",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "u.to",
+                "url": "https://u.to",
+                "patterns": [
+                    {
+                        "pattern": "u.to",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "VD55.com",
+                "url": "https://vd55.com",
+                "patterns": [
+                    {
+                        "pattern": "vd55.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "vo.la",
+                "url": "https://vo.la",
+                "patterns": [
+                    {
+                        "pattern": "vo.la",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "chilp.it",
+                "url": "https://chilp.it",
+                "patterns": [
+                    {
+                        "pattern": "chilp.it",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "YouTube",
+                "url": "https://www.youtube.com",
+                "patterns": [
+                    {
+                        "pattern": "youtu.be",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "is.gd",
+                "url": "https://is.gd",
+                "patterns": [
+                    {
+                        "pattern": "is.gd",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "url.ie",
+                "url": "https://url.ie",
+                "patterns": [
+                    {
+                        "pattern": "url.ie",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "ej.uz",
+                "url": "https://ej.uz",
+                "patterns": [
+                    {
+                        "pattern": "ej.uz",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "icks.ro",
+                "url": "https://icks.ro",
+                "patterns": [
+                    {
+                        "pattern": "icks.ro",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "tinyurl.hu",
+                "url": "https://tinyurl.hu",
+                "patterns": [
+                    {
+                        "pattern": "tinyurl.hu",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "icit.fr",
+                "url": "https://icit.fr",
+                "patterns": [
+                    {
+                        "pattern": "icit.fr",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "redir.ec",
+                "url": "https://redir.ec",
+                "patterns": [
+                    {
+                        "pattern": "redir.ec",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "shorl.com",
+                "url": "https://shorl.com",
+                "patterns": [
+                    {
+                        "pattern": "shorl.com",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "tinyurl",
+                "url": "https://tinyurl.com",
+                "patterns": [
+                    {
+                        "pattern": "tinyurl.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "tiny.one",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "rotf.lol",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "skr.sk",
+                "url": "https://skr.sk",
+                "patterns": [
+                    {
+                        "pattern": "skr.sk",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "trib.al",
+                "url": "https://trib.al",
+                "patterns": [
+                    {
+                        "pattern": "trib.al",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "gg.gg",
+                "url": "https://gg.gg",
+                "patterns": [
+                    {
+                        "pattern": "gg.gg",
+                        "type": "domain"
+                    }
+                ]
+            },
+            {
+                "name": "1url.cz",
+                "url": "https://1url.cz",
+                "patterns": [
+                    {
+                        "pattern": "1url.cz",
+                        "type": "domain"
+                    }
+                ]
+            }
+        ]
+    }
+}

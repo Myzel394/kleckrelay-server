@@ -6,18 +6,22 @@ from urllib.parse import urlparse
 
 from app.constants import ROOT_DIR
 from email_utils.trackers_handler_types import TrackerData, TrackerPattern, TrackersJsonFile
+from email_utils.url_shorteners_handler_types import ShortenerData, UrlShortenersJsonFile
 
 TRACKERS_PATH = ROOT_DIR / "assets" / "trackers.json"
-tracker_data: TrackersJsonFile = json.loads(TRACKERS_PATH.read_text())
+URL_SHORTENERS_PATH = ROOT_DIR / "assets" / "url-shorteners.json"
+tracker_data: TrackersJsonFile = json.load(TRACKERS_PATH.open())
+url_shorteners_data: UrlShortenersJsonFile = json.load(URL_SHORTENERS_PATH.open())
 
 
 __all__ = [
     "check_pattern_matches",
     "check_is_url_a_tracker",
+    "check_is_a_url_shortener",
 ]
 
 
-def check_pattern_matches(url: str, pattern: TrackerPattern) -> bool:
+def check_pattern_matches(url: str, pattern) -> bool:
     result = urlparse(url)
 
     if pattern['type'] == "domain":
@@ -35,3 +39,12 @@ def check_is_url_a_tracker(url: str) -> Optional[TrackerData]:
         for pattern in tracker["patterns"]:
             if check_pattern_matches(url, pattern):
                 return tracker
+
+
+def check_is_a_url_shortener(url: str) -> Optional[ShortenerData]:
+    url_shorteners = url_shorteners_data["shorteners"]["blacklist"]
+
+    for shortener in url_shorteners:
+        for pattern in shortener["patterns"]:
+            if check_pattern_matches(url, pattern):
+                return shortener

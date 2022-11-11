@@ -38,6 +38,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         pref_proxy_images: bool
         pref_image_proxy_format: ImageProxyFormatType
         pref_image_proxy_user_agent: ProxyUserAgentType
+        pref_expand_url_shorteners: bool
     else:
         local = sa.Column(
             sa.String(64),
@@ -73,17 +74,17 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         )
 
         pref_remove_trackers = sa.Column(
-            sa.Boolean,
+            sa.Boolean(),
             default=None,
             nullable=True,
         )
         pref_create_mail_report = sa.Column(
-            sa.Boolean,
+            sa.Boolean(),
             default=None,
             nullable=True,
         )
         pref_proxy_images = sa.Column(
-            sa.Boolean,
+            sa.Boolean(),
             default=None,
             nullable=True,
         )
@@ -94,6 +95,11 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         )
         pref_image_proxy_user_agent = sa.Column(
             sa.Enum(ProxyUserAgentType),
+            default=None,
+            nullable=True,
+        )
+        pref_expand_url_shorteners = sa.Column(
+            sa.Boolean(),
             default=None,
             nullable=True,
         )
@@ -127,6 +133,10 @@ class EmailAlias(Base, IDMixin, ModelPreference):
     @property
     def image_proxy_user_agent(self) -> ProxyUserAgentType:
         return self.get_preference_value("image_proxy_user_agent")
+
+    @property
+    def expand_url_shorteners(self) -> bool:
+        return self.get_preference_value("expand_url_shorteners")
 
 
 class DeletedEmailAlias(Base, IDMixin, CreationMixin):
