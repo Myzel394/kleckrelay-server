@@ -1,3 +1,4 @@
+import lxml.html
 import requests
 from lxml import etree
 from lxml.etree import _Element, XMLSyntaxError
@@ -28,8 +29,8 @@ def convert_images(
     html: str,
 ) -> str:
     try:
-        d = pq(etree.fromstring(html))
-    except XMLSyntaxError:
+        d = pq(lxml.html.fromstring(html))
+    except XMLSyntaxError as error:
         return html
 
     for image in d("img"):  # type: _Element
@@ -59,7 +60,7 @@ def check_is_single_pixel_image(image: _Element) -> bool:
 
 def remove_single_pixel_image_trackers(report: EmailReportData, /, html: str) -> str:
     try:
-        d = pq(etree.fromstring(html))
+        d = pq(lxml.html.fromstring(html))
     except XMLSyntaxError:
         return html
 
@@ -103,14 +104,16 @@ def expand_shortened_urls(
     for link in d("a"):  # type: _Element
         source = link.attrib["href"]
         link.attrib["data-kleckrelay-original-href"] = source
-        link.attrib["href"] = expand_url(
+        url = expand_url(
             source,
             PROXY_USER_AGENT_STRING_MAP[alias.proxy_user_agent]
         )
+        link.attrib["href"] = url
 
         report.expanded_urls.append(
             EmailReportExpandedURLData(
-                url=source,
+                original_url=source,
+                expanded_url=url,
                 query_trackers=[],
             )
         )
