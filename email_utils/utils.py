@@ -157,5 +157,5 @@ def get_header_unicode(header: str) -> str:
 class DataclassJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if dataclasses.is_dataclass(o):
-            return dataclasses.as_dict(o)
+            return o.as_dict()
         return super().default(o)

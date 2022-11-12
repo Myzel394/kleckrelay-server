@@ -34,12 +34,12 @@ class EmailLoginToken(Base, IDMixin, CreationMixin):
             nullable=False,
         )
         bypass_same_request_token = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=False,
             nullable=False,
         )
         tries = sa.Column(
-            sa.SmallInteger(),
+            sa.SmallInteger,
             nullable=False,
             default=0,
         )

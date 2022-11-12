@@ -35,11 +35,11 @@ class ImageProxy(Base, IDMixin, CreationMixin):
             ForeignKey("email_alias.id"),
         )
         hashed_url = sa.Column(
-            sa.String(),
+            sa.String,
             nullable=False,
         )
         path = sa.Column(
-            sa.String(),
+            sa.String,
             nullable=True,
             default=None,
         )

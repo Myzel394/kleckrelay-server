@@ -26,7 +26,7 @@ class UserPreferences(Base, IDMixin):
         alias_proxy_images: bool
         alias_image_proxy_format: ImageProxyFormatType
         alias_image_proxy_user_agent: ProxyUserAgentType
-        expand_url_shorteners: bool
+        alias_expand_url_shorteners: bool
     else:
         user_id = sa.Column(
             UUID(as_uuid=True),
@@ -34,15 +34,15 @@ class UserPreferences(Base, IDMixin):
         )
 
         alias_remove_trackers = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=True,
         )
         alias_create_mail_report = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=True,
         )
         alias_proxy_images = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=True,
         )
         alias_image_proxy_format = sa.Column(
@@ -53,7 +53,7 @@ class UserPreferences(Base, IDMixin):
             sa.Enum(ProxyUserAgentType),
             default=ProxyUserAgentType.FIREFOX,
         )
-        expand_url_shorteners = sa.Column(
-            sa.Boolean(),
+        alias_expand_url_shorteners = sa.Column(
+            sa.Boolean,
             default=True,
         )

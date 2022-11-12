@@ -74,17 +74,17 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         )
 
         pref_remove_trackers = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=None,
             nullable=True,
         )
         pref_create_mail_report = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=None,
             nullable=True,
         )
         pref_proxy_images = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=None,
             nullable=True,
         )
@@ -99,7 +99,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
             nullable=True,
         )
         pref_expand_url_shorteners = sa.Column(
-            sa.Boolean(),
+            sa.Boolean,
             default=None,
             nullable=True,
         )

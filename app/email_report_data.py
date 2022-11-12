@@ -16,14 +16,6 @@ class EmailReportProxyImageData:
     server_url: str
     created_at: datetime.datetime
 
-    def as_dict(self) -> dict[str, str]:
-        return {
-            "url": self.url,
-            "image_proxy_id": str(self.image_proxy_id),
-            "server_url": self.server_url,
-            "created_at": self.created_at.isoformat()
-        }
-
 
 @dataclass
 class EmailReportSinglePixelImageTrackerData:
@@ -85,18 +77,9 @@ class EmailReportData:
                 },
                 "content": {
                     "subject": self.subject,
-                    "proxied_images": [
-                        image.as_dict()
-                        for image in self.proxied_images
-                    ],
-                    "single_pixel_images": [
-                        single_pixel_image.as_dict()
-                        for single_pixel_image in self.single_pixel_images
-                    ],
-                    "expanded_urls": [
-                        expanded_url.as_dict()
-                        for expanded_url in self.expanded_urls
-                    ],
+                    "proxied_images": self.proxied_images,
+                    "single_pixel_images": self.single_pixel_images,
+                    "expanded_urls": self.expanded_urls,
                 }
             }
         }
