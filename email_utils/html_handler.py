@@ -10,6 +10,7 @@ from app.email_report_data import (
     EmailReportSinglePixelImageTrackerData,
 )
 from app.models import EmailAlias
+from app.models.constants.alias import PROXY_USER_AGENT_STRING_MAP
 from email_utils.handlers import check_is_url_a_tracker
 
 __all__ = [
@@ -33,7 +34,7 @@ def convert_images(
 
     for image in d("img"):  # type: _Element
         source = image.attrib["src"]
-        image.attrib["data-kleckrelay-original-source"] = source
+        image.attrib["data-kleckrelay-original-src"] = source
         image_proxy = create_image_proxy(db, alias=alias, url=source)
 
         image.attrib["src"] = image_proxy.generate_url(source)
@@ -47,7 +48,7 @@ def convert_images(
             )
         )
 
-    return d.html()
+    return d.outer_html()
 
 
 def check_is_single_pixel_image(image: _Element) -> bool:
@@ -79,7 +80,7 @@ def remove_single_pixel_image_trackers(report: EmailReportData, /, html: str) ->
 
             image.getparent().remove(image)
 
-    return d.html()
+    return d.outer_html()
 
 
 def expand_url(url: str, user_agent: str) -> str:
@@ -101,8 +102,11 @@ def expand_shortened_urls(
 
     for link in d("a"):  # type: _Element
         source = link.attrib["href"]
-        link.attrib["data-kleckrelay-original-source"] = source
-        link.attrib["href"] = expand_url(source, alias.user_agent)
+        link.attrib["data-kleckrelay-original-href"] = source
+        link.attrib["href"] = expand_url(
+            source,
+            PROXY_USER_AGENT_STRING_MAP[alias.proxy_user_agent]
+        )
 
         report.expanded_urls.append(
             EmailReportExpandedURLData(
@@ -111,4 +115,4 @@ def expand_shortened_urls(
             )
         )
 
-    return d.html()
+    return d.outer_html()
