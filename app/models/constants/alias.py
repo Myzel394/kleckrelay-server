@@ -1,11 +1,11 @@
 from ..enums.alias import ProxyUserAgentType
 
 __all__ = [
-    "ALIAS_IMAGE_PROXY_USER_AGENT_STRING"
+    "PROXY_USER_AGENT_STRING_MAP"
 ]
 
 
-ALIAS_IMAGE_PROXY_USER_AGENT_STRING = {
+PROXY_USER_AGENT_STRING_MAP = {
     ProxyUserAgentType.FIREFOX:
         "Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:106.0) Gecko/20100101 Firefox/106.0",
     ProxyUserAgentType.GOOGLE_MAIL:

@@ -12,7 +12,8 @@ class UserPreferencesUpdate(BaseModel):
     alias_create_mail_report: bool = None
     alias_proxy_images: bool = None
     alias_image_proxy_format: ImageProxyFormatType = None
-    alias_image_proxy_user_agent: ProxyUserAgentType = None
+    alias_proxy_user_agent: ProxyUserAgentType = None
+    alias_expand_url_shortener: bool = None
 
     update_all_instances: bool = False
 

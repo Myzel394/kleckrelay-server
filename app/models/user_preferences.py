@@ -25,7 +25,7 @@ class UserPreferences(Base, IDMixin):
         alias_create_mail_report: bool
         alias_proxy_images: bool
         alias_image_proxy_format: ImageProxyFormatType
-        alias_image_proxy_user_agent: ProxyUserAgentType
+        alias_proxy_user_agent: ProxyUserAgentType
         alias_expand_url_shorteners: bool
     else:
         user_id = sa.Column(
@@ -49,7 +49,7 @@ class UserPreferences(Base, IDMixin):
             sa.Enum(ImageProxyFormatType),
             default=ImageProxyFormatType.JPEG,
         )
-        alias_image_proxy_user_agent = sa.Column(
+        alias_proxy_user_agent = sa.Column(
             sa.Enum(ProxyUserAgentType),
             default=ProxyUserAgentType.FIREFOX,
         )

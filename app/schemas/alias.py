@@ -29,7 +29,8 @@ class AliasBase(BaseModel):
     pref_create_mail_report: Optional[bool] = None
     pref_proxy_images: Optional[bool] = None
     pref_image_proxy_format: Optional[ImageProxyFormatType] = None
-    pref_image_proxy_user_agent: Optional[ProxyUserAgentType] = None
+    pref_proxy_user_agent: Optional[ProxyUserAgentType] = None
+    pref_expand_url_shorteners: Optional[bool] = None
 
 
 class AliasCreate(AliasBase):

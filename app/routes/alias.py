@@ -71,8 +71,9 @@ def create_alias(
         pref_remove_trackers=alias_data.pref_remove_trackers,
         pref_create_mail_report=alias_data.pref_create_mail_report,
         pref_proxy_images=alias_data.pref_proxy_images,
-        pref_image_proxy_user_agent=alias_data.pref_image_proxy_user_agent,
+        pref_proxy_user_agent=alias_data.pref_proxy_user_agent,
         pref_image_proxy_format=alias_data.pref_image_proxy_format,
+        pref_expand_url_shorteners=alias_data.pref_expand_url_shorteners,
     )
 
     logger.info("Request: Create Alias -> Saving instance.")

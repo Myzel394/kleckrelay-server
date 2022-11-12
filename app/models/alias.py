@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 from app.database.base import Base
 from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE
 from ._mixins import CreationMixin, IDMixin
-from .constants.alias import ALIAS_IMAGE_PROXY_USER_AGENT_STRING
+from .constants.alias import PROXY_USER_AGENT_STRING_MAP
 from .enums.alias import AliasType, ImageProxyFormatType, ProxyUserAgentType
 from ..mixins.model_preference import ModelPreference
 
@@ -37,7 +37,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         pref_create_mail_report: bool
         pref_proxy_images: bool
         pref_image_proxy_format: ImageProxyFormatType
-        pref_image_proxy_user_agent: ProxyUserAgentType
+        pref_proxy_user_agent: ProxyUserAgentType
         pref_expand_url_shorteners: bool
     else:
         local = sa.Column(
@@ -93,7 +93,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
             default=None,
             nullable=True,
         )
-        pref_image_proxy_user_agent = sa.Column(
+        pref_proxy_user_agent = sa.Column(
             sa.Enum(ProxyUserAgentType),
             default=None,
             nullable=True,
@@ -108,7 +108,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         return "alias_"
 
     def get_user_agent_string(self) -> str:
-        return ALIAS_IMAGE_PROXY_USER_AGENT_STRING[self.image_proxy_user_agent]
+        return PROXY_USER_AGENT_STRING_MAP[self.proxy_user_agent]
 
     @property
     def address(self) -> str:
@@ -131,8 +131,8 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         return self.get_preference_value("image_proxy_format")
 
     @property
-    def image_proxy_user_agent(self) -> ProxyUserAgentType:
-        return self.get_preference_value("image_proxy_user_agent")
+    def proxy_user_agent(self) -> ProxyUserAgentType:
+        return self.get_preference_value("proxy_user_agent")
 
     @property
     def expand_url_shorteners(self) -> bool:

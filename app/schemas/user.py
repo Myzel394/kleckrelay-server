@@ -94,7 +94,7 @@ class UserPreferences(BaseModel):
     alias_create_mail_report: bool
     alias_proxy_images: bool
     alias_image_proxy_format: ImageProxyFormatType
-    alias_image_proxy_user_agent: ProxyUserAgentType
+    alias_proxy_user_agent: ProxyUserAgentType
 
     class Config:
         orm_mode = True
