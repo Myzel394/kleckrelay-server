@@ -40,6 +40,18 @@ class EmailReportSinglePixelImageTrackerData:
 
 
 @dataclass
+class EmailReportExpandedURLData:
+    url: str
+    query_trackers: list[str]
+
+    def as_dict(self) -> dict[str, str]:
+        return {
+            "url": self.url,
+            "query_trackers": self.query_trackers,
+        }
+
+
+@dataclass
 class EmailReportData:
     version = "1.0"
     mail_from: str
@@ -51,6 +63,9 @@ class EmailReportData:
         default_factory=lambda: []
     )
     single_pixel_images: list[EmailReportSinglePixelImageTrackerData] = field(
+        default_factory=lambda: []
+    )
+    expanded_urls: list[EmailReportExpandedURLData] = field(
         default_factory=lambda: []
     )
 
@@ -77,7 +92,11 @@ class EmailReportData:
                     "single_pixel_images": [
                         single_pixel_image.as_dict()
                         for single_pixel_image in self.single_pixel_images
-                    ]
+                    ],
+                    "expanded_urls": [
+                        expanded_url.as_dict()
+                        for expanded_url in self.expanded_urls
+                    ],
                 }
             }
         }

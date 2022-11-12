@@ -10,7 +10,10 @@ from app.email_report_data import EmailReportData
 from app.models import LanguageType, User
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, EmailHandlerError
-from email_utils.html_handler import convert_images, remove_single_pixel_image_trackers
+from email_utils.html_handler import (
+    convert_images, expand_shortened_urls,
+    remove_single_pixel_image_trackers,
+)
 from email_utils.send_mail import (
     send_error_mail, send_mail,
 )
@@ -45,7 +48,11 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
             f"Sending email now..."
         )
 
-        return local_alias.address, forward_address, email.user
+        return (
+            local_alias.address,
+            forward_address,
+            email.user
+        )
 
     logger.info(
         f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is an alias mail."
@@ -68,6 +75,9 @@ def _get_targets(db: Session, /, envelope: Envelope, message: Message) -> tuple[
 
             if life_constants.ENABLE_IMAGE_PROXY and alias.proxy_images:
                 content = convert_images(db, report, alias=alias, html=content)
+
+            if alias.expand_url_shorteners:
+                content = expand_shortened_urls(report, alias=alias, html=content)
 
             message.set_payload(content, "utf-8")
 
