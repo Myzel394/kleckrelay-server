@@ -10,7 +10,7 @@ def test_user_can_update_single_preferences(
     auth = create_auth_tokens(user)
 
     response = client.patch(
-        "/preferences/",
+        "/v1/preferences/",
         json={
             "alias_proxy_images": False,
         },
@@ -32,7 +32,7 @@ def test_user_can_update_single_preferences_with_instances_update(
 
     assert user.email_aliases[0].proxy_images is True
     response = client.patch(
-        "/preferences/",
+        "/v1/preferences/",
         json={
             "alias_proxy_images": False,
             "update_all_instances": True,

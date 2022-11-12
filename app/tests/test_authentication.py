@@ -44,7 +44,7 @@ def test_can_create_account_with_minimum_valid_data(
     client: TestClient,
 ):
     response = client.post(
-        "/auth/signup",
+        "/v1/auth/signup",
         json={
             "email": "email@example.com",
         }
@@ -57,7 +57,7 @@ def test_can_create_account_with_valid_data_with_public_key(
     client: TestClient,
 ):
     response = client.post(
-        "/auth/signup",
+        "/v1/auth/signup",
         json={
             "email": "email@example.com",
             "public_key": PUBLIC_KEY,
@@ -71,7 +71,7 @@ def test_can_create_account_with_valid_data_with_all_data(
     client: TestClient,
 ):
     response = client.post(
-        "/auth/signup",
+        "/v1/auth/signup",
         json={
             "email": "email@example.com",
             "public_key": PUBLIC_KEY,
@@ -86,7 +86,7 @@ def test_can_not_create_account_with_invalid_public_key(
     client: TestClient,
 ):
     response = client.post(
-        "/auth/signup",
+        "/v1/auth/signup",
         json={
             "email": "email@example.com",
             "public_key": """-----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -104,7 +104,7 @@ def test_can_not_create_account_with_blocked_relays(
 ):
     life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS = False
     response = client.post(
-        "/auth/signup",
+        "/v1/auth/signup",
         json={
             "email": f"email@{life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS[0]}"
         }
@@ -118,7 +118,7 @@ def test_can_create_account_with_user_email_enable_other_relays_false(
 ):
     life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS = False
     response = client.post(
-        "/auth/signup",
+        "/v1/auth/signup",
         json={
             "email": f"email@example.com"
         }
@@ -133,7 +133,7 @@ def test_can_verify_email_with_correct_token(
     user: User = create_user()
 
     response = client.post(
-        "/auth/verify-email",
+        "/v1/auth/verify-email",
         json={
             "email": user.email.address,
             "token": "abc",
@@ -153,7 +153,7 @@ def test_can_verify_email_again(
     user: User = create_user(is_verified=True)
 
     response = client.post(
-        "/auth/verify-email",
+        "/v1/auth/verify-email",
         json={
             "email": user.email.address,
             "token": "abc",
@@ -173,7 +173,7 @@ def test_can_resend_email(
     user: User = create_user()
 
     response = client.post(
-        "/auth/resend-email",
+        "/v1/auth/resend-email",
         json={
             "email": user.email.address,
         }
@@ -188,7 +188,7 @@ def test_resend_email_with_invalid_email_returns_error(
     user: User = create_user()
 
     response = client.post(
-        "/auth/resend-email",
+        "/v1/auth/resend-email",
         json={
             "email": "abc" + user.email.address,
         }
@@ -203,7 +203,7 @@ def test_can_create_email_login_token(
     user: User = create_user(is_verified=True)
 
     response = client.post(
-        "/auth/login/email-token",
+        "/v1/auth/login/email-token",
         json={
             "email": user.email.address,
         }
@@ -220,7 +220,7 @@ def test_can_verify_login_token(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.post(
-        "/auth/login/email-token/verify",
+        "/v1/auth/login/email-token/verify",
         json={
             "email": user.email.address,
             "token": token,
@@ -239,7 +239,7 @@ def test_can_verify_login_token_using_different_device(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.patch(
-        "/auth/login/email-token/allow-login-from-different-devices",
+        "/v1/auth/login/email-token/allow-login-from-different-devices",
         json={
             "email": user.email.address,
             "same_request_token": same_request_token,
@@ -250,7 +250,7 @@ def test_can_verify_login_token_using_different_device(
                                         "devices should be 200"
 
     response = client.post(
-        "/auth/login/email-token/verify",
+        "/v1/auth/login/email-token/verify",
         json={
             "email": user.email.address,
             "token": token,
@@ -268,7 +268,7 @@ def test_can_not_verify_login_token_using_different_device_when_not_available(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.post(
-        "/auth/login/email-token/verify",
+        "/v1/auth/login/email-token/verify",
         json={
             "email": user.email.address,
             "token": token,
@@ -286,7 +286,7 @@ def test_can_resend_valid_email_verification_code(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.post(
-        "/auth/login/email-token/resend-email",
+        "/v1/auth/login/email-token/resend-email",
         json={
             "email": user.email.address,
             "same_request_token": same_request_token,
@@ -304,7 +304,7 @@ def test_can_not_resend_email_verification_code_with_invalid_email(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.post(
-        "/auth/login/email-token/resend-email",
+        "/v1/auth/login/email-token/resend-email",
         json={
             "email": "a" + user.email.address,
             "same_request_token": same_request_token,
@@ -322,7 +322,7 @@ def test_can_not_resend_email_verification_code_with_invalid_same_request_token(
     email_login, token, same_request_token = create_email_token(user=user)
 
     response = client.post(
-        "/auth/login/email-token/resend-email",
+        "/v1/auth/login/email-token/resend-email",
         json={
             "email": "a" + user.email.address,
             "same_request_token": "a" * len(same_request_token)

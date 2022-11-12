@@ -11,6 +11,8 @@ __all__ = [
     "get_report_from_user_by_id",
 ]
 
+from email_utils.utils import DataclassJSONEncoder
+
 
 def create_email_report_from_report_data(
     db: Session,
@@ -28,7 +30,12 @@ def create_email_report_from_report_data(
     db.refresh(report)
 
     report_data.report_id = report.id
-    report.encrypted_content = user.encrypt(json.dumps(report_data.as_dict()))
+    report.encrypted_content = user.encrypt(
+        json.dumps(
+            report_data,
+            cls=DataclassJSONEncoder
+        )
+    )
 
     db.add(report)
     db.commit()

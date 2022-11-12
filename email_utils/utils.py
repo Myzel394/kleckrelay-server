@@ -1,3 +1,5 @@
+import dataclasses
+import json
 import os
 import random
 import re
@@ -23,7 +25,8 @@ __all__ = [
     "get_local_email",
     "get_alias_by_email",
     "determine_text_language",
-    "get_header_unicode"
+    "get_header_unicode",
+    "DataclassJSONEncoder"
 ]
 
 
@@ -148,3 +151,11 @@ def get_header_unicode(header: str) -> str:
         value += decoded_str
 
     return value
+
+
+# https://stackoverflow.com/a/51286749/9878135
+class DataclassJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if dataclasses.is_dataclass(o):
+            return dataclasses.as_dict(o)
+        return super().default(o)
