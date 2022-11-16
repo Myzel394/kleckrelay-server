@@ -1,4 +1,4 @@
-from lxml import etree
+import lxml.html
 from pyquery import PyQuery as pq
 
 from app import life_constants
@@ -27,7 +27,7 @@ def test_can_convert_images(
     new_html = html_handler.convert_images(db, report, alias=alias, html=html)
 
     assert html != new_html, "HTML should have changed."
-    d = pq(etree.fromstring(new_html))
+    d = pq(lxml.html.fromstring(new_html))
     img = d.find("img")[0]
     assert img.get("src").startswith(f"https://{life_constants.API_DOMAIN}/image-proxy"), \
         "Image's `src` should have changed."
@@ -49,7 +49,7 @@ def test_can_remove_single_pixel_tracker_images_by_url():
     new_html = html_handler.remove_single_pixel_image_trackers(report, html=html)
 
     assert html != new_html, "HTML should have changed."
-    d = pq(etree.fromstring(new_html))
+    d = pq(lxml.html.fromstring(new_html))
     images = d.find("img")
     assert len(images) == 0, "There should be no images left."
 
@@ -67,6 +67,6 @@ def test_can_remove_single_pixel_tracker_image_by_size():
     new_html = html_handler.remove_single_pixel_image_trackers(report, html=html)
 
     assert html != new_html, "HTML should have changed."
-    d = pq(etree.fromstring(new_html))
+    d = pq(lxml.html.fromstring(new_html))
     images = d.find("img")
     assert len(images) == 0, "There should be no images left."

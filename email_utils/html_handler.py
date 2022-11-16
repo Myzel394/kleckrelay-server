@@ -1,6 +1,5 @@
 import lxml.html
 import requests
-from lxml import etree
 from lxml.etree import _Element, XMLSyntaxError
 from pyquery import PyQuery as pq
 from sqlalchemy.orm import Session
@@ -97,7 +96,7 @@ def expand_shortened_urls(
     html: str
 ) -> str:
     try:
-        d = pq(etree.fromstring(html))
+        d = pq(lxml.html.fromstring(html))
     except XMLSyntaxError:
         return html
 
