@@ -70,3 +70,45 @@ def test_can_remove_single_pixel_tracker_image_by_size():
     d = pq(lxml.html.fromstring(new_html))
     images = d.find("img")
     assert len(images) == 0, "There should be no images left."
+
+
+def test_can_expand_shortened_url(create_random_alias, create_user):
+    user = create_user()
+    alias = create_random_alias(user=user)
+
+    html = (ROOT_DIR / "explorative_tests" / "shortened_url.html").read_text()
+
+    report = EmailReportData(
+        mail_from="from@example.com",
+        mail_to="to@example.com",
+        subject="Awesome Subject here",
+        message_id="",
+        report_id="",
+    )
+    new_html = html_handler.expand_shortened_urls(report, alias=alias, html=html)
+
+    assert html != new_html, "HTML should have changed."
+    d = pq(lxml.html.fromstring(new_html))
+    anchor = d.find("a")[0]
+    assert anchor.attrib["href"] == "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+
+def test_can_expand_recursive_shortened_url(create_random_alias, create_user):
+    user = create_user()
+    alias = create_random_alias(user=user)
+
+    html = (ROOT_DIR / "explorative_tests" / "shortened_url_recursive.html").read_text()
+
+    report = EmailReportData(
+        mail_from="from@example.com",
+        mail_to="to@example.com",
+        subject="Awesome Subject here",
+        message_id="",
+        report_id="",
+    )
+    new_html = html_handler.expand_shortened_urls(report, alias=alias, html=html)
+
+    assert html != new_html, "HTML should have changed."
+    d = pq(lxml.html.fromstring(new_html))
+    anchor = d.find("a")[0]
+    assert anchor.attrib["href"] == "https://www.youtube.com/"
