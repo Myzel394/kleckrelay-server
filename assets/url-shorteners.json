@@ -544,6 +544,28 @@
                         "type": "domain"
                     }
                 ]
+            },
+            {
+                "name": "ConvertKit",
+                "url": "https://convertkit.com",
+                "patterns": [
+                    {
+                        "pattern": "*.convertkit-mail*(*).com/*",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*.ck-kit.com/*",
+                        "type": "glob"
+                    },
+                    {
+                        "pattern": "*ckarchive.com",
+                        "type": "domain"
+                    },
+                    {
+                        "pattern": "*.fourhourmail.com/*",
+                        "type": "glob"
+                    }
+                ]
             }
         ]
     }
