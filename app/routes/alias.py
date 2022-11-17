@@ -30,13 +30,20 @@ def get_all_aliases(
     params: Params = Depends(),
     query: str = Query(""),
     active: bool = Query(None),
+    alias_type: AliasType = Query(None),
 ):
     logger.info("Request: Get all aliases -> New Request.")
 
     user = get_user_by_id(db, credentials["id"])
 
     return paginate(
-        find_aliases_from_user_ordered(db, user=user, search=query, active=active),
+        find_aliases_from_user_ordered(
+            db,
+            user=user,
+            search=query,
+            active=active,
+            alias_type=alias_type,
+        ),
         params
     )
 

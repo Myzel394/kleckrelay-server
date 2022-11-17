@@ -11,6 +11,7 @@ from app.life_constants import (
 )
 from app.models import User
 from app.models.alias import EmailAlias
+from app.models.enums.alias import AliasType
 from app.utils import contains_word
 
 __all__ = [
@@ -121,7 +122,8 @@ def find_aliases_from_user_ordered(
     /,
     user: User,
     search: str = "",
-    active: Optional[bool] = None
+    active: Optional[bool] = None,
+    alias_type: Optional[AliasType] = None,
 ):
     query = db \
         .query(EmailAlias)\
@@ -134,6 +136,9 @@ def find_aliases_from_user_ordered(
 
     if active is not None:
         query = query.filter_by(is_active=active)
+
+    if alias_type is not None:
+        query = query.filter_by(type=alias_type)
 
     return query\
         .order_by(func.levenshtein(EmailAlias.local, search) if search else EmailAlias.local) \
