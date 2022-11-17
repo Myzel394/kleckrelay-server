@@ -28,13 +28,17 @@ def get_all_aliases(
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
     params: Params = Depends(),
-    query: str = Query("")
+    query: str = Query(""),
+    active: bool = Query(None),
 ):
     logger.info("Request: Get all aliases -> New Request.")
 
     user = get_user_by_id(db, credentials["id"])
 
-    return paginate(find_aliases_from_user_ordered(db, user=user, search=query), params)
+    return paginate(
+        find_aliases_from_user_ordered(db, user=user, search=query, active=active),
+        params
+    )
 
 
 @router.post(

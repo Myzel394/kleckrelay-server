@@ -1,4 +1,5 @@
 import secrets
+from typing import Optional
 
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
@@ -115,7 +116,13 @@ def get_alias_from_user_by_address(
        .one()
 
 
-def find_aliases_from_user_ordered(db: Session, /, user: User, search: str = ""):
+def find_aliases_from_user_ordered(
+    db: Session,
+    /,
+    user: User,
+    search: str = "",
+    active: Optional[bool] = None
+):
     query = db \
         .query(EmailAlias)\
         .filter_by(user_id=user.id)
@@ -124,6 +131,9 @@ def find_aliases_from_user_ordered(db: Session, /, user: User, search: str = "")
         query = query.filter(
             func.similarity(EmailAlias.local, search) > 0.005
         )
+
+    if active is not None:
+        query = query.filter_by(is_active=active)
 
     return query\
         .order_by(func.levenshtein(EmailAlias.local, search) if search else EmailAlias.local) \
