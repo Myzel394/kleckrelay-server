@@ -7,6 +7,7 @@ __all__ = [
 
 class SettingsModel(BaseModel):
     mail_domain: str
+    app_domain: str
     random_email_id_min_length: int
     random_email_id_chars: str
     image_proxy_enabled: bool

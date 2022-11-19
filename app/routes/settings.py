@@ -10,6 +10,7 @@ router = APIRouter()
 def get_settings():
     return {
         "mail_domain": life_constants.MAIL_DOMAIN,
+        "app_domain": life_constants.APP_DOMAIN,
         "random_email_id_min_length": life_constants.RANDOM_EMAIL_ID_MIN_LENGTH,
         "random_email_id_chars": life_constants.RANDOM_EMAIL_ID_CHARS,
         "custom_alias_suffix_length": life_constants.CUSTOM_EMAIL_SUFFIX_LENGTH,
