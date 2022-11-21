@@ -22,7 +22,7 @@ def set_authentication_cookies(response: Response, user: User) -> None:
 
     response.set_cookie(
         key=constants.REFRESH_TOKEN_COOKIE_NAME,
-        value=refresh_security.create_access_token(subject=user.to_jwt_object()),
+        value=refresh_security.create_refresh_token(subject=user.to_jwt_object()),
         httponly=not life_constants.IS_DEBUG,
         secure=not life_constants.IS_DEBUG,
         samesite="lax" if life_constants.IS_DEBUG else "strict",
