@@ -35,3 +35,18 @@ def update_account_data(
         "detail": "Updates user successfully!"
     }
 
+
+@router.get(
+    "/me",
+    response_model=SimpleUserResponseModel,
+)
+def get_me(
+        credentials: JwtAuthorizationCredentials = Security(access_security),
+        db: Session = Depends(get_db),
+):
+    user = get_user_by_id(db, credentials["id"])
+
+    return {
+        "user": user,
+        "detail": "Returned user successfully!",
+    }
