@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi_jwt import JwtAccessBearerCookie, JwtRefreshBearer
+from fastapi_jwt import JwtAccessBearerCookie, JwtRefreshBearer, JwtRefreshBearerCookie
 
 from app.life_constants import (
     ACCESS_TOKEN_EXPIRE_IN_MINUTES, JWT_REFRESH_SECRET_KEY,
@@ -17,7 +17,7 @@ access_security = JwtAccessBearerCookie(
     auto_error=True,
     access_expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_IN_MINUTES),
 )
-refresh_security = JwtRefreshBearer(
+refresh_security = JwtRefreshBearerCookie(
     secret_key=JWT_REFRESH_SECRET_KEY,
     auto_error=True,
     access_expires_delta=timedelta(minutes=REFRESH_TOKEN_EXPIRE_IN_MINUTES),
