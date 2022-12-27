@@ -22,3 +22,4 @@ class SettingsModel(BaseModel):
     email_resend_wait_time: int
     email_login_expiration_in_seconds: int
     custom_alias_suffix_length: int
+    instance_salt: str

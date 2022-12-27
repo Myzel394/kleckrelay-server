@@ -149,6 +149,14 @@ def check_life_constants() -> None:
 
     check_server_private_key()
 
+    if life_constants.INSTANCE_SALT == default_life_constants.INSTANCE_SALT:
+        logger.logger.info(
+            "Doctor: `INSTANCE_SALT` has not been changed. "
+            "Please change it to a random value for increased security "
+            "(You can smash any keys on your keyboard. Make sure you use many random characters "
+            "and it should be at least 20 characters long)."
+        )
+
     if life_constants.IS_DEBUG:
         logger.logger.warning(
             f"Doctor: <=== DEBUG MODE IS ENABLED, REMEMBER TO DISABLE IT IN PRODUCTION!!! ===>"
