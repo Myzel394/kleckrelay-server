@@ -1,6 +1,7 @@
 import enum
 from typing import Any, Optional, TYPE_CHECKING
 
+import bcrypt
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import InstrumentedList
@@ -62,6 +63,11 @@ class User(Base, IDMixin, CreationMixin):
             default=None,
             nullable=True,
         )
+        salt = sa.Column(
+            sa.String(constants.SALT_MAX_LENGTH),
+            default=lambda: bcrypt.gensalt().decode("utf-8"),
+            nullable=False,
+        )
         email_aliases = relationship(
             "EmailAlias",
             backref="user",
@@ -84,6 +90,8 @@ class User(Base, IDMixin, CreationMixin):
     def to_jwt_object(self) -> dict[str, Any]:
         return {
             "id": str(self.id),
+            "salt": self.salt,
+            "encrypted_password": self.encrypted_password,
         }
 
     def encrypt(self, message: str) -> str:

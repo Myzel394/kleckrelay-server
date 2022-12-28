@@ -102,6 +102,7 @@ class UserPreferences(BaseModel):
 
 class User(UserBase):
     id: uuid.UUID
+    salt: str
     created_at: datetime
     email: Email
     preferences: UserPreferences

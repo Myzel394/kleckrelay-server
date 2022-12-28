@@ -53,6 +53,7 @@ ACCESS_TOKEN_COOKIE_NAME = "access_token_cookie"
 REFRESH_TOKEN_COOKIE_NAME = "refresh_token_cookie"
 EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
+SALT_MAX_LENGTH = 29
 
 
 TESTING_DB = None
