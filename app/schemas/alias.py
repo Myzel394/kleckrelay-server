@@ -78,6 +78,7 @@ class AliasList(BaseModel):
     domain: str
     local: str
     type: AliasType
+    encrypted_notes: str
 
     class Config:
         orm_mode = True
