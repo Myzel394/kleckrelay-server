@@ -91,7 +91,6 @@ class User(Base, IDMixin, CreationMixin):
         return {
             "id": str(self.id),
             "salt": self.salt,
-            "encrypted_password": self.encrypted_password,
         }
 
     def encrypt(self, message: str) -> str:
