@@ -2,4 +2,4 @@
 
 poetry run alembic upgrade head
 
-poetry run gunicorn -b 0.0.0.0:80 app.main:app
+poetry run gunicorn -k uvicorn.workers.UvicornWorker -b 0.0.0.0:80 app.main:app
