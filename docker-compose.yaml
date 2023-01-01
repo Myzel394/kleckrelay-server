@@ -4,10 +4,32 @@ services:
   database:
     image: 'postgres:latest'
 
-    ports:
-      - "35432:5432"
-
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mail
+
+    expose:
+      - 5432
+
+  server:
+    build:
+      context: .
+      dockerfile: Server.Dockerfile
+    depends_on:
+      - database
+    ports:
+      - "80:80"
+    environment:
+      DB_URI: "postgresql://user:password@database/mail"
+
+  email:
+    build:
+      context: .
+      dockerfile: EmailHandler.Dockerfile
+    depends_on:
+      - database
+    ports:
+      - "20381:20381"
+    environment:
+      DB_URI: "postgresql://user:password@database/mail"

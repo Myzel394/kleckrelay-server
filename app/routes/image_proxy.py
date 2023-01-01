@@ -57,7 +57,7 @@ def download_image_on_fly(
             f"Request: Proxy Image -> `404` Error while trying to proxy {url=}."
         )
         raise HTTPException(
-            detail="Upstream server returned a status of `404`.",
+            detail="Upstream Server returned a status of `404`.",
             status_code=404,
         )
 
@@ -87,7 +87,7 @@ def download_image_on_fly(
             "model": HTTPBadRequestExceptionModel,
         },
         404: {
-            "description": "Upstream server returned a status of `404`.",
+            "description": "Upstream Server returned a status of `404`.",
             "model": HTTPNotFoundExceptionModel,
         }
     }
