@@ -54,11 +54,17 @@ def send_mail(
 ):
     from_name = from_name or from_mail
 
-    message[headers.FROM] = formatters.format_from_mail(
-        name=from_name,
-        mail=from_mail,
+    message.replace_header(
+        headers.FROM,
+        formatters.format_from_mail(
+            name=from_name,
+            mail=from_mail,
+        )
     )
-    message[headers.TO] = to_mail
+    message.replace_header(
+        headers.TO,
+        to_mail,
+    )
 
     if life_constants.DEBUG_MAILS:
         _debug_email(
@@ -108,6 +114,10 @@ def draft_message(
         message = EmailMessage()
         message.set_payload(plaintext)
         message[headers.CONTENT_TYPE] = "text/plain"
+
+    # Those headers will be replaced by `send_mail`
+    message[headers.FROM] = "ReplaceMe"
+    message[headers.TO] = "ReplaceMe"
 
     message[headers.SUBJECT] = subject
     message[headers.DATE] = formatters.format_date()

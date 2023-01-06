@@ -126,6 +126,10 @@ def check_life_constants() -> None:
         f"Doctor: Root dir is: {constants.ROOT_DIR}"
     )
 
+    logger.logger.info(
+        f"Doctor: DB URI is: {life_constants.DB_URI.split('@')[1]}"
+    )
+
     if life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS:
         logger.logger.info(
             "Doctor: Users are allowed to register with disposable emails."

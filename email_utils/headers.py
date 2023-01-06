@@ -1,4 +1,4 @@
-MESSAGE_ID = "Message-ID"
+MESSAGE_ID = "Message-Id"
 IN_REPLY_TO = "In-Reply-To"
 DATE = "Date"
 SUBJECT = "Subject"
