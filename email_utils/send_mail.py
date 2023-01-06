@@ -8,6 +8,7 @@ from app import life_constants, logger
 from app.models import LanguageType
 from . import formatters, headers
 from .errors import EmailHandlerError
+from .headers import set_header
 from .template_renderer import render
 from .utils import message_to_bytes
 
@@ -54,16 +55,14 @@ def send_mail(
 ):
     from_name = from_name or from_mail
 
-    message.replace_header(
+    set_header(
+        message,
         headers.FROM,
-        formatters.format_from_mail(
-            name=from_name,
-            mail=from_mail,
-        )
+        formatters.format_from_mail(name=from_name, mail=from_mail)
     )
-    message.replace_header(
-        headers.TO,
-        to_mail,
+    set_header(
+        message,
+        headers.TO, to_mail
     )
 
     if life_constants.DEBUG_MAILS:

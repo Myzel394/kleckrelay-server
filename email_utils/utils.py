@@ -21,12 +21,12 @@ from email_utils.errors import AliasNotFoundError, InvalidEmailError
 __all__ = [
     "generate_message_id",
     "message_to_bytes",
-    "parse_destination_email",
-    "get_local_email",
     "get_alias_by_email",
     "determine_text_language",
     "get_header_unicode",
-    "DataclassJSONEncoder"
+    "DataclassJSONEncoder",
+    "extract_alias_address",
+    "get_alias_from_user",
 ]
 
 
@@ -75,11 +75,13 @@ def find_alias_for_full_address(user: User, /, email: str) -> EmailAlias:
     raise AliasNotFoundError(status_code=status.E502)
 
 
-def parse_destination_email(user: User, email: str) -> tuple[EmailAlias, str]:
-    """Parses the `to` email address.
+def extract_alias_address(address: str) -> Optional[tuple[str, str]]:
+    """Extracts an alias address.
+    This only extracts the address, it does not validate it.
 
     Returns a tuple containing:
         (local address, targeted address)
+    Returns `None` if the address is not of valid format.
 
     The local address is the locally stored email address to which the email originally was sent to.
     The targeted address is the actual targeted email address to which the email has to be
@@ -91,18 +93,18 @@ def parse_destination_email(user: User, email: str) -> tuple[EmailAlias, str]:
         Output:
             ("abcdef@mail.kleckrelay.com", "test@example.com")
     """
-    local_alias = find_alias_for_full_address(user, email)
-    raw_destination = email[:-len(local_alias.address) - 1]
+    groups = re.match(constants.ALIAS_OUTSIDE_REGEX, address)
 
-    if raw_destination.count("_at_") != 1:
-        raise InvalidEmailError()
+    if groups is None:
+        return None
 
-    destination_address = raw_destination.replace("_at_", "@")
+    target_local = groups.group(1)
+    target_domain = groups.group(2)
+    alias = groups.group(3)
 
-    if re.match(constants.EMAIL_REGEX, destination_address) is None:
-        raise InvalidEmailError()
+    target = f"{target_local}@{target_domain}"
 
-    return local_alias, destination_address
+    return alias, target
 
 
 async def sanitize_email(email: str) -> str:
@@ -111,7 +113,7 @@ async def sanitize_email(email: str) -> str:
     return (await normalizer.normalize(email)).normalized_address
 
 
-def get_local_email(db: Session, /, email: str) -> Optional[Email]:
+def get_email_by_from(db: Session, /, email: str) -> Optional[Email]:
     return db.query(Email).filter_by(address=email).first()
 
 
@@ -123,6 +125,17 @@ def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
         .filter_by(local=local)\
         .filter_by(domain=domain)\
         .first()
+
+
+def get_alias_from_user(db: Session, /, user: User, alias: str) -> EmailAlias:
+    local, domain = alias.split("@")
+
+    return db\
+        .query(EmailAlias)\
+        .filter_by(local=local)\
+        .filter_by(domain=domain)\
+        .filter_by(user_id=user.id)\
+        .one()
 
 
 def determine_text_language(text: str) -> LanguageType:

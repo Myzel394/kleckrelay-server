@@ -1,6 +1,7 @@
 from mailbox import Message
 
 from aiosmtpd.smtp import Envelope
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import life_constants, logger
@@ -9,7 +10,7 @@ from app.database.dependencies import with_db
 from app.email_report_data import EmailReportData
 from app.models import LanguageType, User
 from email_utils import status
-from email_utils.errors import AliasNotFoundError, EmailHandlerError
+from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
 from email_utils.html_handler import (
     convert_images, expand_shortened_urls,
     remove_single_pixel_image_trackers,
@@ -18,11 +19,13 @@ from email_utils.send_mail import (
     send_error_mail, send_mail,
 )
 from email_utils.utils import (
-    generate_message_id, get_alias_by_email, get_header_unicode, get_local_email,
-    parse_destination_email,
+    get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
+    get_header_unicode,
+    get_email_by_from,
 )
 from email_utils.validators import validate_alias
 from . import headers
+from .headers import set_header
 
 __all__ = [
     "handle",
@@ -36,30 +39,44 @@ def handle(envelope: Envelope, message: Message) -> str:
         user = None
 
         try:
-            message.replace_header(headers.MESSAGE_ID, generate_message_id())
+            set_header(message, headers.MESSAGE_ID, generate_message_id())
 
-            logger.info(f"Checking if FROM mail {envelope.mail_from} is locally saved.")
+            logger.info(
+                f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is a relay address."
+            )
 
-            if email := get_local_email(db, email=envelope.mail_from):
+            if (result := extract_alias_address(envelope.rcpt_tos[0])) is not None:
+                # LOCALLY saved user wants to send a mail FROM alias TO the outside.
+                logger.info(
+                    f"{envelope.rcpt_tos[0]} is an alias address. Checking if FROM user owns it."
+                )
+
+                alias, target = result
+
+                try:
+                    email = get_email_by_from(db, envelope.mail_from)
+                except NoResultFound:
+                    # Return "AliasNotYoursError" to avoid an alias being leaked
+                    raise AliasNotYoursError()
+
                 user = email.user
 
-                # LOCALLY saved user wants to send a mail FROM its private mail TO the outside.
-                local_alias, forward_address = parse_destination_email(
-                    user=email.user,
-                    email=envelope.rcpt_tos[0],
-                )
+                try:
+                    local_alias = get_alias_from_user(db, user, alias)
+                except NoResultFound:
+                    raise AliasNotYoursError()
 
                 validate_alias(local_alias)
 
                 logger.info(
-                    f"Local mail {local_alias} should be relayed to outside mail {forward_address}. "
+                    f"Local mail {local_alias} should be relayed to outside mail {target}. "
                     f"Sending email now..."
                 )
 
                 send_mail(
                     message,
                     from_mail=local_alias.address,
-                    to_mail=forward_address,
+                    to_mail=target,
                 )
 
                 return status.E200

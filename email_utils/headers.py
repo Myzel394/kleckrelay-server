@@ -1,3 +1,5 @@
+from email.message import Message
+
 MESSAGE_ID = "Message-Id"
 IN_REPLY_TO = "In-Reply-To"
 DATE = "Date"
@@ -44,3 +46,10 @@ AUTO_SUBMITTED = "Auto-Submitted"
 
 # Yahoo complaint specific header
 YAHOO_ORIGINAL_RECIPIENT = "original-rcpt-to"
+
+
+def set_header(message: Message, header: str, value: str) -> None:
+    if message[header]:
+        message.replace_header(header, value)
+    else:
+        message.add_header(header, value)

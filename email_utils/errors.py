@@ -27,3 +27,9 @@ class AliasNotFoundError(EmailHandlerError):
 @dataclass
 class AliasDisabledError(EmailHandlerError):
     status_code: str = status.E518
+
+
+
+@dataclass
+class AliasNotYoursError(EmailHandlerError):
+    status_code: str = status.E502

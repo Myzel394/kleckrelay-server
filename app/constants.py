@@ -32,6 +32,10 @@ __all__ = [
 LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~-]{1,64}$"
 DOMAIN_REGEX = r"^[a-zA-Z0-9-]{1,255}\.[a-zA-Z0-9-.]+$"
 EMAIL_REGEX = f"^{LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
+# Regex used to extract emails sent to outside that should be relayed through an alias
+# (e.g. `outside_at_example.com_test.1234@mail.kleckrelay.com`)
+ALIAS_OUTSIDE_REGEX = \
+    f"({LOCAL_REGEX[1:-1]})_at_({DOMAIN_REGEX[1:-1]})_({EMAIL_REGEX[1:-1]})$"
 RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,68}$"
 RELAY_EMAIL_REGEX = f"^{RELAY_LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 MAX_EMAIL_LENGTH = 400
