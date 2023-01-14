@@ -3,7 +3,7 @@ name: Test
 on:
     pull_request_target:
         branches:
-            - main
+            - master
 
 env:
     IS_DEBUG: true
