@@ -91,7 +91,7 @@ def extract_alias_address(address: str) -> Optional[tuple[str, str]]:
         email = "test_at_example.com_abcdef@mail.kleckrelay.com"
 
         Output:
-            ("abcdef@mail.kleckrelay.com", "test@example.com")
+            ("abcdef@mail.kleckrelay.com", "test.yaml@example.com")
     """
     groups = re.match(constants.ALIAS_OUTSIDE_REGEX, address)
 

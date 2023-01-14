@@ -35,18 +35,18 @@ GjUt6zUH7uMmwqk2Y6OywchsNJ5ZNzQOXyG6Bw==
 def test_can_encrypt():
     gpg_handler.IS_SERVER_KEY_VALID = False
     gpg_handler.gpg.import_keys(PRIVATE_KEY)
-    message = gpg_handler.sign_and_encrypt_message("test", PUBLIC_KEY)
+    message = gpg_handler.sign_and_encrypt_message("test.yaml", PUBLIC_KEY)
     assert message.startswith("-----BEGIN PGP MESSAGE-----")
 
     decrypted = gpg_handler.gpg.decrypt(message)
-    assert str(decrypted) == "test"
+    assert str(decrypted) == "test.yaml"
 
 
 def test_can_sign_and_encrypt():
     gpg_handler.IS_SERVER_KEY_VALID = True
     private_key = gpg_handler.gpg.import_keys(PRIVATE_KEY)
     gpg_handler.SERVER_PRIVATE_KEY_RAW = private_key
-    message = gpg_handler.sign_and_encrypt_message("test", PUBLIC_KEY)
+    message = gpg_handler.sign_and_encrypt_message("test.yaml", PUBLIC_KEY)
     assert message.startswith("-----BEGIN PGP MESSAGE-----")
 
     signed_message = gpg_handler.gpg.decrypt(message)

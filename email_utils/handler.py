@@ -69,7 +69,7 @@ def handle(envelope: Envelope, message: Message) -> str:
                 validate_alias(local_alias)
 
                 logger.info(
-                    f"Local mail {local_alias} should be relayed to outside mail {target}. "
+                    f"Local mail {local_alias.address} should be relayed to outside mail {target}. "
                     f"Sending email now..."
                 )
 
