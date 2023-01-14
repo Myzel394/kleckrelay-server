@@ -38,6 +38,8 @@ jobs:
               with:
                 path: ~/.cache/pypoetry/virtualenvs
                 key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+            - name: Install GnuPG
+              run: sudo apt install gnupg2 -y && mkdir ~/.gnupg
             - name: Install packages
               run: poetry install
             - name: Apply migrations
