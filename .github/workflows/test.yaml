@@ -1,9 +1,8 @@
 name: Test
 
 on:
-    pull_request_target:
-        branches:
-            - master
+    - push
+    - pull_request
 
 env:
     IS_DEBUG: true
