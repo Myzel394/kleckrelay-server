@@ -70,6 +70,13 @@ def create_image_proxy_storage_path():
 def check_server_private_key():
     key_data = base64.b64decode(life_constants.SERVER_PRIVATE_KEY)
 
+    if key_data == default_life_constants.SERVER_PRIVATE_KEY:
+        logger.warning(
+            f"Doctor: Your `SERVER_PRIVATE_KEY` has not been set. We strongly recommend that you "
+            f"create one for more safety and privacy of your users."
+        )
+        return
+
     key = gpg.import_keys(key_data)
 
     if len(key.fingerprints) == 0:
