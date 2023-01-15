@@ -4,20 +4,18 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists
 from starlette.testclient import TestClient
 
-from app import constants
+from app import constants, life_constants
 from app.authentication.handler import access_security, refresh_security
 from app.controllers.alias import generate_random_local_id
 from app.controllers.email_login import generate_same_request_token, generate_token
 from app.database.base import Base
 from app.database.dependencies import get_db
-from app.life_constants import MAIL_DOMAIN
+from app.life_constants import MAIL_DOMAIN, DB_URI
 from app.main import app
 from app.models import Email, EmailAlias, EmailLoginToken, User, UserPreferences
 from app.models.enums.alias import AliasType
 from app.tests.helpers import create_item
 from app.utils import hash_fast
-
-SQLALCHEMY_DATABASE_URL = "postgresql://user:password@127.0.0.1:35432/mail"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -27,7 +25,7 @@ def update_is_testing():
 
 @pytest.fixture(scope="session")
 def db_engine():
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    engine = create_engine(DB_URI)
     if not database_exists:
         create_database(engine.url)
 
