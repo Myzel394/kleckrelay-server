@@ -43,7 +43,7 @@ class UserPreferences(Base, IDMixin):
         )
         alias_proxy_images = sa.Column(
             sa.Boolean,
-            default=True,
+            default=False,
         )
         alias_image_proxy_format = sa.Column(
             sa.Enum(ImageProxyFormatType),
@@ -55,5 +55,5 @@ class UserPreferences(Base, IDMixin):
         )
         alias_expand_url_shorteners = sa.Column(
             sa.Boolean,
-            default=True,
+            default=False,
         )
