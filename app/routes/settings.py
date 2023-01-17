@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app import constants, life_constants
+from app import constants, life_constants, gpg_handler
 from app.schemas.settings import SettingsModel
 
 router = APIRouter()
@@ -26,4 +26,5 @@ def get_settings():
         "email_login_expiration_in_seconds": life_constants.EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS,
         "email_resend_wait_time": life_constants.EMAIL_RESEND_WAIT_TIME_IN_SECONDS,
         "instance_salt": life_constants.INSTANCE_SALT,
+        "public_key": gpg_handler.SERVER_PUBLIC_KEY,
     }

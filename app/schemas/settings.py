@@ -23,3 +23,4 @@ class SettingsModel(BaseModel):
     email_login_expiration_in_seconds: int
     custom_alias_suffix_length: int
     instance_salt: str
+    public_key: str

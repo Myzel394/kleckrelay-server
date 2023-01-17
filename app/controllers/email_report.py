@@ -3,6 +3,7 @@ import json
 from sqlalchemy.orm import Session
 
 from app.email_report_data import EmailReportData
+from app.gpg_handler import sign_message
 from app.models import EmailReport, User
 
 __all__ = [
@@ -30,12 +31,14 @@ def create_email_report_from_report_data(
     db.refresh(report)
 
     report_data.report_id = report.id
-    report.encrypted_content = user.encrypt(
-        json.dumps(
-            report_data,
-            cls=DataclassJSONEncoder
+    report.encrypted_content = str(sign_message(
+        user.encrypt(
+            json.dumps(
+                report_data,
+                cls=DataclassJSONEncoder
+            ),
         )
-    )
+    ))
 
     db.add(report)
     db.commit()
