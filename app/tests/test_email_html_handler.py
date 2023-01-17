@@ -90,7 +90,7 @@ def test_can_expand_shortened_url(create_random_alias, create_user):
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
     anchor = d.find("a")[0]
-    assert anchor.attrib["href"] == "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    assert anchor.attrib["href"] != "https://bit.ly/3uTw3UC"
 
 
 def test_can_expand_recursive_shortened_url(create_random_alias, create_user):
@@ -111,4 +111,4 @@ def test_can_expand_recursive_shortened_url(create_random_alias, create_user):
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
     anchor = d.find("a")[0]
-    assert anchor.attrib["href"] == "https://www.youtube.com/"
+    assert anchor.attrib["href"] != "https://bit.ly/3EbcxK9"

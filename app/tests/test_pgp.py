@@ -34,7 +34,7 @@ GjUt6zUH7uMmwqk2Y6OywchsNJ5ZNzQOXyG6Bw==
 
 def test_can_sign():
     message = str(gpg_handler.sign_message("hello"))
-    assert message.startswith("-----BEGIN PGP SIGNATURE-----")
+    assert message.startswith("-----BEGIN PGP SIGNED MESSAGE-----")
 
 
 def test_can_encrypt():
