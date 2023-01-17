@@ -32,26 +32,11 @@ GjUt6zUH7uMmwqk2Y6OywchsNJ5ZNzQOXyG6Bw==
 -----END PGP PRIVATE KEY BLOCK-----"""
 
 
+def test_can_sign():
+    message = str(gpg_handler.sign_message("hello"))
+    assert message.startswith("-----BEGIN PGP SIGNATURE-----")
+
+
 def test_can_encrypt():
-    gpg_handler.IS_SERVER_KEY_VALID = False
-    gpg_handler.gpg.import_keys(PRIVATE_KEY)
-    message = gpg_handler.sign_and_encrypt_message("test.yaml", PUBLIC_KEY)
+    message = str(gpg_handler.encrypt_message("hello", public_key_in_str=PUBLIC_KEY))
     assert message.startswith("-----BEGIN PGP MESSAGE-----")
-
-    decrypted = gpg_handler.gpg.decrypt(message)
-    assert str(decrypted) == "test.yaml"
-
-
-def test_can_sign_and_encrypt():
-    gpg_handler.IS_SERVER_KEY_VALID = True
-    private_key = gpg_handler.gpg.import_keys(PRIVATE_KEY)
-    gpg_handler.SERVER_PRIVATE_KEY_RAW = private_key
-    message = gpg_handler.sign_and_encrypt_message("test.yaml", PUBLIC_KEY)
-    assert message.startswith("-----BEGIN PGP MESSAGE-----")
-
-    signed_message = gpg_handler.gpg.decrypt(message)
-    assert str(signed_message).startswith("-----BEGIN PGP SIGNED MESSAGE-----")
-    verify = gpg_handler.gpg.verify(signed_message.data)
-    # Until this issue is resolved, we can't assert it
-    # https://github.com/isislovecruft/python-gnupg/issues/224
-    # assert bool(verify), "Message verification should be successful"

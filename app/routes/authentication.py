@@ -401,7 +401,7 @@ async def resend_email_login_token(
     }
 )
 async def email_login_allow_login_from_different_devices(
-    allow: bool = Body(bool),
+    allow: bool = Body(..., example=True),
     db: Session = Depends(get_db),
     email_login_token: EmailLoginToken = Depends(get_email_login_token),
 ):

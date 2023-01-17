@@ -130,7 +130,7 @@ def test_can_verify_email_with_correct_token(
     create_user,
     client: TestClient,
 ):
-    user: User = create_user()
+    user: User = create_user(is_verified=False)
 
     response = client.post(
         "/v1/auth/verify-email",
@@ -144,6 +144,24 @@ def test_can_verify_email_with_correct_token(
         f"Cookie {constants.ACCESS_TOKEN_COOKIE_NAME} should be a jwt token."
     assert is_a_jwt_token(response.cookies[constants.REFRESH_TOKEN_COOKIE_NAME]), \
         f"Cookie {constants.REFRESH_TOKEN_COOKIE_NAME} should be a jwt token."
+
+
+def test_can_verify_email_with_correct_token_but_no_auth_credentials_returned_when_already_verified(
+        create_user,
+        client: TestClient,
+):
+    user: User = create_user(is_verified=True)
+
+    response = client.post(
+        "/v1/auth/verify-email",
+        json={
+            "email": user.email.address,
+            "token": "abc",
+        }
+    )
+    assert response.status_code == 202, "Status code should be 202"
+    assert response.cookies[constants.ACCESS_TOKEN_COOKIE_NAME] is None
+    assert response.cookies[constants.REFRESH_TOKEN_COOKIE_NAME] is None
 
 
 def test_can_verify_email_again(
