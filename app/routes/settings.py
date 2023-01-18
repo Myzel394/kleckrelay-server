@@ -1,12 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from starlette.responses import Response
 
-from app import constants, life_constants, gpg_handler
-from app.schemas.settings import SettingsModel
+from app import constants, life_constants, gpg_handler, logger
+from app.controllers.server_statistics import get_server_statistics as \
+    get_server_statistics_instance
+from app.database.dependencies import get_db
+from app.schemas._basic import SimpleDetailResponseModel
+from app.schemas.settings import ServerStatisticsModel, SettingsModel
 
 router = APIRouter()
 
 
-@router.get("/", response_model=SettingsModel)
+@router.get("/settings", response_model=SettingsModel)
 def get_settings():
     return {
         "mail_domain": life_constants.MAIL_DOMAIN,
@@ -28,3 +34,45 @@ def get_settings():
         "instance_salt": life_constants.INSTANCE_SALT,
         "public_key": gpg_handler.SERVER_PUBLIC_KEY,
     }
+
+
+@router.get(
+    "/statistics",
+    response_model=ServerStatisticsModel,
+    responses={
+        200: {
+            "model": ServerStatisticsModel,
+        },
+        202: {
+            "model": SimpleDetailResponseModel,
+            "description": "Server statistics are disabled."
+        }
+    }
+)
+def get_server_statistics(
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    logger.info("Request: Get Server statistics -> New Request.")
+
+    if not life_constants.ALLOW_STATISTICS:
+        logger.info("Request: Get Server statistics -> Statistics disabled.")
+        response.status_code = 204
+
+        return {
+            "detail": "Server statistics are disabled."
+        }
+    else:
+        logger.info("Request: Get Server statistics -> Statistics enabled. Returning them.")
+        statistics = get_server_statistics_instance(db)
+
+        return {
+            "sent_emails_amount": statistics.sent_emails_amount,
+            "proxied_images_amount": statistics.proxied_images_amount,
+            "expanded_urls_amount": statistics.expanded_urls_amount,
+            "trackers_removed_amount": statistics.trackers_removed_amount,
+            "users_amount": statistics.get_users_amount(db),
+            "aliases_amount": statistics.get_aliases_amount(db),
+            "app_version": constants.APP_VERSION,
+            "launch_date": statistics.created_at,
+        }

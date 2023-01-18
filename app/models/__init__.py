@@ -11,3 +11,4 @@ from .image_proxy import *
 from .user import *
 # noinspection PyUnresolvedReferences
 from .user_preferences import *
+from .server_statistics import *

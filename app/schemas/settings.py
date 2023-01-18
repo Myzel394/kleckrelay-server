@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 __all__ = [
     "SettingsModel",
+    "ServerStatisticsModel"
 ]
 
 
@@ -24,3 +27,14 @@ class SettingsModel(BaseModel):
     custom_alias_suffix_length: int
     instance_salt: str
     public_key: str
+
+
+class ServerStatisticsModel(BaseModel):
+    sent_emails_amount: int
+    proxied_images_amount: int
+    expanded_urls_amount: int
+    trackers_removed_amount: int
+    users_amount: int
+    aliases_amount: int
+    app_version: str
+    launch_date: datetime

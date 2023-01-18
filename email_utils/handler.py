@@ -2,10 +2,10 @@ from mailbox import Message
 
 from aiosmtpd.smtp import Envelope
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
 
 from app import life_constants, logger
 from app.controllers.email_report import create_email_report_from_report_data
+from app.controllers import server_statistics
 from app.database.dependencies import with_db
 from app.email_report_data import EmailReportData
 from app.models import LanguageType, User
@@ -78,6 +78,7 @@ def handle(envelope: Envelope, message: Message) -> str:
                     from_mail=local_alias.address,
                     to_mail=target,
                 )
+                server_statistics.add_sent_email(db)
 
                 return status.E200
 
@@ -108,6 +109,10 @@ def handle(envelope: Envelope, message: Message) -> str:
                     if alias.expand_url_shorteners:
                         content = expand_shortened_urls(report, alias=alias, html=content)
 
+                    server_statistics.add_removed_trackers(db, len(report.single_pixel_images))
+                    server_statistics.add_proxied_images(db, len(report.proxied_images))
+                    server_statistics.add_expanded_urls(db, len(report.expanded_urls))
+
                     message.set_payload(content, "utf-8")
 
                 if alias.create_mail_report and alias.user.public_key is not None:
@@ -129,6 +134,7 @@ def handle(envelope: Envelope, message: Message) -> str:
                     from_name=envelope.mail_from,
                     to_mail=alias.user.email.address,
                 )
+                server_statistics.add_sent_email(db)
 
                 return status.E200
 

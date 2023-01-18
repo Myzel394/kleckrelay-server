@@ -5,6 +5,7 @@ from pyquery import PyQuery as pq
 from sqlalchemy.orm import Session
 
 from app.controllers.image_proxy import create_image_proxy
+from app.controllers.server_statistics import add_removed_trackers
 from app.email_report_data import (
     EmailReportData, EmailReportExpandedURLData, EmailReportProxyImageData,
     EmailReportSinglePixelImageTrackerData,

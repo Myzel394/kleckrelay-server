@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from . import constants, doctor, life_constants
+from .controllers.server_statistics import get_server_statistics
+from .database.dependencies import with_db
 from .routes import routers
 
 app = FastAPI()
@@ -11,6 +13,10 @@ app = FastAPI()
 def show_information():
     if constants.IS_TESTING:
         return
+
+    with with_db() as db:
+        # Ensure statistics instance exists
+        get_server_statistics(db)
 
     doctor.check_life_constants()
 
