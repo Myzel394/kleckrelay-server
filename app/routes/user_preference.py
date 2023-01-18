@@ -23,7 +23,7 @@ def update_user_preferences(
     user = get_user_by_id(db, credentials["id"])
 
     update_data = update.dict(exclude_unset=True, exclude_none=True)
-    update_data.pop("update_all_instances", None)
+    update_all = update_data.pop("update_all_instances", None)
 
     for key, value in update_data.items():
         setattr(user.preferences, key, value)
@@ -32,8 +32,8 @@ def update_user_preferences(
     db.commit()
     db.refresh(user.preferences)
 
-    if update.update_all_instances:
-        alias_update = {
+    if update_all:
+        update_fields = {
             name.split("_", 1)[1]: value
             for name, value in update_data.items()
             if value is not None
@@ -41,7 +41,7 @@ def update_user_preferences(
         aliases = db.query(EmailAlias).filter_by(user_id=user.id).all()
 
         for alias in aliases:
-            for key, value in alias_update.items():
+            for key, value in update_fields.items():
                 setattr(alias, f"pref_{key}", value)
 
             # Bulk update does not work

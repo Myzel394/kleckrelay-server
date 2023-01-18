@@ -1,4 +1,4 @@
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, Field, root_validator
 
 from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 
@@ -15,7 +15,7 @@ class UserPreferencesUpdate(BaseModel):
     alias_proxy_user_agent: ProxyUserAgentType = None
     alias_expand_url_shortener: bool = None
 
-    update_all_instances: bool = False
+    update_all_instances: bool = Field(default=False)
 
     @root_validator()
     def validate_any_value_set(cls, values: dict) -> dict:
