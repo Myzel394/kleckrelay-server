@@ -55,6 +55,7 @@ environment variables:
 
 1. `POSTFIX_HOST=127.0.0.1`
 2. `POSTFIX_PORT=1025`
+3. `POSTFIX_USE_TLS=False`
 
 After that, you can send mails to the handler using `swaks`, here are some
 example commands:

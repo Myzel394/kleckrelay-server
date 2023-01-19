@@ -95,6 +95,7 @@ class UserPreferences(BaseModel):
     alias_proxy_images: bool
     alias_image_proxy_format: ImageProxyFormatType
     alias_proxy_user_agent: ProxyUserAgentType
+    alias_expand_url_shorteners: bool
 
     class Config:
         orm_mode = True
