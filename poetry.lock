@@ -336,7 +336,7 @@ sqlalchemy = ["SQLAlchemy (>=1.3.20)"]
 
 [[package]]
 name = "fastapi-users"
-version = "10.2.1"
+version = "10.3.0"
 description = "Ready-to-use and customizable users management for FastAPI"
 category = "main"
 optional = false
@@ -682,6 +682,17 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
 
 [[package]]
+name = "python-dotenv"
+version = "0.21.0"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "python-jose"
 version = "3.3.0"
 description = "JOSE implementation in Python"
@@ -874,7 +885,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.4.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "06da208f37d0edffc01ccde953b1d7aa1ea9d3277cd75a4e8c6bfcdd20910370"
+content-hash = "8f2db892255518659494190862900bc8b038b93fb0c3a08a2a7a4219a586759c"
 
 [metadata.files]
 aiodns = []
@@ -969,7 +980,10 @@ fastapi = [
 ]
 fastapi-jwt = []
 fastapi-pagination = []
-fastapi-users = []
+fastapi-users = [
+    {file = "fastapi_users-10.3.0-py3-none-any.whl", hash = "sha256:54596acad3df21bc3a06b7e67584d0e087186d726b99c7629e82f66da94aea91"},
+    {file = "fastapi_users-10.3.0.tar.gz", hash = "sha256:ab9dd218db088bc2d04474ec5fd0040971cea027186041d6d33979f990917d9a"},
+]
 fastapi-users-db-sqlalchemy = []
 greenlet = [
     {file = "greenlet-2.0.1-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:9ed358312e63bf683b9ef22c8e442ef6c5c02973f0c2a939ec1d7b50c974015c"},
@@ -1157,6 +1171,10 @@ pytesseract = []
 pytest = [
     {file = "pytest-7.2.0-py3-none-any.whl", hash = "sha256:892f933d339f068883b6fd5a459f03d85bfcb355e4981e146d2c7616c21fef71"},
     {file = "pytest-7.2.0.tar.gz", hash = "sha256:c4014eb40e10f11f355ad4e3c2fb2c6c6d1919c73f3b5a433de4708202cade59"},
+]
+python-dotenv = [
+    {file = "python-dotenv-0.21.0.tar.gz", hash = "sha256:b77d08274639e3d34145dfa6c7008e66df0f04b7be7a75fd0d5292c191d79045"},
+    {file = "python_dotenv-0.21.0-py3-none-any.whl", hash = "sha256:1684eb44636dd462b66c3ee016599815514527ad99965de77f43e0944634a7e5"},
 ]
 python-jose = []
 python-multipart = []
