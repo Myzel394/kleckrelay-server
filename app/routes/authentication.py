@@ -101,7 +101,7 @@ def resend_email(
     try:
         email = get_email_by_address(db, address=input_data.email)
 
-        send_verification_email(email)
+        send_verification_email(email, language=email.user.language)
     except NoResultFound:
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
             raise HTTPException(

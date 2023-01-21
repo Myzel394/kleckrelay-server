@@ -9,6 +9,7 @@ from app.constants import (
     EMAIL_VERIFICATION_TOKEN_CHARS, EMAIL_VERIFICATION_TOKEN_LENGTH,
 )
 from app.mails.send_email_verification import send_email_verification
+from app.models import LanguageType
 from app.models.email import Email
 from app.utils import normalize_email
 
@@ -27,14 +28,15 @@ def generate_token() -> str:
     )
 
 
-def send_verification_email(email: Email) -> None:
+def send_verification_email(email: Email, language: LanguageType) -> None:
     send_email_verification(
         address=email.address,
         token=email.token,
+        language=language,
     )
 
 
-async def create_email(db: Session, /, address: str) -> Email:
+async def create_email(db: Session, /, address: str, language: LanguageType) -> Email:
     """Create a new email.
 
     Returns the email instance.
@@ -55,7 +57,7 @@ async def create_email(db: Session, /, address: str) -> Email:
     db.commit()
     db.refresh(email)
 
-    send_verification_email(email)
+    send_verification_email(email, language=language)
 
     logger.info(f"Create Email: {address} created successfully.")
 

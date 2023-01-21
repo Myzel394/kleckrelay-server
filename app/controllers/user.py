@@ -38,7 +38,7 @@ async def get_user_by_email(db: Session, email: str) -> User:
 async def create_user(db: Session, /, user: UserCreate) -> User:
     """Create a new user to the database."""
 
-    db_email = await create_email(db, address=user.email)
+    db_email = await create_email(db, address=user.email, language=user.language)
     preferences = create_user_preferences(db)
 
     logger.info(f"Create user: Creating user with email {db_email.address}.")
@@ -48,6 +48,7 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
         preferences=preferences,
         public_key=user.public_key,
         encrypted_notes=user.encrypted_notes,
+        language=user.language,
     )
 
     db.add(db_user)
