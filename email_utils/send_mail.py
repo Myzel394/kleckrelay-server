@@ -2,7 +2,7 @@ import smtplib
 from email.message import EmailMessage, Message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Optional
+from typing import Any, Optional
 
 from app import life_constants, logger
 from app.models import LanguageType
@@ -16,6 +16,7 @@ __all__ = [
     "send_error_mail",
     "send_mail",
     "draft_message",
+    "send_template_mail",
 ]
 
 
@@ -97,6 +98,28 @@ def send_error_mail(
         ),
         from_mail=life_constants.FROM_MAIL,
         to_mail=mail,
+    )
+
+
+def send_template_mail(
+    template: str,
+    subject: str,
+    to: str,
+    language: LanguageType = LanguageType.EN_US,
+    from_address: str = life_constants.FROM_MAIL,
+    context: dict[str, Any] = None,
+) -> None:
+    send_mail(
+        message=draft_message(
+            subject=subject,
+            plaintext=render(
+                template,
+                language,
+                **(context or {})
+            ),
+        ),
+        from_mail=from_address,
+        to_mail=to,
     )
 
 
