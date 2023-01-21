@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from typing import Optional
+from dotenv import load_dotenv
 
 from . import default_life_constants
 
@@ -47,6 +48,8 @@ __all__ = [
     "INSTANCE_SALT",
     "ALLOW_STATISTICS",
 ]
+
+load_dotenv()
 
 
 def _get_raw_value(name: str, default: Optional[str] = None) -> str:

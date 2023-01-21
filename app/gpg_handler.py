@@ -20,7 +20,9 @@ PATHS = {
 gpg = gnupg.GPG(PATHS[sys.platform] if sys.platform in PATHS else None)
 gpg.encoding = "utf-8"
 
-__private_key: ImportResult = gpg.import_keys(base64.b64decode(life_constants.SERVER_PRIVATE_KEY))
+__private_key: ImportResult = gpg.import_keys(
+    base64.b64decode(life_constants.SERVER_PRIVATE_KEY).decode("utf-8")
+)
 SERVER_PUBLIC_KEY = gpg.export_keys(__private_key.fingerprints[0])
 
 
