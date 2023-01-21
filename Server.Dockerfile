@@ -30,4 +30,4 @@ COPY server-entrypoint.sh .
 # Run
 EXPOSE 80
 
-ENTRYPOINT ["./server-entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "./server-entrypoint.sh"]
