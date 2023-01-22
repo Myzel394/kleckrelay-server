@@ -63,7 +63,7 @@ def _get_raw_value(name: str, default: Optional[str] = None) -> str:
 
 
 def get_bool(name: str, default: Optional[str] = None) -> bool:
-    return _get_raw_value(name, default).lower() in {"true", "1", "yes", "t"}
+    return _get_raw_value(name, default).lower() in {"true", "1", "yes", "t", "y"}
 
 
 def get_int(name: str, default: Optional[str] = None) -> int:
