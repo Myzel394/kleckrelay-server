@@ -1,8 +1,10 @@
 version: '3'
 
 services:
-  database:
+  kleckrelay-database:
     image: 'postgres:latest'
+    container_name: kleckrelay-database
+    restart: on-failure:5
 
     environment:
       POSTGRES_USER: user
@@ -12,24 +14,72 @@ services:
     ports:
       - "35432:5432"
 
-  server:
+  kleckrelay-server:
+    container_name: kleckrelay-server
+    restart: on-failure:5
     build:
       context: .
       dockerfile: Server.Dockerfile
     depends_on:
-      - database
+      - kleckrelay-database
     ports:
-      - "80:80"
-    environment:
-      DB_URI: "postgresql://user:password@database/mail"
+      - "8000:80"
+      - "25:25"
+      - "587:587"
+    env_file:
+      - .env
 
-  email:
+  kleckrelay-email:
+    container_name: kleckrelay-email
+    restart: on-failure:5
     build:
       context: .
       dockerfile: EmailHandler.Dockerfile
     depends_on:
-      - database
+      - kleckrelay-database
     ports:
       - "20381:20381"
+    env_file:
+      - .env
+
+  nginx:
+    container_name: nginx
+    image: bunkerity/bunkerweb
+    restart: on-failure:5
+    ports:
+      - 80:8080
+      - 443:8443
+      # volumes:
+      # Change to your own path where you would like to store your HTTPS certificates and
+      # uncomment the line
+      # ./letsencrypt:/etc/letsencrypt
     environment:
-      DB_URI: "postgresql://user:password@database/mail"
+      - MULTISITE=yes
+      # Specify your domains here (including subdomains)
+      - SERVER_NAME=app.krl api.app.krl mail.app.krl
+      - USE_REVERSE_PROXY=yes
+      - DISABLE_DEFAULT_SERVER=yes
+      # Make this "yes" in production
+      - AUTO_LETS_ENCRYPT=no
+      # We run this docker container only in debug, so there will be no actual attacks
+      - USE_BUNKERNET=no
+      # If you want to receive a notification when your certificates are not automatically
+      # renewed and will expire soon, enter an email here
+      # - EMAIL_LETS_ENCRYPT=
+
+      - api.app.krl_REVERSE_PROXY_URL=/
+      - api.app.krl_REVERSE_PROXY_HOST=http://kleckrelay-server:80
+      - api.app.krl_ALLOWED_METHODS=GET|POST|PUT|PATCH|DELETE|OPTIONS
+      # Security is too strict
+      - api.app.krl_BLOCK_ABUSERS=no
+
+      - api.app.krl_USE_CORS=yes
+      - api.app.krl_CORS_ALLOW_ORIGIN=http://app.krl
+      - api.app.krl_CORS_ALLOW_METHODS=GET, POST, PUT, PATCH, DELETE, OPTIONS
+      - api.app.krl_CORS_ALLOW_CREDENTIALS=yes
+      - api.app.krl_COOKIE_AUTO_SECURE_FLAG=no
+
+      - app.krl_REVERSE_PROXY_URL=/
+      - app.krl_REVERSE_PROXY_HOST=http://192.168.178.129:5173
+      - app.krl_USE_LIMIT_CONN=no
+      - app.krl_REVERSE_PROXY_WS=yes
