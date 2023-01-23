@@ -14,20 +14,33 @@ services:
     ports:
       - "35432:5432"
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mail"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   kleckrelay-server:
     container_name: kleckrelay-server
     restart: on-failure:5
     build:
       context: .
       dockerfile: Server.Dockerfile
-    depends_on:
-      - kleckrelay-database
+
     ports:
       - "8000:80"
       - "25:25"
       - "587:587"
+
+    depends_on:
+      kleckrelay-database:
+        condition: service_healthy
+
     env_file:
       - .env
+
+    volumes:
+      - ./storage/log:/var/log/
 
   kleckrelay-email:
     container_name: kleckrelay-email
@@ -35,10 +48,14 @@ services:
     build:
       context: .
       dockerfile: EmailHandler.Dockerfile
-    depends_on:
-      - kleckrelay-database
+
     ports:
       - "20381:20381"
+
+    depends_on:
+      kleckrelay-database:
+        condition: service_healthy
+
     env_file:
       - .env
 
@@ -80,6 +97,6 @@ services:
       - api.app.krl_COOKIE_AUTO_SECURE_FLAG=no
 
       - app.krl_REVERSE_PROXY_URL=/
-      - app.krl_REVERSE_PROXY_HOST=http://192.168.178.129:5173
+      - app.krl_REVERSE_PROXY_HOST=http://172.22.247.149:5173
       - app.krl_USE_LIMIT_CONN=no
       - app.krl_REVERSE_PROXY_WS=yes
