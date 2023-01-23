@@ -89,13 +89,14 @@ API_DOMAIN=app.krl
 MAIL_DOMAIN=mail.app.krl
 ```
 
-### Linux
+### Unix (Linux, MacOS)
 
-1. Edit `/etc/hosts` (e.g. `vim /etc/hosts`)
+1. Edit `/etc/hosts` (e.g. `vim /etc/hosts`, `nano /etc/hosts`)
 2. Navigate to the line that starts with `127.0.0.1` (this will probably be one of the first lines)
 3. Append your domains
-   1. For KleckRelay we want to add `app.krl` to access the web interface and
-   2. `mail.app.krl` for the emails.
+   1. For KleckRelay we want to add `app.krl` to access the web interface,
+   2. `mail.app.krl` for the emails and
+   3. `api.app.krl` for the server
 4. Save the file
 5. You can now access `localhost` using `app.krl`!
     1. Keep in mind that you need to prefix this domain with a protocol, as the browser otherwise will do a search query (e.g. instead of typing `app.krl`, type in `http://app.krl`)
