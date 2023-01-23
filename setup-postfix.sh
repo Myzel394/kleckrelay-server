@@ -3,15 +3,13 @@
 set -eu
 
 echo "Configuring Postfix"
-postmap /etc/postfix/sasl_password
 
 postconf -e "inet_protocols = ipv4"
-postconf -e "maillog_file = /dev/null"
+postconf -e "maillog_file = /var/log/maillog"
 postconf -e "mydestination = localhost"
 postconf -e "mydomain = ${MAIL_DOMAIN}"
-postconf -e "mynetworks = 127.0.0.1/8"
+postconf -e "mynetworks = 127.0.0.0/8, [::1]/128"
 postconf -e "myorigin = ${MAIL_DOMAIN}"
-postconf -e "relayhost = [${MAIL_DOMAIN}]:${PORT:-587}"
 postconf -e "smtp_host_lookup = native,dns"
 #postconf -e "smtp_sasl_auth_enable = yes"
 #postconf -e "smtp_sasl_password_maps = hash:/etc/postfix/sasl_password"
@@ -22,5 +20,10 @@ fi
 echo "nameserver 1.1.1.1" > /var/spool/postfix/etc/resolv.conf
 echo "nameserver 1.1.1.1" > /etc/resolv.conf
 
+echo "Creating broken symlinks"
+cp -f /etc/services /var/spool/postfix/etc/services
+
+echo "Postfix configuration completed"
 echo "Starting Postfix"
-exec /usr/sbin/postfix start-fg
+postfix start
+echo "Postfix started"

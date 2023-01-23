@@ -18,7 +18,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U user -d mail"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   kleckrelay-server:
     container_name: kleckrelay-server
@@ -36,11 +36,11 @@ services:
       kleckrelay-database:
         condition: service_healthy
 
+    cap_add:
+      - NET_BIND_SERVICE
+
     env_file:
       - .env
-
-    volumes:
-      - ./storage/log:/var/log/
 
   kleckrelay-email:
     container_name: kleckrelay-email
@@ -97,6 +97,6 @@ services:
       - api.app.krl_COOKIE_AUTO_SECURE_FLAG=no
 
       - app.krl_REVERSE_PROXY_URL=/
-      - app.krl_REVERSE_PROXY_HOST=http://172.22.247.149:5173
+      - app.krl_REVERSE_PROXY_HOST=http://192.168.178.129:5173
       - app.krl_USE_LIMIT_CONN=no
       - app.krl_REVERSE_PROXY_WS=yes
