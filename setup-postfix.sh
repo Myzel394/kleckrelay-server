@@ -26,32 +26,14 @@ echo "Creating broken symlinks for Postfix"
 cp -f /etc/services /var/spool/postfix/etc/services
 
 
-echo "Configuring incoming mail handling for Postfix"
-cat > /etc/postfix/pgsql-relay-domains.cf<< EOF
-hosts = $(echo "$DB_URI" | sed 's/.*@\([^/]*\).*/\1/')
-user = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f1)
-password = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f2)
-dbname = $(echo "$DB_URI" | sed 's/.*\/\([^:]*\).*/\1/')
 
-query = SELECT '%s' WHERE '%s' = '${MAIL_DOMAIN}' LIMIT 1;
+
+cat >> /etc/postfix/transport<< EOF
+${MAIL_DOMAIN} smtp:kleckrelay-email:20381
 EOF
-cat > /etc/postfix/pgsql-transport-maps.cf<< EOF
-hosts = $(echo "$DB_URI" | sed 's/.*@\([^/]*\).*/\1/')
-user = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f1)
-password = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f2)
-dbname = $(echo "$DB_URI" | sed 's/.*\/\([^:]*\).*/\1/')
-
-query = SELECT 'smtp:127.0.0.1:20381' WHERE '%s' = '${MAIL_DOMAIN}' LIMIT 1;
-EOF
-postconf -e "relay_domains = pgsql:/etc/postfix/pgsql-relay-domains.cf"
-postconf -e "transport_maps = pgsql:/etc/postfix/pgsql-transport-maps.cf"
-
-
-cat > /etc/postfix/virtual<< EOF
-@${MAIL_DOMAIN}
-EOF
-postconf -e "virtual_alias_maps = hash:/etc/postfix/virtual"
-postmap /etc/postfix/virtual
+postmap /etc/postfix/transport
+postconf -e "transport_maps = hash:/etc/postfix/transport"
+postconf -e "local_recipient_maps = @${MAIL_DOMAIN}"
 
 echo "Postfix configuration completed"
 echo "Starting Postfix"
