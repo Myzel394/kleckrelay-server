@@ -91,7 +91,7 @@ def send_mail(
 
 
 def send_error_mail(
-    mail: str,
+    from_mail: str,
     targeted_mail: str,
     error: Optional[EmailHandlerError] = None,
     language: LanguageType = LanguageType.EN_US,
@@ -107,7 +107,7 @@ def send_error_mail(
             ),
         ),
         from_mail=life_constants.FROM_MAIL,
-        to_mail=mail,
+        to_mail=from_mail,
     )
 
 
