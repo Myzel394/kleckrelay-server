@@ -42,23 +42,6 @@ services:
     env_file:
       - .env
 
-  kleckrelay-email:
-    container_name: kleckrelay-email
-    restart: on-failure:5
-    build:
-      context: .
-      dockerfile: EmailHandler.Dockerfile
-
-    ports:
-      - "20381:20381"
-
-    depends_on:
-      kleckrelay-database:
-        condition: service_healthy
-
-    env_file:
-      - .env
-
   nginx:
     container_name: nginx
     image: bunkerity/bunkerweb
