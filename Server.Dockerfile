@@ -8,7 +8,7 @@ RUN echo "postfix postfix/mailname string ${MAIL_DOMAIN}" | debconf-set-selectio
     echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
 RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
-    && apt install gunicorn3 gnupg2 postfix postfix-pgsql -y \
+    && apt install gunicorn3 gnupg2 postfix postfix-pgsql postfix-policyd-spf-python -y \
     && pip install psycopg2
 
 # Create gnupg path
