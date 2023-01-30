@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from app import constants, logger
 from app.authentication.handler import access_security
 from app.controllers.alias import (
-    create_local_with_suffix, find_aliases_from_user_ordered, generate_random_local_id,
-    get_alias_from_user, get_alias_from_user_by_address,
+    create_local_with_suffix, find_aliases_from_user_ordered,
+    generate_random_local_id, get_alias_from_user, get_alias_from_user_by_address,
 )
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
@@ -50,7 +50,7 @@ def get_all_aliases(
 
 @router.post(
     "/",
-    response_model=AliasList,
+    response_model=AliasDetail,
 )
 def create_alias(
     alias_data: AliasCreate,

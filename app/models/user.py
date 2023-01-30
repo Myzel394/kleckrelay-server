@@ -6,9 +6,10 @@ import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import InstrumentedList
 
-from app import constants, gpg_handler
+from app import constants, gpg_handler, life_constants
 from app.database.base import Base
 from ._mixins import CreationMixin, IDMixin
+from .reserved_alias import ReservedAliasUser
 
 __all__ = [
     "LanguageType",
@@ -29,6 +30,7 @@ class User(Base, IDMixin, CreationMixin):
         from .email_login import EmailLoginToken
         from .email_report import EmailReport
         from .user_preferences import UserPreferences
+        from .reserved_alias import ReservedAlias
         email: Email
         language: LanguageType
         public_key: Optional[str]
@@ -38,6 +40,7 @@ class User(Base, IDMixin, CreationMixin):
         email_reports: InstrumentedList[EmailReport]
         email_login_token: EmailLoginToken
         preferences: UserPreferences
+        reserved_aliases: list[ReservedAlias]
     else:
         email = relationship(
             "Email",
@@ -86,6 +89,15 @@ class User(Base, IDMixin, CreationMixin):
             backref="user",
             uselist=False,
         )
+        reserved_aliases = relationship(
+            "ReservedAlias",
+            secondary=ReservedAliasUser.__tablename__,
+            backref="users",
+        )
+
+    @property
+    def is_admin(self) -> bool:
+        return self.email.address.lower() in life_constants.ADMINS
 
     def to_jwt_object(self) -> dict[str, Any]:
         return {
