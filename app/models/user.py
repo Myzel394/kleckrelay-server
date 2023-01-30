@@ -91,8 +91,8 @@ class User(Base, IDMixin, CreationMixin):
         )
         reserved_aliases = relationship(
             "ReservedAlias",
-            secondary=ReservedAliasUser.__tablename__,
-            backref="users",
+            secondary=ReservedAliasUser.__table__,
+            back_populates="users",
         )
 
     @property

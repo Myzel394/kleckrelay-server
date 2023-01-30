@@ -52,6 +52,6 @@ class ReservedAlias(Base, IDMixin):
 
         users = relationship(
             "User",
-            secondary=ReservedAliasUser.__tablename__,
-            backref="reserved_aliases",
+            secondary=ReservedAliasUser.__table__,
+            back_populates="reserved_aliases",
         )
