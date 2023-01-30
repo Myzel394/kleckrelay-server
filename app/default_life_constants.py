@@ -1,7 +1,7 @@
 import base64
 import string
 
-DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
+DB_URI = "postgresql://user:password@localhost:35432/mail"
 MAX_ENCRYPTED_NOTES_SIZE = 10_000
 ACCESS_TOKEN_EXPIRE_IN_MINUTES = 60 * 3  # 3 hours
 REFRESH_TOKEN_EXPIRE_IN_MINUTES = 60 * 24 * 60  # 60 Days
@@ -110,3 +110,4 @@ EMAIL_RESEND_WAIT_TIME_IN_SECONDS = 60
 INSTANCE_SALT = "KleckRelay-Salt-ChangeMe"
 ALLOW_STATISTICS = "True"
 DKIM_PRIVATE_KEY = ""
+ALLOW_LOGS = "True"

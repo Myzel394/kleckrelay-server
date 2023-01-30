@@ -1,13 +1,13 @@
 import logging
 import sys
 
-from app.life_constants import IS_DEBUG
+from app.life_constants import ALLOW_LOGS
 
 logger = logging.getLogger(__name__)
 
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-if IS_DEBUG:
+if ALLOW_LOGS:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
@@ -16,7 +16,7 @@ if IS_DEBUG:
 
 
 def info(msg: str) -> None:
-    if IS_DEBUG:
+    if ALLOW_LOGS:
         logger.info(msg)
 
 
