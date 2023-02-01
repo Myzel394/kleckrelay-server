@@ -16,6 +16,8 @@ __all__ = [
     "User",
 ]
 
+from ..logger import logger
+
 
 class LanguageType(str, enum.Enum):
     EN_US = "en_US"

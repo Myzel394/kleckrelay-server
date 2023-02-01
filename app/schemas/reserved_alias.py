@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from uuid import UUID
 
 from pydantic import BaseModel, Field, root_validator
 
@@ -14,19 +15,19 @@ __all__ = [
 
 
 class ReservedAliasUser(BaseModel):
-    id: str
+    id: UUID
 
     class Config:
         orm_mode = True
 
 
 class ReservedAliasUserEmailDetail(BaseModel):
-    id: str
+    id: UUID
     address: str
 
 
 class ReservedAliasUserDetail(BaseModel):
-    id: str
+    id: UUID
     email: ReservedAliasUserEmailDetail
 
 
@@ -51,7 +52,7 @@ class ReservedAliasCreate(ReservedAliasBase):
         if not values.get("users"):
             raise ValueError("`users` must be provided.")
 
-        if len(values["users"]) <= 1:
+        if len(values["users"]) < 1:
             raise ValueError("`users` must contain at least one user.")
 
         return values
@@ -65,8 +66,8 @@ class ReservedAliasUpdate(ReservedAliasBase):
 
     @root_validator()
     def check_users(cls, values) -> dict[str, Any]:
-        if users := values.get("users"):
-            if len(users) <= 1:
+        if (users := values.get("users")) is not None:
+            if len(users) < 1:
                 raise ValueError("`users` must contain at least one user.")
 
         return values
@@ -76,7 +77,10 @@ class ReservedAliasUpdate(ReservedAliasBase):
 
 
 class ReservedAliasDetail(ReservedAliasBase):
-    id: str
+    id: UUID
     local: str
     domain: str
     users: list[ReservedAliasUser]
+
+    class Config:
+        orm_mode = True

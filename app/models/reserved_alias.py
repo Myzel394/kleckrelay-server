@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.collections import InstrumentedList
 
 from app.database.base import Base
 from ._mixins import IDMixin
@@ -32,7 +33,7 @@ class ReservedAlias(Base, IDMixin):
         is_active: bool
 
         # Where the alias will be forwarded to
-        users: list["User"]
+        users: InstrumentedList["User"]
     else:
         local = sa.Column(
             sa.String(64),

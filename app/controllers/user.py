@@ -77,8 +77,8 @@ def get_admin_user_by_id(db: Session, /, user_id: str) -> User:
 
         if not user.is_admin:
             raise HTTPException(
-                status_code=404,
-                detail="User account not found."
+                status_code=401,
+                detail="You need to be an admin."
             )
 
         return user

@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app import logger
 from app.authentication.handler import access_security
+from app.controllers.alias_utils import check_if_alias_exists
 from app.controllers.user import get_admin_user_by_id
 from app.database.dependencies import get_db
+from app.life_constants import MAIL_DOMAIN
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
@@ -28,10 +30,18 @@ def create_reserved_alias_api(
     logger.info("Request: Create Reserved Alias -> New Request.")
 
     # Validate user being an admin
-    get_admin_user_by_id(db, credentials["id"])
+    user = get_admin_user_by_id(db, credentials["id"])
+    logger.info(f"Request: Create Reserved Alias -> User {user=} is an admin.")
+
+    if check_if_alias_exists(db, local=alias_data.local, domain=MAIL_DOMAIN):
+        logger.info(f"Request: Create Reserved Alias -> Alias {alias_data.local}@{MAIL_DOMAIN} "
+                    f"already exists.")
+        raise HTTPException(status_code=400, detail="Alias already exists.")
 
     alias = create_reserved_alias(db, alias_data)
 
+    logger.info(f"Request: Create Reserved Alias -> Alias created successfully! Returning "
+                f"{alias=}.")
     return alias
 
 
