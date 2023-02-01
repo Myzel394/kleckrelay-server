@@ -30,9 +30,8 @@ def _send_mail_to_smtp_server(
         f"Send mail -> Sending mail {from_address=} {to_address=}; "
         f"Postfix Host={life_constants.POSTFIX_HOST}, Postfix Port={life_constants.POSTFIX_PORT}.")
     with smtplib.SMTP(host=life_constants.POSTFIX_HOST, port=life_constants.POSTFIX_PORT) as smtp:
-        if life_constants.POSTFIX_USE_TLS:
-            logger.info("Send mail -> Activating TLS.")
-            smtp.starttls()
+        logger.info("Send mail -> Activating TLS.")
+        smtp.starttls()
 
         logger.info("Send mail -> Sending mail now.")
         smtp.sendmail(
@@ -74,7 +73,7 @@ def send_mail(
         headers.TO, to_mail
     )
 
-    add_dkim_signature(message)
+    #add_dkim_signature(message)
 
     if life_constants.DEBUG_MAILS:
         _debug_email(
