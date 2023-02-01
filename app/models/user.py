@@ -104,7 +104,7 @@ class User(Base, IDMixin, CreationMixin):
     def to_jwt_object(self) -> dict[str, Any]:
         return {
             "id": str(self.id),
-            "salt": self.salt,
+            "is_admin": self.is_admin,
         }
 
     def encrypt(self, message: str) -> str:
