@@ -107,6 +107,7 @@ class User(UserBase):
     created_at: datetime
     email: Email
     preferences: UserPreferences
+    is_admin: bool
 
     class Config:
         orm_mode = True
