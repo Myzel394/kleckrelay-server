@@ -164,6 +164,11 @@ def check_life_constants() -> None:
             "and it should be at least 20 characters long)."
         )
 
+    if len(life_constants.ADMINS) > 0:
+        logger.logger.info(
+            f"Doctor: Admins are: {', '.join(life_constants.ADMINS)}"
+        )
+
     if life_constants.IS_DEBUG:
         logger.logger.warning(
             f"Doctor: <=== DEBUG MODE IS ENABLED, REMEMBER TO DISABLE IT IN PRODUCTION!!! ===>"
