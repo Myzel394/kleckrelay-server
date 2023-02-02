@@ -1,6 +1,23 @@
 from starlette.testclient import TestClient
 
 
+def test_can_get_reserved_alias(
+    create_user,
+    create_reserved_alias,
+    create_auth_tokens,
+    db,
+    client: TestClient,
+) -> None:
+    user = create_user(is_verified=True, is_admin=True)
+    auth = create_auth_tokens(user)
+
+    response = client.get("/v1/reserved-alias/", headers=auth["headers"])
+
+    assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
+
+    assert len(response.json()["items"]) == 0, f"Response should be empty but is {response.json()}"
+
+
 def test_can_create_reserved_alias(
     create_user,
     create_auth_tokens,

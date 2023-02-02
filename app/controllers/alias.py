@@ -71,6 +71,7 @@ def get_alias_from_user(db: Session, /, user: User, id: str) -> EmailAlias:
         .filter(and_(EmailAlias.user == user, EmailAlias.id == id)) \
         .one()
 
+
 def calculate_id_length(aliases_amount: int) -> int:
     """Calculates the required min length for a new alias."""
     if aliases_amount <= 1:

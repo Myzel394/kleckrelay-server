@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Security
+from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi_pagination import Page, paginate, Params
 from sqlalchemy.orm import Session
 
 from app import logger
@@ -12,10 +13,33 @@ from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
     create_reserved_alias, delete_reserved_alias,
-    update_reserved_alias,
+    find_reserved_aliases_ordered, update_reserved_alias,
 )
 
 router = APIRouter()
+
+
+@router.get(
+    "/",
+    response_model=Page[ReservedAliasDetail]
+)
+def get_reserved_aliases_api(
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+    db: Session = Depends(get_db),
+    params: Params = Depends(),
+    query: str = Query(""),
+):
+    logger.info("Request: Get all reserved aliases -> New Request.")
+
+    get_admin_user_by_id(db, credentials["id"])
+
+    return paginate(
+        find_reserved_aliases_ordered(
+            db,
+            search=query,
+        ),
+        params
+    )
 
 
 @router.post(

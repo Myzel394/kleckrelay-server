@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app import logger
@@ -7,6 +8,7 @@ from app.models import ReservedAlias, User
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasUpdate, ReservedAliasUser
 
 __all__ = [
+    "find_reserved_aliases_ordered",
     "create_reserved_alias",
     "update_reserved_alias",
     "delete_reserved_alias",
@@ -34,6 +36,22 @@ def _get_users(db: Session, /, users_data: list[ReservedAliasUser]) -> list[User
 
     logger.info(f"Get users -> Success! Returning users.")
     return users.all()
+
+
+def find_reserved_aliases_ordered(db: Session, /, search: str = "") -> list[ReservedAlias]:
+    logger.info(f"Find reserved aliases ordered -> Finding reserved aliases.")
+    query = db.query(ReservedAlias)
+
+    if search:
+        logger.info(f"Find reserved aliases ordered -> Filtering by {search=}.")
+        query = query.filter(
+            func.similarity(ReservedAlias.local, search) > 0.005
+        )
+
+    logger.info(f"Find reserved aliases ordered -> Success!.")
+    return query\
+        .order_by(func.levenshtein(ReservedAlias.local, search) if search else ReservedAlias.local) \
+        .all()
 
 
 def create_reserved_alias(db: Session, /, data: ReservedAliasCreate) -> ReservedAlias:

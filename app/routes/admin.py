@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/get-admin-users/",
+    "/users/",
     response_model=AdminUsersResponseModel,
 )
 def get_admin_users_api(
