@@ -14,8 +14,17 @@ __all__ = [
 # Utils
 
 
+class ReservedAliasUserEmail(BaseModel):
+    id: UUID
+    address: str
+
+    class Config:
+        orm_mode = True
+
+
 class ReservedAliasUser(BaseModel):
     id: UUID
+    email: ReservedAliasUserEmail
 
     class Config:
         orm_mode = True
