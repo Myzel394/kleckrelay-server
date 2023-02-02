@@ -101,10 +101,6 @@ def check_life_constants() -> None:
     _get_words()
 
     logger.logger.info(
-        f"Doctor: The entropy of Email-Token-based authentication is about "
-        f"{email_token_entropy:.1f}."
-    )
-    logger.logger.info(
         f"Doctor: The probability of brute-forcing an Email-Login-Token is about "
         f"{format(calculate_email_token_probability() * 100, '.3f')}%."
     )
@@ -122,7 +118,7 @@ def check_life_constants() -> None:
         f"{format(calculate_email_token_brute_force_amount(), ',')} generated emails from "
         f"{life_constants.RANDOM_EMAIL_ID_MIN_LENGTH} characters to "
         f"{life_constants.RANDOM_EMAIL_ID_MIN_LENGTH + 1} characters. The percentage value is "
-        f"{format(life_constants.RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE * 100, '.0f')}%."
+        f"{life_constants.RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE * 100}%."
     )
     logger.logger.info(
         f"Doctor: Custom emails will look like this: "
