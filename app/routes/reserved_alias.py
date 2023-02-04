@@ -33,11 +33,16 @@ def get_reserved_aliases_api(
 
     get_admin_user_by_id(db, credentials["id"])
 
+    aliases = find_reserved_aliases_ordered(
+        db,
+        search=query,
+    )
+    logger.info(
+        f"Request: Get all reserved aliases -> Found {len(aliases)} aliases. Returning them back."
+    )
+
     return paginate(
-        find_reserved_aliases_ordered(
-            db,
-            search=query,
-        ),
+        aliases,
         params
     )
 

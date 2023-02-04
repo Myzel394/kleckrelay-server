@@ -5,7 +5,11 @@ from sqlalchemy.orm import Session
 from app import logger
 from app.life_constants import MAIL_DOMAIN
 from app.models import ReservedAlias, User
-from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasUpdate, ReservedAliasUser
+from app.models.reserved_alias import ReservedAliasUser as ReservedAliasUserModel
+from app.schemas.reserved_alias import (
+    ReservedAliasCreate, ReservedAliasCreateUser,
+    ReservedAliasUpdate, ReservedAliasUser,
+)
 
 __all__ = [
     "find_reserved_aliases_ordered",
@@ -15,7 +19,7 @@ __all__ = [
 ]
 
 
-def _get_users(db: Session, /, users_data: list[ReservedAliasUser]) -> list[User]:
+def _get_users(db: Session, /, users_data: list[ReservedAliasCreateUser]) -> list[User]:
     logger.info(f"Get users -> Getting users for {users_data=}.")
     user_ids = [
         user.id
@@ -68,8 +72,18 @@ def create_reserved_alias(db: Session, /, data: ReservedAliasCreate) -> Reserved
     db.refresh(alias)
 
     users = _get_users(db, data.users)
-    logger.info(f"Request: Create Reserved Alias -> Storing users.")
-    alias.users.extend(users)
+    logger.info(f"Request: Create Reserved Alias -> Creating users {users=}.")
+    alias_user = [
+        ReservedAliasUserModel(
+            user_id=user.id,
+            reserved_alias_id=alias.id,
+        )
+        for user in users
+    ]
+    logger.info(f"Request: Create Reserved Alias -> Committing users to database.")
+    db.add_all(alias_user)
+    db.commit()
+    db.refresh(alias)
 
     logger.info(f"Request: Create Reserved Alias -> Success! Returning alias back.")
     return alias

@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
 
@@ -30,6 +30,10 @@ class ReservedAliasUser(BaseModel):
         orm_mode = True
 
 
+class ReservedAliasCreateUser(BaseModel):
+    id: UUID
+
+
 class ReservedAliasUserEmailDetail(BaseModel):
     id: UUID
     address: str
@@ -54,17 +58,14 @@ class ReservedAliasCreate(ReservedAliasBase):
         description="Only required if type == AliasType.CUSTOM. To avoid collisions, a random "
                     "suffix will be added to the end.",
     )
-    users: list[ReservedAliasUser]
+    users: list[ReservedAliasCreateUser]
 
-    @root_validator()
-    def check_users(cls, values) -> dict[str, Any]:
-        if not values.get("users"):
-            raise ValueError("`users` must be provided.")
+    @validator("users")
+    def check_users(cls, value: list[ReservedAliasCreateUser]) -> list[ReservedAliasCreateUser]:
+        if len(value) < 1:
+            raise ValueError("At least one user must be provided.")
 
-        if len(values["users"]) < 1:
-            raise ValueError("`users` must contain at least one user.")
-
-        return values
+        return value
 
     class Config:
         orm_mode = True
