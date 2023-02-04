@@ -43,6 +43,10 @@ def _get_users(db: Session, /, users_data: list[ReservedAliasCreateUser]) -> lis
     return users.all()
 
 
+def _delete_reverse_alias_users(db: Session, /, alias: ReservedAlias) -> None:
+    db.query(ReservedAliasUserModel).filter_by(reserved_alias_id=alias.id).delete()
+
+
 def find_reserved_aliases_ordered(db: Session, /, search: str = "") -> list[ReservedAlias]:
     logger.info(f"Find reserved aliases ordered -> Finding reserved aliases.")
     query = db.query(ReservedAlias)
@@ -107,17 +111,27 @@ def update_reserved_alias(
         logger.info(f"Request: Update Reserved Alias -> Changing is_active.")
         alias.is_active = data.is_active
 
-    if data.users is not None:
-        users = _get_users(db, data.users)
-        logger.info(f"Request: Update Reserved Alias -> Changing users.")
-
-        alias.users.clear()
-        alias.users.extend(users)
-
     logger.info(f"Request: Update Reserved Alias -> Committing to database.")
     db.add(alias)
     db.commit()
     db.refresh(alias)
+
+    if data.users is not None:
+        users = _get_users(db, data.users)
+        logger.info(f"Request: Update Reserved Alias -> Changing users.")
+
+        _delete_reverse_alias_users(db, alias)
+        alias_user = [
+            ReservedAliasUserModel(
+                user_id=user.id,
+                reserved_alias_id=alias.id,
+            )
+            for user in users
+        ]
+        logger.info(f"Request: Create Reserved Alias -> Committing users to database.")
+        db.add_all(alias_user)
+        db.commit()
+        db.refresh(alias)
 
     logger.info(f"Request: Update Reserved Alias -> Success!")
     return alias
