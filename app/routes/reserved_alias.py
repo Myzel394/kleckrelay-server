@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from fastapi_pagination import Page, paginate, Params
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import logger
@@ -13,7 +14,7 @@ from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
     create_reserved_alias, delete_reserved_alias,
-    find_reserved_aliases_ordered, update_reserved_alias,
+    find_reserved_aliases_ordered, get_reserved_alias_by_id, update_reserved_alias,
 )
 
 router = APIRouter()
@@ -45,6 +46,31 @@ def get_reserved_aliases_api(
         aliases,
         params
     )
+
+
+@router.get(
+    "/{id}",
+    response_model=ReservedAliasDetail
+)
+def get_reserved_alias_api(
+    id: str,
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+    db: Session = Depends(get_db),
+):
+    logger.info("Request: Get Reserved Alias -> New Request.")
+
+    get_admin_user_by_id(db, credentials["id"])
+
+    try:
+        alias = get_reserved_alias_by_id(db, id)
+    except NoResultFound:
+        logger.info(f"Request: Get Reserved Alias -> Alias {id} not found.")
+        raise HTTPException(
+            status_code=404,
+            detail="Alias not found."
+        )
+    else:
+        return alias
 
 
 @router.post(

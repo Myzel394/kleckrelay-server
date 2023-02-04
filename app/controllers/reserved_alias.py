@@ -16,6 +16,7 @@ __all__ = [
     "create_reserved_alias",
     "update_reserved_alias",
     "delete_reserved_alias",
+    "get_reserved_alias_by_id",
 ]
 
 
@@ -56,6 +57,10 @@ def find_reserved_aliases_ordered(db: Session, /, search: str = "") -> list[Rese
     return query\
         .order_by(func.levenshtein(ReservedAlias.local, search) if search else ReservedAlias.local) \
         .all()
+
+
+def get_reserved_alias_by_id(db: Session, /, alias_id: str) -> ReservedAlias:
+    return db.query(ReservedAlias).filter_by(id=alias_id).one()
 
 
 def create_reserved_alias(db: Session, /, data: ReservedAliasCreate) -> ReservedAlias:

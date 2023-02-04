@@ -72,15 +72,14 @@ class ReservedAliasCreate(ReservedAliasBase):
 
 
 class ReservedAliasUpdate(ReservedAliasBase):
-    users: Optional[list[ReservedAliasUser]]
+    users: Optional[list[ReservedAliasCreateUser]]
 
-    @root_validator()
-    def check_users(cls, values) -> dict[str, Any]:
-        if (users := values.get("users")) is not None:
-            if len(users) < 1:
-                raise ValueError("`users` must contain at least one user.")
+    @validator("users")
+    def check_users(cls, value: list[ReservedAliasCreateUser]) -> list[ReservedAliasCreateUser]:
+        if len(value) < 1:
+            raise ValueError("At least one user must be provided.")
 
-        return values
+        return value
 
     class Config:
         orm_mode = True
