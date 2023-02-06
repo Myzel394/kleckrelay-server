@@ -31,9 +31,6 @@ services:
       - "25:25"
       - "587:587"
 
-    volumes:
-      - ./tutorial:/tutorial
-
     depends_on:
       kleckrelay-database:
         condition: service_healthy

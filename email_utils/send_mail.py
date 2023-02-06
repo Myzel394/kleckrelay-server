@@ -1,4 +1,5 @@
 import smtplib
+import time
 from email.message import EmailMessage, Message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -31,6 +32,7 @@ def _send_mail_to_smtp_server(
         f"Postfix Host={life_constants.POSTFIX_HOST}, Postfix Port={life_constants.POSTFIX_PORT}.")
     with smtplib.SMTP(host=life_constants.POSTFIX_HOST, port=life_constants.POSTFIX_PORT) as smtp:
         logger.info("Send mail -> Activating TLS.")
+        time.sleep(1)
         smtp.starttls()
 
         logger.info("Send mail -> Sending mail now.")

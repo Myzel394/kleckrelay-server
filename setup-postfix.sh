@@ -20,12 +20,10 @@ postconf -e "myhostname = ${APP_DOMAIN}"
 # Use Docker's built-in DNS server
 postconf -e "resolve_numeric_domain = yes"
 postconf -e "smtp_host_lookup = native,dns"
+postconf -e "readme_directory = no"
 #postconf -e "smtp_sasl_auth_enable = yes"
 #postconf -e "smtp_sasl_password_maps = hash:/etc/postfix/sasl_password"
 #postconf -e "smtp_sasl_security_options = noanonymous"
-if [[ "${POSTFIX_USE_TLS,,}" =~ ^(yes|true|t|1|y)$ ]]; then
-  postconf -e "smtp_use_tls = yes"
-fi
 echo "nameserver 1.1.1.1" > /var/spool/postfix/etc/resolv.conf
 echo "nameserver 1.1.1.1" > /etc/resolv.conf
 
@@ -112,6 +110,17 @@ postconf -e "milter_protocol = 2"
 cat >> /etc/default/opendkim<< EOF
 SOCKET="inet:8891@localhost"
 EOF
+
+if [[ "${POSTFIX_USE_TLS,,}" =~ ^(yes|true|t|1|y)$ ]]; then
+  echo "Creating TLS certificate for Postfix"
+  openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=GB/ST=London/L=London/O=KleckRelay Instance/OU=${APP_DOMAIN}/CN=${MAIL_DOMAIN}"
+  echo "Done creating TLS certificate."
+
+  postconf -e "smtpd_tls_cert_file = /etc/ssl/certs/ssl-cert-snakeoil.pem"
+  postconf -e "smtpd_tls_key_file = /etc/ssl/private/ssl-cert-snakeoil.key"
+  postconf -e "smtp_tls_security_level = may"
+  postconf -e "smtpd_tls_security_level = may"
+fi
 
 if [[ "${IS_DEBUG,,}" =~ ^(yes|true|t|1|y)$ ]]; then
   echo "Postfix will not be hardened as debug mode is enabled"
