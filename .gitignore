@@ -264,3 +264,5 @@ db.sqlite-journal
 .python-version
 
 storage
+tutorial
+letsencrypt

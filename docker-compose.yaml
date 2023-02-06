@@ -25,12 +25,14 @@ services:
     restart: on-failure:5
     build:
       context: .
-      dockerfile: Server.Dockerfile
 
     ports:
       - "8000:80"
       - "25:25"
       - "587:587"
+
+    volumes:
+      - ./tutorial:/tutorial
 
     depends_on:
       kleckrelay-database:
@@ -38,6 +40,7 @@ services:
 
     cap_add:
       - NET_BIND_SERVICE
+      - SYS_PTRACE
 
     env_file:
       - .env

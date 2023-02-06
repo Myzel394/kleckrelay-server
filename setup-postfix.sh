@@ -1,16 +1,18 @@
 #!/bin/bash
 
-service rsyslog start
 echo "Configuring Postfix"
 
+echo "Configuring basic Postfix config"
 if [[ "${IS_DEBUG,,}" =~ ^(yes|true|t|1|y)$ ]]; then \
-    apt install rsyslog -y; \
+  echo "Debug mode is enabled, Postfix logs will be saved to /var/log/mail.log"
+  postconf -e "maillog_file = /var/log/mail.log"
+else
+  echo "Debug mode is disabled, Postfix logs will not be saved"
+  postconf -e "maillog_file = /dev/null"
 fi
 
-echo "Configuring basic Postfix config"
 postconf -e "inet_protocols = ipv4"
 postconf -e "inet_interfaces = all"
-postconf -e "maillog_file = /dev/stdout"
 postconf -e "mydomain = ${MAIL_DOMAIN}"
 postconf -e "mynetworks = 127.0.0.0/8, [::1]/128"
 postconf -e "myorigin = ${MAIL_DOMAIN}"
@@ -24,7 +26,7 @@ postconf -e "smtp_host_lookup = native,dns"
 if [[ "${POSTFIX_USE_TLS,,}" =~ ^(yes|true|t|1|y)$ ]]; then
   postconf -e "smtp_use_tls = yes"
 fi
-echo "nameserver 1.1.1.1" > /var/spool/postfix/etc/resolv.conf TODO: Check
+echo "nameserver 1.1.1.1" > /var/spool/postfix/etc/resolv.conf
 echo "nameserver 1.1.1.1" > /etc/resolv.conf
 
 echo "Creating broken symlinks for Postfix"
@@ -91,7 +93,7 @@ MinimumKeyBits 1024
 Mode sv
 PidFile /var/run/opendkim/opendkim.pid
 SigningTable refile:/etc/opendkim/SigningTable
-Socket inet:8891@localhost
+Socket inet:8891@127.0.0.1
 TemporaryDirectory /var/tmp
 UMask 022
 UserID opendkim:opendkim
@@ -102,8 +104,8 @@ EOF
 chown -R opendkim:opendkim /etc/opendkim
 chmod go-rwx /etc/opendkim
 
-postconf -e "smtpd_milters = inet:localhost:8891"
-postconf -e "non_smtpd_milters = inet:localhost:8891"
+postconf -e "smtpd_milters = inet:127.0.0.1:8891"
+postconf -e "non_smtpd_milters = inet:127.0.0.1:8891"
 postconf -e "milter_default_action = accept"
 postconf -e "milter_protocol = 2"
 
