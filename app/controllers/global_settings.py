@@ -49,7 +49,4 @@ def get(db: Session, /, field: str):
 
     settings_field_name = field.lower()
 
-    if (settings_value := getattr(settings, settings_field_name, None)) is not None:
-        return settings_value
-
-    return default_value
+    return getattr(settings, settings_field_name) or default_value
