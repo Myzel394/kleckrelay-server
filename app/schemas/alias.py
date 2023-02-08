@@ -3,8 +3,9 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, root_validator
 
+from app.controllers import global_settings as settings
 from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
-from app.life_constants import CUSTOM_EMAIL_SUFFIX_LENGTH, MAX_ENCRYPTED_NOTES_SIZE
+from app import life_constants
 from app.logger import logger
 from app.models.alias import AliasType, ImageProxyFormatType
 from app.models.enums.alias import ProxyUserAgentType
@@ -20,7 +21,7 @@ __all__ = [
 class AliasBase(BaseModel):
     is_active: Optional[bool] = None
     encrypted_notes: str = Field(
-        max_length=MAX_ENCRYPTED_NOTES_SIZE,
+        max_length=life_constants.MAX_ENCRYPTED_NOTES_SIZE,
         default="",
     )
 
@@ -55,15 +56,6 @@ class AliasCreate(AliasBase):
                 logger.info("AliasCreate: Local is defined, but should not be. Raising exception.")
 
                 raise ValueError("`local` may be None or empty if `type` is AliasType.RANDOM.")
-        else:
-            logger.info("AliasCreate: Type is AliasType.CUSTOM")
-            # Validate length
-
-            if len(values.get("local", "")) > \
-                    (max_length := MAX_LOCAL_LENGTH - CUSTOM_EMAIL_SUFFIX_LENGTH - 1):
-                raise ValueError(
-                    f"`local` is too long. It should be at most {max_length} characters long."
-                )
 
         return values
 

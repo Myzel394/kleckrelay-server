@@ -4,6 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
+from app.controllers import global_settings as settings
 from app import constants, life_constants, logger
 from app.authentication.authentication_response import (
     set_authentication_cookies,
@@ -24,6 +25,8 @@ from app.controllers.user import (
 )
 from app.database.dependencies import get_db
 from app.dependencies.email_login import get_email_login_token
+from app.helpers.check_email_is_disposable import check_if_email_is_disposable
+from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.mails.send_email_login_token import send_email_login_token
 from app.models import EmailLoginToken
@@ -53,6 +56,23 @@ router = APIRouter()
 )
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
     logger.info("Request: Signup -> Sign up request.")
+
+    enable_other_relays = settings.get(db, "USER_EMAIL_ENABLE_OTHER_RELAYS")
+    enable_disposable_emails = settings.get(db, "USER_EMAIL_ENABLE_DISPOSABLE_EMAILS")
+
+    if not enable_other_relays and check_if_email_is_from_relay(user.email):
+        logger.info("Request: Signup -> Email is from another relay.")
+        raise HTTPException(
+            status_code=422,
+            detail="Email is from another relay. This instance does not allow using another email relay."
+        )
+
+    if not enable_disposable_emails and check_if_email_is_disposable(user.email):
+        logger.info("Request: Signup -> Email is disposable.")
+        raise HTTPException(
+            status_code=422,
+            detail="Email is disposable. This instance does not allow using disposable emails.",
+        )
 
     if await check_if_email_exists(db, user.email):
         logger.info("Request: Signup -> Email does not exist.")

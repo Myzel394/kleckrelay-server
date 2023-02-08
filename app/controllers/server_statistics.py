@@ -4,6 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import life_constants
+from app.controllers import global_settings as settings
 
 from app.models import ServerStatistics
 
@@ -27,7 +28,7 @@ def _create_statistics(db: Session, /) -> ServerStatistics:
 
 def get_server_statistics(db: Session, /) -> Optional[ServerStatistics]:
     """Returns a `SeverStatistics`. Ensures only one `ServerStatistics` exists."""
-    if not life_constants.ALLOW_STATISTICS:
+    if not settings.get(db, "ALLOW_STATISTICS"):
         return None
 
     try:

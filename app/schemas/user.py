@@ -51,29 +51,12 @@ class UserBase(BaseModel):
         return str(value)
 
 
+# TODO: Add db to this model so that validation happens here
 class UserCreate(UserBase):
     email: str = Field(
         regex=constants.EMAIL_REGEX,
         max_length=constants.MAX_EMAIL_LENGTH,
     )
-
-    @validator("email")
-    def validate_email(cls, value: str) -> str:
-        if not life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS \
-                and check_if_email_is_from_relay(value):
-            logger.info("Request: Signup -> Email is from another relay.")
-            raise ValueError(
-                "Email is from another relay. This instance does not allow using another email relay."
-            )
-
-        if not life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS \
-                and check_if_email_is_disposable(value):
-            logger.info("Request: Signup -> Email is disposable.")
-            raise ValueError(
-                "Email is disposable. This instance does not allow using disposable emails.",
-            )
-
-        return value
 
 
 class UserUpdate(UserBase):

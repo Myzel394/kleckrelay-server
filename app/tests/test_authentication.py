@@ -109,7 +109,7 @@ def test_can_not_create_account_with_blocked_relays(
             "email": f"email@{life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS[0]}"
         }
     )
-    assert response.status_code == 422, "Status could should be 400"
+    assert response.status_code == 422, "Status could should be 422"
 
 
 def test_can_create_account_with_user_email_enable_other_relays_false(

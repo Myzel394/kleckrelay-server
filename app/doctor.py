@@ -108,25 +108,6 @@ def check_life_constants() -> None:
         f"Doctor: DB URI is: {life_constants.DB_URI.split('@')[1]}"
     )
 
-    if life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS:
-        logger.logger.info(
-            "Doctor: Users are allowed to register with disposable emails."
-        )
-    else:
-        logger.logger.info(
-            "Doctor: Users are NOT allowed to register with disposable email."
-        )
-
-    if life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS:
-        logger.logger.info(
-            "Doctor: Users are allowed to register with other email relay services."
-        )
-    else:
-        logger.logger.info(
-            "Doctor: Users are NOT allowed to register with other email relay services. The "
-            f"following domains are not allowed to be used to sign up: {life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS}"
-        )
-
     create_image_proxy_storage_path()
 
     check_server_private_key()

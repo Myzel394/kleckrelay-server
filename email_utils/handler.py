@@ -4,6 +4,7 @@ from aiosmtpd.smtp import Envelope
 from sqlalchemy.exc import NoResultFound
 
 from app import life_constants, logger
+from app.controllers import global_settings as settings
 from app.controllers.email_report import create_email_report_from_report_data
 from app.controllers import server_statistics
 from app.database.dependencies import with_db
@@ -36,6 +37,7 @@ def handle(envelope: Envelope, message: Message) -> str:
     logger.info("Retrieving mail from database.")
 
     with with_db() as db:
+        enable_image_proxy = settings.get(db, "ENABLE_IMAGE_PROXY")
         user = None
 
         try:
@@ -103,7 +105,7 @@ def handle(envelope: Envelope, message: Message) -> str:
                     if alias.remove_trackers:
                         content = remove_single_pixel_image_trackers(report, html=content)
 
-                    if life_constants.ENABLE_IMAGE_PROXY and alias.proxy_images:
+                    if enable_image_proxy and alias.proxy_images:
                         content = convert_images(db, report, alias=alias, html=content)
 
                     if alias.expand_url_shorteners:

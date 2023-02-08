@@ -5,6 +5,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import constants, logger
+from app.controllers import global_settings as settings
 from app.authentication.handler import access_security
 from app.controllers.alias import (
     create_local_with_suffix, find_aliases_from_user_ordered,
@@ -65,6 +66,15 @@ def create_alias(
         local = generate_random_local_id(db, domain=MAIL_DOMAIN)
     else:
         logger.info("Request: Create Alias -> Type is AliasType.CUSTOM")
+
+        # TODO: Improve this to return correct field
+        max_length = constants.MAX_LOCAL_LENGTH - settings.get(db, "CUSTOM_EMAIL_SUFFIX_LENGTH") - 1
+        if len(alias_data.local) > max_length:
+            raise HTTPException(
+                status_code=422,
+                detail=f"`local` is too long. It should be at most {max_length} characters long."
+            )
+
         local = create_local_with_suffix(db, domain=MAIL_DOMAIN, local=alias_data.local)
 
     logger.info(
