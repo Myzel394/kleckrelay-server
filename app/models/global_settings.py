@@ -28,8 +28,9 @@ class GlobalSettings(Base, IDMixin):
         nullable=True,
     )
     random_email_id_chars = sa.Column(
-        sa.String(),
-        max_length=1023,
+        sa.String(
+            length=1023,
+        ),
         default=None,
         nullable=True,
     )
@@ -44,8 +45,9 @@ class GlobalSettings(Base, IDMixin):
         nullable=True,
     )
     custom_email_suffix_chars = sa.Column(
-        sa.String(),
-        max_length=1023,
+        sa.String(
+            length=1023,
+        ),
         default=None,
         nullable=True,
     )

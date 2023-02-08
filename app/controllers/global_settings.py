@@ -1,7 +1,7 @@
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app import life_constants, default_life_constants
+from app import life_constants
 from app.models.global_settings import GlobalSettings
 
 __all__ = [
@@ -42,9 +42,14 @@ def get_settings(db: Session, /) -> GlobalSettings:
 def get(db: Session, /, field: str):
     default_value = getattr(life_constants, field)
 
-    if field not in SETTINGS_FIELDS:
+    if not life_constants.USE_GLOBAL_SETTINGS or field not in SETTINGS_FIELDS:
         return default_value
 
     settings = get_settings(db)
 
-    return getattr(settings, field, default_value)
+    settings_field_name = field.lower()
+
+    if (settings_value := getattr(settings, settings_field_name, None)) is not None:
+        return settings_value
+
+    return default_value

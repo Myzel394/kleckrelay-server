@@ -2,7 +2,6 @@ import base64
 from math import log
 
 from . import constants, default_life_constants, life_constants, logger
-from .controllers.alias import generate_id, generate_suffix
 from .gpg_handler import gpg
 from .utils import _get_words
 
@@ -25,12 +24,6 @@ def calculate_email_token_probability() -> float:
         1 / ((possibilities ** life_constants.EMAIL_LOGIN_TOKEN_LENGTH) - try_count)
         for try_count in range(life_constants.EMAIL_LOGIN_TOKEN_MAX_TRIES)
     )
-
-
-def calculate_email_token_brute_force_amount() -> int:
-    amount = len(life_constants.RANDOM_EMAIL_ID_CHARS) ** life_constants.RANDOM_EMAIL_ID_MIN_LENGTH
-
-    return int(amount * life_constants.RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE)
 
 
 def validate_value_is_random_string(name: str) -> None:
@@ -101,28 +94,10 @@ def check_life_constants() -> None:
     _get_words()
 
     logger.logger.info(
-        f"Doctor: The probability of brute-forcing an Email-Login-Token is about "
-        f"{format(calculate_email_token_probability() * 100, '.3f')}%."
-    )
-    logger.logger.info(
         f"Doctor: The domain for the app is: {life_constants.API_DOMAIN}."
     )
     logger.logger.info(
         f"Doctor: The domain for the mails is: {life_constants.MAIL_DOMAIN}."
-    )
-    logger.logger.info(
-        f"Doctor: Random emails will look like this: {generate_id()}@{life_constants.MAIL_DOMAIN}."
-    )
-    logger.logger.info(
-        f"Doctor: Random emails will increase their length after "
-        f"{format(calculate_email_token_brute_force_amount(), ',')} generated emails from "
-        f"{life_constants.RANDOM_EMAIL_ID_MIN_LENGTH} characters to "
-        f"{life_constants.RANDOM_EMAIL_ID_MIN_LENGTH + 1} characters. The percentage value is "
-        f"{life_constants.RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE * 100}%."
-    )
-    logger.logger.info(
-        f"Doctor: Custom emails will look like this: "
-        f"awesome-fish.{generate_suffix()}@{life_constants.MAIL_DOMAIN}."
     )
 
     logger.logger.info(
