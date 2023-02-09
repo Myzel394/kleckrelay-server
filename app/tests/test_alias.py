@@ -85,5 +85,3 @@ def test_can_not_create_custom_alias_without_local(
     )
 
     assert response.status_code == 422, f"Status code should be 422 but is {response.status_code}"
-
-
