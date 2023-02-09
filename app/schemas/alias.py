@@ -56,6 +56,13 @@ class AliasCreate(AliasBase):
                 logger.info("AliasCreate: Local is defined, but should not be. Raising exception.")
 
                 raise ValueError("`local` may be None or empty if `type` is AliasType.RANDOM.")
+        elif alias_type == AliasType.CUSTOM:
+            logger.info("AliasCreate: Type is AliasType.CUSTOM")
+
+            if not values.get("local"):
+                logger.info("AliasCreate: Local is not defined, but shouldbe. Raising exception.")
+
+                raise ValueError("`local` may not be None or empty if `type` is AliasType.CUSTOM.")
 
         return values
 
