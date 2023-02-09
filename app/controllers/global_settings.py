@@ -1,12 +1,15 @@
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app import life_constants
+from app import life_constants, logger
 from app.models.global_settings import GlobalSettings
+
+from app.schemas.admin import AdminSettingsModel
 
 __all__ = [
     "get_settings",
-    "get"
+    "get",
+    "update_settings"
 ]
 
 
@@ -53,3 +56,17 @@ def get(db: Session, /, field: str):
         return value
 
     return default_value
+
+
+def update_settings(db: Session, /, update: AdminSettingsModel) -> GlobalSettings:
+    settings = get_settings(db)
+
+    for field, value in update.dict(exclude_unset=True).items():
+        setattr(settings, field, value)
+
+    logger.info(f"Request: Update Admin Settings -> Updated data. Committing to database.")
+    db.add(settings)
+    db.commit()
+    db.refresh(settings)
+
+    return settings

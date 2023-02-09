@@ -1,8 +1,5 @@
 import sqlalchemy as sa
 
-from sqlalchemy.dialects.postgresql import UUID
-
-from app import default_life_constants
 from app.database.base import Base
 from ._mixins import IDMixin
 
