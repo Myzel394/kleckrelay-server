@@ -65,7 +65,6 @@ def update_settings_api(
     logger.info(f"Request: Update Admin Settings -> User {user=} is an admin.")
 
     # Update settings
-    update_data = update_data.dict(exclude_unset=True)
     logger.info(f"Request: Update Admin Settings -> Updating settings with {update_data=}.")
     settings = update_settings(db, update_data)
     logger.info(f"Request: Update Admin Settings -> Success! Returning updated settings.")
