@@ -13,3 +13,4 @@ from .user import *
 from .user_preferences import *
 from .reserved_alias import *
 from .server_statistics import *
+from .global_settings import *
