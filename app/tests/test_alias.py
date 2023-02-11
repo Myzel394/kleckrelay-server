@@ -85,3 +85,28 @@ def test_can_not_create_custom_alias_without_local(
     )
 
     assert response.status_code == 422, f"Status code should be 422 but is {response.status_code}"
+
+
+def test_can_update_alias(
+    client: TestClient,
+    db: Session,
+    create_user,
+    create_auth_tokens,
+    create_random_alias
+) -> None:
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+    alias = create_random_alias(user)
+
+    response = client.patch(
+        f"/v1/alias/{alias.id}",
+        json={
+            "is_active": False,
+        },
+        headers=auth["headers"]
+    )
+
+    assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
+    assert response.json()["is_active"] is False, "Returned alias should be inactive"
+    assert alias.is_active is False, "Database alias should be inactive"
+

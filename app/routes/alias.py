@@ -7,17 +7,15 @@ from sqlalchemy.orm import Session
 from starlette.requests import Request
 
 from app import constants, logger
-from app.controllers import global_settings as settings
 from app.authentication.handler import access_security
 from app.controllers.alias import (
-    create_local_with_suffix, find_aliases_from_user_ordered,
-    generate_random_local_id, get_alias_from_user, get_alias_from_user_by_address,
+    create_alias, find_aliases_from_user_ordered, get_alias_from_user,
+    get_alias_from_user_by_address, update_alias,
 )
 from app.controllers.global_settings import get_filled_settings
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
-from app.life_constants import MAIL_DOMAIN
-from app.models.alias import AliasType, EmailAlias
+from app.models.alias import AliasType
 from app.schemas._basic import HTTPNotFoundExceptionModel
 from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
 
@@ -56,12 +54,12 @@ def get_all_aliases(
     "/",
     response_model=AliasDetail,
 )
-async def create_alias(
+async def create_alias_api(
     request: Request,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):
-    logger.info("Request: Create Alias -> Creating alias.")
+    logger.info("Request: Create Alias -> New request. Validating data.")
 
     try:
         request_data = await request.json()
@@ -70,41 +68,11 @@ async def create_alias(
         logger.info(f"Request: Create Alias -> Invalid data. {error.json()}")
         raise HTTPException(status_code=422, detail=error.errors())
 
+    logger.info("Request: Create Alias -> Valid data. Creating alias.")
     user = get_user_by_id(db, credentials["id"])
 
-    if alias_data.type == AliasType.RANDOM:
-        logger.info("Request: Create Alias -> Type is AliasType.RANDOM")
-        local = generate_random_local_id(db, domain=MAIL_DOMAIN)
-    else:
-        logger.info("Request: Create Alias -> Type is AliasType.CUSTOM")
-        local = create_local_with_suffix(db, domain=MAIL_DOMAIN, local=alias_data.local)
+    alias = create_alias(db, alias_data, user)
 
-    logger.info(
-        f"Request: Create Alias -> Creating email alias with local={local} and domain={MAIL_DOMAIN} "
-        f"for {user.email.address}."
-    )
-    alias = EmailAlias(
-        local=local,
-        domain=MAIL_DOMAIN,
-        is_active=alias_data.is_active,
-        type=alias_data.type,
-        user_id=user.id,
-        encrypted_notes=alias_data.encrypted_notes,
-
-        pref_remove_trackers=alias_data.pref_remove_trackers,
-        pref_create_mail_report=alias_data.pref_create_mail_report,
-        pref_proxy_images=alias_data.pref_proxy_images,
-        pref_proxy_user_agent=alias_data.pref_proxy_user_agent,
-        pref_image_proxy_format=alias_data.pref_image_proxy_format,
-        pref_expand_url_shorteners=alias_data.pref_expand_url_shorteners,
-    )
-
-    logger.info("Request: Create Alias -> Saving instance.")
-    db.add(alias)
-    db.commit()
-    db.refresh(alias)
-
-    logger.info("Request: Create Alias -> Instance saved successfully.")
     return alias
 
 
@@ -117,7 +85,7 @@ async def create_alias(
         }
     }
 )
-def update_alias(
+def update_alias_api(
     id: str,
     update: AliasUpdate,
     credentials: JwtAuthorizationCredentials = Security(access_security),
@@ -135,17 +103,8 @@ def update_alias(
             detail="Alias not found."
         )
     else:
-        logger.info(f"Request: Update Alias -> Updating values of Alias {id}.")
-        update_data = update.dict(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(alias, key, value)
+        update_alias(db, alias, update)
 
-        logger.info(f"Request: Update Alias -> Saving Alias {id} to database.")
-        db.add(alias)
-        db.commit()
-        db.refresh(alias)
-
-        logger.info(f"Request: Update Alias -> Alias {id} saved successfully.")
         return alias
 
 
