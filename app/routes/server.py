@@ -8,7 +8,7 @@ from app.controllers.server_statistics import get_server_statistics as \
     get_server_statistics_instance
 from app.database.dependencies import get_db
 from app.schemas._basic import SimpleDetailResponseModel
-from app.schemas.settings import ServerStatisticsModel, SettingsModel
+from app.schemas.server import ServerStatisticsModel, SettingsModel
 
 router = APIRouter()
 

@@ -20,9 +20,9 @@ __all__ = [
     "SimpleUserResponseModel",
 ]
 
-from app.schemas.admin import AdminSettingsFilledModel
+from app.schemas.global_constants import GlobalConstantsModel
 
-from app.schemas.settings import SettingsModel
+from app.schemas.server import SettingsModel
 
 
 class UserBase(BaseModel):
@@ -55,9 +55,8 @@ class UserBase(BaseModel):
         return str(value)
 
 
-# TODO: Add db to this model so that validation happens here
 class UserCreate(UserBase):
-    settings: AdminSettingsFilledModel
+    settings: GlobalConstantsModel
     email: str = Field(
         regex=constants.EMAIL_REGEX,
         max_length=constants.MAX_EMAIL_LENGTH,
@@ -65,7 +64,7 @@ class UserCreate(UserBase):
 
     @validator("email")
     def validate_email(cls, value: str, values: dict[str, Any]) -> str:
-        settings: AdminSettingsFilledModel = values["settings"]
+        settings: GlobalConstantsModel = values["settings"]
         if not settings.user_email_enable_other_relays and check_if_email_is_from_relay(value):
             logger.info("Request: Signup -> Email is from another relay.")
             raise ValueError(

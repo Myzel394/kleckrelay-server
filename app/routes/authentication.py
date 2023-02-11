@@ -28,8 +28,6 @@ from app.controllers.user import (
 )
 from app.database.dependencies import get_db
 from app.dependencies.email_login import get_email_login_token
-from app.helpers.check_email_is_disposable import check_if_email_is_disposable
-from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.mails.send_email_login_token import send_email_login_token
 from app.models import EmailLoginToken
@@ -43,7 +41,6 @@ from app.schemas.authentication import (
     LoginWithEmailTokenModel,
     ResendEmailModel, SignupResponseModel, VerifyEmailModel,
 )
-from app.schemas.settings import SettingsModel
 from app.schemas.user import SimpleUserResponseModel, UserCreate
 
 router = APIRouter()
