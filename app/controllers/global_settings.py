@@ -4,10 +4,12 @@ from sqlalchemy.orm import Session
 from app import life_constants, logger
 from app.models.global_settings import GlobalSettings
 
-from app.schemas.admin import AdminSettingsModel
+from app.schemas.admin import AdminSettingsFilledModel, AdminSettingsModel
+from app.schemas.settings import SettingsModel
 
 __all__ = [
     "get_settings",
+    "get_filled_settings",
     "get",
     "update_settings"
 ]
@@ -40,6 +42,21 @@ def get_settings(db: Session, /) -> GlobalSettings:
         return db.query(GlobalSettings).one()
     except NoResultFound:
         return _create_settings(db)
+
+
+def get_filled_settings(db: Session, /) -> AdminSettingsFilledModel:
+    settings_instance = get_settings(db)
+    settings = {}
+
+    for life_constant_field_name in SETTINGS_FIELDS:
+        field_name = life_constant_field_name.lower()
+
+        if (value := getattr(settings_instance, field_name)) is not None:
+            settings[field_name] = value
+        else:
+            settings[field_name] = getattr(life_constants, life_constant_field_name)
+
+    return AdminSettingsFilledModel(**settings)
 
 
 def get(db: Session, /, field: str):

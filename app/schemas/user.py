@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field, validator
+from sqlalchemy.orm import Session
 
 from app import constants, life_constants, logger
 from app.gpg_handler import gpg
@@ -18,6 +19,10 @@ __all__ = [
     "UserPreferences",
     "SimpleUserResponseModel",
 ]
+
+from app.schemas.admin import AdminSettingsFilledModel
+
+from app.schemas.settings import SettingsModel
 
 
 class UserBase(BaseModel):
@@ -52,10 +57,28 @@ class UserBase(BaseModel):
 
 # TODO: Add db to this model so that validation happens here
 class UserCreate(UserBase):
+    settings: AdminSettingsFilledModel
     email: str = Field(
         regex=constants.EMAIL_REGEX,
         max_length=constants.MAX_EMAIL_LENGTH,
     )
+
+    @validator("email")
+    def validate_email(cls, value: str, values: dict[str, Any]) -> str:
+        settings: AdminSettingsFilledModel = values["settings"]
+        if not settings.user_email_enable_other_relays and check_if_email_is_from_relay(value):
+            logger.info("Request: Signup -> Email is from another relay.")
+            raise ValueError(
+                "Email is from another relay. "
+                "This instance does not allow using another email relay."
+            )
+
+        if not settings.user_email_enable_disposable_emails and check_if_email_is_disposable(value):
+            logger.info("Request: Signup -> Email is disposable.")
+            raise ValueError(
+                "Email is disposable. This instance does not allow using disposable emails.",
+            )
+        return value
 
 
 class UserUpdate(UserBase):
