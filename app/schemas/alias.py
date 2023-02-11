@@ -1,14 +1,14 @@
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
-from app.controllers import global_settings as settings
 from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
-from app import life_constants
+from app import constants, life_constants
 from app.logger import logger
-from app.models.alias import AliasType, ImageProxyFormatType
-from app.models.enums.alias import ProxyUserAgentType
+from app.models.enums.alias import AliasType, ImageProxyFormatType, ProxyUserAgentType
+
+from app.schemas.global_settings import GlobalSettingsModel
 
 __all__ = [
     "AliasCreate",
@@ -35,6 +35,7 @@ class AliasBase(BaseModel):
 
 
 class AliasCreate(AliasBase):
+    settings: GlobalSettingsModel
     type: AliasType = AliasType.RANDOM
     local: str = Field(
         regex=LOCAL_REGEX,
@@ -43,6 +44,18 @@ class AliasCreate(AliasBase):
         description="Only required if type == AliasType.CUSTOM. To avoid collisions, a random "
                     "suffix will be added to the end.",
     )
+
+    @validator("local")
+    def validate_local(self, value: str, values: dict[str, Any]) -> str:
+        settings: GlobalSettingsModel = values["settings"]
+
+        max_length = constants.MAX_LOCAL_LENGTH - settings.custom_email_suffix_length - 1
+        if len(value) > max_length:
+            raise ValueError(
+                f"`local` is too long. It should be at most {max_length} characters long."
+            )
+
+        return value
 
     @root_validator()
     def validate_type(cls, values: dict):
