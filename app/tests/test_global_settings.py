@@ -102,3 +102,24 @@ def test_can_not_get_settings_when_disabled(
     )
 
     assert response.status_code == 204, f"Status code should be 204 but is {response.status_code}"
+
+
+def test_can_not_set_empty_chars(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+) -> None:
+    life_constants.USE_GLOBAL_SETTINGS = True
+
+    user = create_user(is_verified=True, is_admin=True)
+    auth = create_auth_tokens(user)
+
+    response = client.patch(
+        "/v1/admin/settings/",
+        json={
+            "random_email_id_min_length": 0,
+        },
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 422, f"Status code should be 422 but is {response.status_code}"
