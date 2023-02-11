@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from fastapi_pagination import Page, paginate, Params
+from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from starlette.requests import Request
 
 from app import constants, logger
 from app.controllers import global_settings as settings
@@ -11,6 +13,7 @@ from app.controllers.alias import (
     create_local_with_suffix, find_aliases_from_user_ordered,
     generate_random_local_id, get_alias_from_user, get_alias_from_user_by_address,
 )
+from app.controllers.global_settings import get_filled_settings
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN
@@ -53,12 +56,20 @@ def get_all_aliases(
     "/",
     response_model=AliasDetail,
 )
-def create_alias(
-    alias_data: AliasCreate,
+async def create_alias(
+    request: Request,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Create Alias -> Creating alias.")
+
+    try:
+        request_data = await request.json()
+        alias_data = AliasCreate(settings=get_filled_settings(db), **request_data)
+    except ValidationError as error:
+        logger.info(f"Request: Create Alias -> Invalid data. {error.json()}")
+        raise HTTPException(status_code=422, detail=error.errors())
+
     user = get_user_by_id(db, credentials["id"])
 
     if alias_data.type == AliasType.RANDOM:
@@ -66,15 +77,6 @@ def create_alias(
         local = generate_random_local_id(db, domain=MAIL_DOMAIN)
     else:
         logger.info("Request: Create Alias -> Type is AliasType.CUSTOM")
-
-        # TODO: Improve this to return correct field
-        max_length = constants.MAX_LOCAL_LENGTH - settings.get(db, "CUSTOM_EMAIL_SUFFIX_LENGTH") - 1
-        if len(alias_data.local) > max_length:
-            raise HTTPException(
-                status_code=422,
-                detail=f"`local` is too long. It should be at most {max_length} characters long."
-            )
-
         local = create_local_with_suffix(db, domain=MAIL_DOMAIN, local=alias_data.local)
 
     logger.info(

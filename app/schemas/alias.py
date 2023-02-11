@@ -46,7 +46,7 @@ class AliasCreate(AliasBase):
     )
 
     @validator("local")
-    def validate_local(self, value: str, values: dict[str, Any]) -> str:
+    def validate_local(cls, value: str, values: dict[str, Any]) -> str:
         settings: GlobalSettingsModel = values["settings"]
 
         max_length = constants.MAX_LOCAL_LENGTH - settings.custom_email_suffix_length - 1
