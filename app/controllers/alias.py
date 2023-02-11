@@ -122,10 +122,13 @@ def generate_random_local_id(db: Session, /, domain: str = None) -> str:
     amount = get_aliases_amount(db, domain=domain)
     length = _calculate_id_length(db, aliases_amount=amount)
 
+    logger.info("Generate random local id -> Creating id...")
+
     while True:
         alias_id = _generate_id(db, length)
 
         if not check_if_alias_exists(db, local=alias_id, domain=domain):
+            logger.info(f"Generate random local id -> Created id {alias_id}.")
             return alias_id
 
         generation_round += 1
