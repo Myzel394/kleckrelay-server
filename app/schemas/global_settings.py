@@ -1,12 +1,12 @@
 from pydantic import BaseModel
 
 __all__ = [
-    "GlobalConstantsModel"
+    "GlobalSettingsModel"
 ]
 
 
 # This model is only used internally for other schemes to use.
-class GlobalConstantsModel(BaseModel):
+class GlobalSettingsModel(BaseModel):
     random_email_id_min_length: int
     random_email_id_chars: str
     random_email_length_increase_on_percentage: float

@@ -20,7 +20,7 @@ __all__ = [
     "SimpleUserResponseModel",
 ]
 
-from app.schemas.global_constants import GlobalConstantsModel
+from app.schemas.global_settings import GlobalSettingsModel
 
 from app.schemas.server import SettingsModel
 
@@ -56,7 +56,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    settings: GlobalConstantsModel
+    settings: GlobalSettingsModel
     email: str = Field(
         regex=constants.EMAIL_REGEX,
         max_length=constants.MAX_EMAIL_LENGTH,
@@ -64,7 +64,7 @@ class UserCreate(UserBase):
 
     @validator("email")
     def validate_email(cls, value: str, values: dict[str, Any]) -> str:
-        settings: GlobalConstantsModel = values["settings"]
+        settings: GlobalSettingsModel = values["settings"]
         if not settings.user_email_enable_other_relays and check_if_email_is_from_relay(value):
             logger.info("Request: Signup -> Email is from another relay.")
             raise ValueError(
