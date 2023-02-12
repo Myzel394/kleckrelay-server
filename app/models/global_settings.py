@@ -75,4 +75,8 @@ class GlobalSettings(Base, IDMixin):
         default=None,
         nullable=True,
     )
-
+    allow_alias_deletion = sa.Column(
+        sa.Boolean(),
+        default=None,
+        nullable=True,
+    )
