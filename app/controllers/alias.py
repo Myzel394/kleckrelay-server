@@ -11,7 +11,7 @@ from app.constants import MAX_RANDOM_ALIAS_ID_GENERATION
 from app.controllers.alias_utils import check_if_alias_exists, get_aliases_amount
 from app.life_constants import MAIL_DOMAIN
 from app.models import User
-from app.models.alias import EmailAlias
+from app.models.alias import DeletedEmailAlias, EmailAlias
 from app.models.enums.alias import AliasType
 from app.schemas.alias import AliasCreate, AliasUpdate
 from app.utils import contains_word
@@ -23,7 +23,8 @@ __all__ = [
     "create_local_with_suffix",
     "generate_random_local_id",
     "create_alias",
-    "update_alias"
+    "update_alias",
+    "delete_alias_from_user"
 ]
 
 
@@ -197,3 +198,27 @@ def update_alias(db: Session, /, alias: EmailAlias, data: AliasUpdate) -> None:
     db.refresh(alias)
 
     logger.info(f"Request: Update Alias -> Alias {alias.id} saved successfully.")
+
+
+def delete_alias_from_user(db: Session, /, user: User, id: uuid.UUID) -> None:
+    alias = get_alias_from_user(db, user=user, id=id)
+
+    logger.info(f"Request: Delete Alias -> Deleting Alias {alias.id}.")
+
+    logger.info("Request: Delete Alias -> Creating DeletedEmailAlias.")
+
+    deleted_alias = DeletedEmailAlias(
+        email=alias.address,
+    )
+
+    logger.info("Request: Delete Alias -> Saving DeletedEmailAlias.")
+    db.add(deleted_alias)
+    db.commit()
+    db.refresh(deleted_alias)
+
+    logger.info("Request: Delete Alias -> Deleting Alias.")
+
+    db.delete(alias)
+    db.commit()
+
+    logger.info(f"Request: Delete Alias -> Alias {alias.id} deleted successfully.")

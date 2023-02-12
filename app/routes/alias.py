@@ -11,15 +11,16 @@ from starlette.requests import Request
 from app import constants, logger
 from app.authentication.handler import access_security
 from app.controllers.alias import (
-    create_alias, find_aliases_from_user_ordered, get_alias_from_user,
+    create_alias, delete_alias_from_user, find_aliases_from_user_ordered, get_alias_from_user,
     update_alias,
 )
 from app.controllers.global_settings import get_filled_settings
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.models.alias import AliasType
-from app.schemas._basic import HTTPNotFoundExceptionModel
+from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
 from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
+from app.controllers import global_settings as settings
 
 router = APIRouter()
 
@@ -131,3 +132,52 @@ def get_alias(
         )
     else:
         return alias
+
+
+@router.delete(
+    "/{id}",
+    response_model=SimpleDetailResponseModel,
+    responses={
+        403: {
+            "model": SimpleDetailResponseModel,
+            "description": "Alias deletion is not allowed."
+        },
+        404: {
+            "model": HTTPNotFoundExceptionModel,
+            "description": "Alias not found."
+        },
+    }
+)
+def delete_alias(
+    id: uuid.UUID,
+    credentials: JwtAuthorizationCredentials = Security(access_security),
+    db: Session = Depends(get_db),
+):
+    logger.info(f"Request: Delete Alias -> New request to delete alias with {id=}.")
+
+    if not settings.get(db, "ALLOW_ALIAS_DELETION"):
+        logger.info(f"Request: Delete Alias -> Alias deletion is not allowed.")
+        raise HTTPException(
+            status_code=403,
+            detail="Alias deletion is not allowed."
+        )
+
+    user = get_user_by_id(db, credentials["id"])
+    logger.info(f"Request: Delete Alias -> Alias deletion is allowed. Deleting alias with {id=}.")
+
+    try:
+        delete_alias_from_user(
+            db,
+            user=user,
+            id=id,
+        )
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Alias not found."
+        )
+    else:
+        logger.info(f"Request: Delete Alias -> Alias deleted successfully.")
+        return {
+            "detail": "Alias deleted successfully."
+        }
