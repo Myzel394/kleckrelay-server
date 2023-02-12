@@ -36,6 +36,7 @@ if life_constants.IS_DEBUG:
             f"http://{life_constants.APP_DOMAIN}:5173",
             f"http://app.krl:5173"
         ],
+        allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
