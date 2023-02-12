@@ -45,6 +45,7 @@ class AdminSettingsModel(BaseModel):
     user_email_enable_disposable_emails: Optional[bool]
     user_email_enable_other_relays: Optional[bool]
     allow_statistics: Optional[bool]
+    allow_alias_deletion: Optional[bool]
 
     class Config:
         orm_mode = True

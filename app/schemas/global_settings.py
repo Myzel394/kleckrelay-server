@@ -17,3 +17,4 @@ class GlobalSettingsModel(BaseModel):
     user_email_enable_disposable_emails: bool
     user_email_enable_other_relays: bool
     allow_statistics: bool
+    allow_alias_deletion: bool
