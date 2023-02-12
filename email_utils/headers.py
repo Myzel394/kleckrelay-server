@@ -53,3 +53,12 @@ def set_header(message: Message, header: str, value: str) -> None:
         message.replace_header(header, value)
     else:
         message.add_header(header, value)
+
+
+def delete_header(msg: Message, header: str) -> None:
+    # Headers can appear several times in message
+    # Inspired from https://stackoverflow.com/a/47903323/1428034
+    for i in reversed(range(len(msg._headers))):
+        header_name = msg._headers[i][0].lower()
+        if header_name == header.lower():
+            del msg._headers[i]

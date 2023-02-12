@@ -1,2 +1,2 @@
 * Support multiple domains
-* Admin page
+* Admin page (custom aliases)

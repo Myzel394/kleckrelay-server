@@ -7,8 +7,9 @@ from typing import Any, Optional
 from app import life_constants, logger
 from app.models import LanguageType
 from . import formatters, headers
+from .dkim_signature import add_dkim_signature
 from .errors import EmailHandlerError
-from .headers import set_header
+from .headers import delete_header, set_header
 from .template_renderer import render
 from .utils import message_to_bytes
 
@@ -25,15 +26,21 @@ def _send_mail_to_smtp_server(
     from_address: str,
     to_address: str,
 ) -> None:
+    logger.info(
+        f"Send mail -> Sending mail {from_address=} {to_address=}; "
+        f"Postfix Host={life_constants.POSTFIX_HOST}, Postfix Port={life_constants.POSTFIX_PORT}.")
     with smtplib.SMTP(host=life_constants.POSTFIX_HOST, port=life_constants.POSTFIX_PORT) as smtp:
         if life_constants.POSTFIX_USE_TLS:
+            logger.info("Send mail -> Activating TLS.")
             smtp.starttls()
 
+        logger.info("Send mail -> Sending mail now.")
         smtp.sendmail(
             from_addr=from_address,
             to_addrs=to_address,
             msg=message_to_bytes(message),
         )
+        logger.info("Send mail -> Mail sent successfully.")
 
 
 def _debug_email(
@@ -54,6 +61,7 @@ def send_mail(
     from_mail: str = life_constants.FROM_MAIL,
     from_name: Optional[str] = None,
 ):
+    logger.info(f"Send Mail -> Send new mail {from_mail=} {to_mail=}.")
     from_name = from_name or from_mail
 
     set_header(
@@ -65,6 +73,8 @@ def send_mail(
         message,
         headers.TO, to_mail
     )
+
+    add_dkim_signature(message)
 
     if life_constants.DEBUG_MAILS:
         _debug_email(
@@ -146,3 +156,4 @@ def draft_message(
     message[headers.MIME_VERSION] = "1.0"
 
     return message
+
