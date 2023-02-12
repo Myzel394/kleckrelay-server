@@ -61,11 +61,9 @@ def get_filled_settings(db: Session, /) -> GlobalSettingsModel:
 
 
 def get(db: Session, /, field: str):
-    logger.info(f"Get Global Settings -> Get {field=}.")
     default_value = getattr(life_constants, field)
 
     if not life_constants.USE_GLOBAL_SETTINGS or field not in SETTINGS_FIELDS:
-        logger.info(f"Get Global Settings -> Returning {default_value=}.")
         return default_value
 
     settings = get_settings(db)
@@ -73,10 +71,8 @@ def get(db: Session, /, field: str):
     settings_field_name = field.lower()
 
     if (value := getattr(settings, settings_field_name)) is not None:
-        logger.info(f"Get Global Settings -> Returning {value=}.")
         return value
 
-    logger.info(f"Get Global Settings -> Returning {default_value=}.")
     return default_value
 
 
