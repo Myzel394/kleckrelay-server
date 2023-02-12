@@ -61,3 +61,5 @@ class ReservedAlias(Base, IDMixin):
     def address(self) -> str:
         return f"{self.local}@{self.domain}"
 
+    def create_outside_email(self, email: str) -> str:
+        return f"{email.replace('@', '_at_')}_{self.address}"

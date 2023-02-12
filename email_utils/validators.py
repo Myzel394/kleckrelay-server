@@ -1,4 +1,5 @@
 import re
+from typing import Union
 
 from aiosmtpd.smtp import Envelope
 
@@ -24,6 +25,6 @@ def validate_envelope(envelope: Envelope) -> None:
         validate_email(mail)
 
 
-def validate_alias(alias: EmailAlias) -> None:
+def validate_alias(alias: Union[EmailAlias]) -> None:
     if not alias.is_active:
         raise AliasDisabledError()
