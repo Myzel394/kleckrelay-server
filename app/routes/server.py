@@ -36,6 +36,8 @@ def get_settings(
         "email_resend_wait_time": life_constants.EMAIL_RESEND_WAIT_TIME_IN_SECONDS,
         "instance_salt": life_constants.INSTANCE_SALT,
         "public_key": gpg_handler.SERVER_PUBLIC_KEY,
+        "allow_statistics": settings.get(db, "ALLOW_STATISTICS"),
+        "allow_alias_deletion": settings.get(db, "ALLOW_ALIAS_DELETION"),
     }
 
 
