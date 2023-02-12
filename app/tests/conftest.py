@@ -1,3 +1,5 @@
+import random
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -12,7 +14,7 @@ from app.database.base import Base
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN, DB_URI
 from app.main import app
-from app.models import Email, EmailAlias, EmailLoginToken, User, UserPreferences
+from app.models import Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserPreferences
 from app.models.enums.alias import AliasType
 from app.tests.helpers import create_item
 from app.utils import hash_fast
@@ -62,21 +64,25 @@ def client(db):
 
 
 @pytest.fixture
-def email(db) -> Email:
-    return create_item(
-        db,
-        {
-            "address": "email@example.com",
-            "is_verified": False,
-            "token": "abc",
-        },
-        Email,
-    )
+def create_email(db):
+    def _method() -> Email:
+        return create_item(
+            db,
+            {
+                "address": f"mail.{random.randint(10000, 99999)}@example.com",
+                "is_verified": False,
+                "token": "abc",
+            },
+            Email,
+        )
+
+    return _method
 
 
 @pytest.fixture
-def create_user(db, email):
-    def _method(is_verified=False, password=None) -> User:
+def create_user(db, create_email):
+    def _method(is_verified=False, is_admin=False, password=None) -> User:
+        email = create_email()
         user = create_item(
             db,
             {
@@ -105,6 +111,9 @@ def create_user(db, email):
 
         db.add(preferences)
         db.commit()
+
+        if is_admin:
+            life_constants.ADMINS.append(user.email.address)
 
         return user
 
@@ -161,5 +170,25 @@ def create_random_alias(db):
             },
             EmailAlias,
         )
+
+    return _method
+
+
+@pytest.fixture
+def create_reserved_alias(db: Session):
+    def _method(users: list[User], **kwargs) -> ReservedAlias:
+        alias: ReservedAlias = create_item(
+            db,
+            {
+                "local": generate_random_local_id(db),
+                "domain": MAIL_DOMAIN,
+                **kwargs,
+            },
+            ReservedAlias
+        )
+
+        alias.users.extend(users)
+
+        return alias
 
     return _method

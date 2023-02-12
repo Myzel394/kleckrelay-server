@@ -109,7 +109,7 @@ def test_can_not_create_account_with_blocked_relays(
             "email": f"email@{life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS[0]}"
         }
     )
-    assert response.status_code == 422, "Status could should be 400"
+    assert response.status_code == 422, "Status could should be 422"
 
 
 def test_can_create_account_with_user_email_enable_other_relays_false(
@@ -139,6 +139,7 @@ def test_can_verify_email_with_correct_token(
             "token": "abc",
         }
     )
+    print("========================")
     assert response.status_code == 200, "Status code should be 200"
     assert is_a_jwt_token(response.cookies.get(constants.ACCESS_TOKEN_COOKIE_NAME)), \
         f"Cookie {constants.ACCESS_TOKEN_COOKIE_NAME} should be a jwt token."
@@ -147,8 +148,8 @@ def test_can_verify_email_with_correct_token(
 
 
 def test_can_verify_email_with_correct_token_but_no_auth_credentials_returned_when_already_verified(
-        create_user,
-        client: TestClient,
+    create_user,
+    client: TestClient,
 ):
     user: User = create_user(is_verified=True)
 

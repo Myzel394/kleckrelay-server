@@ -3,27 +3,30 @@ from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from app import constants, life_constants, gpg_handler, logger
+from app.controllers import global_settings as settings
 from app.controllers.server_statistics import get_server_statistics as \
     get_server_statistics_instance
 from app.database.dependencies import get_db
 from app.schemas._basic import SimpleDetailResponseModel
-from app.schemas.settings import ServerStatisticsModel, SettingsModel
+from app.schemas.server import ServerStatisticsModel, SettingsModel
 
 router = APIRouter()
 
 
 @router.get("/settings", response_model=SettingsModel)
-def get_settings():
+def get_settings(
+    db: Session = Depends(get_db),
+):
     return {
         "mail_domain": life_constants.MAIL_DOMAIN,
         "app_domain": life_constants.APP_DOMAIN,
-        "random_email_id_min_length": life_constants.RANDOM_EMAIL_ID_MIN_LENGTH,
-        "random_email_id_chars": life_constants.RANDOM_EMAIL_ID_CHARS,
-        "custom_alias_suffix_length": life_constants.CUSTOM_EMAIL_SUFFIX_LENGTH,
-        "image_proxy_enabled": life_constants.ENABLE_IMAGE_PROXY,
-        "image_proxy_life_time": life_constants.IMAGE_PROXY_STORAGE_LIFE_TIME_IN_HOURS,
-        "disposable_emails_enabled": life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS,
-        "other_relays_enabled": life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS,
+        "random_email_id_min_length": settings.get(db, "RANDOM_EMAIL_ID_MIN_LENGTH"),
+        "random_email_id_chars": settings.get(db, "RANDOM_EMAIL_ID_CHARS"),
+        "custom_alias_suffix_length": settings.get(db, "CUSTOM_EMAIL_SUFFIX_LENGTH"),
+        "image_proxy_enabled": settings.get(db, "ENABLE_IMAGE_PROXY"),
+        "image_proxy_life_time": settings.get(db, "IMAGE_PROXY_STORAGE_LIFE_TIME_IN_HOURS"),
+        "disposable_emails_enabled": settings.get(db, "USER_EMAIL_ENABLE_DISPOSABLE_EMAILS"),
+        "other_relays_enabled": settings.get(db, "USER_EMAIL_ENABLE_OTHER_RELAYS"),
         "other_relay_domains": life_constants.USER_EMAIL_OTHER_RELAY_DOMAINS,
         "email_verification_chars": constants.EMAIL_VERIFICATION_TOKEN_CHARS,
         "email_verification_length": constants.EMAIL_VERIFICATION_TOKEN_LENGTH,
@@ -55,7 +58,7 @@ def get_server_statistics(
 ):
     logger.info("Request: Get Server statistics -> New Request.")
 
-    if not life_constants.ALLOW_STATISTICS:
+    if not settings.get(db, "ALLOW_STATISTICS"):
         logger.info("Request: Get Server statistics -> Statistics disabled.")
         response.status_code = 204
 

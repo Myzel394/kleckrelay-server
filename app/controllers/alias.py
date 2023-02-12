@@ -4,33 +4,52 @@ from typing import Optional
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
+from app import logger
+from app.controllers import global_settings as settings
 from app.constants import MAX_RANDOM_ALIAS_ID_GENERATION
-from app.life_constants import (
-    CUSTOM_EMAIL_SUFFIX_CHARS, CUSTOM_EMAIL_SUFFIX_LENGTH, MAIL_DOMAIN, RANDOM_EMAIL_ID_CHARS,
-    RANDOM_EMAIL_ID_MIN_LENGTH, RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE,
-)
+from app.controllers.alias_utils import check_if_alias_exists, get_aliases_amount
+from app.life_constants import MAIL_DOMAIN
 from app.models import User
 from app.models.alias import EmailAlias
 from app.models.enums.alias import AliasType
+from app.schemas.alias import AliasCreate, AliasUpdate
 from app.utils import contains_word
 
 __all__ = [
-    "generate_random_local_id",
-    "create_local_with_suffix",
     "get_alias_from_user",
     "get_alias_from_user_by_address",
     "find_aliases_from_user_ordered",
+    "create_local_with_suffix",
+    "generate_random_local_id",
+    "create_alias",
+    "update_alias"
 ]
 
 
-def get_aliases_amount(db: Session, /, domain: str) -> int:
-    return db.query(EmailAlias).filter_by(domain=domain).count()
+def _calculate_id_length(db: Session, /, aliases_amount: int) -> int:
+    """Calculates the required min length for a new alias."""
+    length = settings.get(db, "RANDOM_EMAIL_ID_MIN_LENGTH")
+    if aliases_amount <= 1:
+        return length
+
+    chars = settings.get(db, "RANDOM_EMAIL_ID_CHARS")
+    percentage_change = settings.get(db, "RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE")
+
+    while True:
+        amount = aliases_amount / (len(chars) ** length)
+
+        if amount <= percentage_change:
+            return length
+
+        length += 1
 
 
-def generate_id(length: int = RANDOM_EMAIL_ID_MIN_LENGTH) -> str:
+def _generate_id(db: Session, /, length: int) -> str:
+    chars = settings.get(db, "RANDOM_EMAIL_ID_CHARS")
+
     while True:
         alias_id = "".join(
-            secrets.choice(RANDOM_EMAIL_ID_CHARS)
+            secrets.choice(chars)
             for _ in range(length)
         )
 
@@ -38,70 +57,14 @@ def generate_id(length: int = RANDOM_EMAIL_ID_MIN_LENGTH) -> str:
             return alias_id
 
 
-def generate_suffix(length: int = CUSTOM_EMAIL_SUFFIX_LENGTH) -> str:
+def _generate_suffix(db: Session, /) -> str:
+    length = settings.get(db, "CUSTOM_EMAIL_SUFFIX_LENGTH")
+    chars = settings.get(db, "CUSTOM_EMAIL_SUFFIX_CHARS")
+
     return "".join(
-        secrets.choice(CUSTOM_EMAIL_SUFFIX_CHARS)
+        secrets.choice(chars)
         for _ in range(length)
     )
-
-
-def check_if_local_exists(db: Session, /, local: str, domain: str) -> bool:
-    return db.query(db
-        .query(EmailAlias)
-        .filter_by(domain=domain)
-        .filter_by(local=local)
-        .exists()
-    ).scalar()
-
-
-def calculate_id_length(aliases_amount: int) -> int:
-    """Calculates the required min length for a new alias."""
-    if aliases_amount <= 1:
-        return RANDOM_EMAIL_ID_MIN_LENGTH
-
-    length = RANDOM_EMAIL_ID_MIN_LENGTH
-
-    while True:
-        amount = aliases_amount / (len(RANDOM_EMAIL_ID_CHARS) ** length)
-
-        if amount <= RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE:
-            return length
-
-        length += 1
-
-
-def generate_random_local_id(db: Session, /, domain: str = MAIL_DOMAIN) -> str:
-    generation_round = 1
-    amount = get_aliases_amount(db, domain=domain)
-    length = calculate_id_length(aliases_amount=amount)
-
-    while True:
-        alias_id = generate_id(length)
-
-        if not check_if_local_exists(db, local=alias_id, domain=domain):
-            return alias_id
-
-        generation_round += 1
-
-        if generation_round > MAX_RANDOM_ALIAS_ID_GENERATION:
-            length += 1
-
-
-def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
-    while True:
-        suffix = generate_suffix()
-
-        suggested_local = f"{local}.{suffix}"
-
-        if not check_if_local_exists(db, local=suggested_local, domain=domain):
-            return suggested_local
-
-
-def get_alias_from_user(db: Session, /, user: User, id: str) -> EmailAlias:
-    return db\
-        .query(EmailAlias)\
-        .filter(and_(EmailAlias.user == user, EmailAlias.id == id))\
-        .one()
 
 
 def get_alias_from_user_by_address(
@@ -111,10 +74,10 @@ def get_alias_from_user_by_address(
     domain: str,
     local: str
 ) -> EmailAlias:
-    return db\
-       .query(EmailAlias)\
-       .filter(and_(EmailAlias.user == user, EmailAlias.domain == domain, EmailAlias.local == local))\
-       .one()
+    return db \
+        .query(EmailAlias) \
+        .filter(and_(EmailAlias.user == user, EmailAlias.domain == domain, EmailAlias.local == local)) \
+        .one()
 
 
 def find_aliases_from_user_ordered(
@@ -126,7 +89,7 @@ def find_aliases_from_user_ordered(
     alias_type: Optional[AliasType] = None,
 ):
     query = db \
-        .query(EmailAlias)\
+        .query(EmailAlias) \
         .filter_by(user_id=user.id)
 
     if search:
@@ -140,7 +103,96 @@ def find_aliases_from_user_ordered(
     if alias_type is not None:
         query = query.filter_by(type=alias_type)
 
-    return query\
+    return query \
         .order_by(func.levenshtein(EmailAlias.local, search) if search else EmailAlias.local) \
         .all()
 
+
+def get_alias_from_user(db: Session, /, user: User, id: str) -> EmailAlias:
+    return db \
+        .query(EmailAlias) \
+        .filter(and_(EmailAlias.user == user, EmailAlias.id == id)) \
+        .one()
+
+
+def generate_random_local_id(db: Session, /, domain: str = None) -> str:
+    domain = domain or settings.get(db, "MAIL_DOMAIN")
+
+    generation_round = 1
+    amount = get_aliases_amount(db, domain=domain)
+    length = _calculate_id_length(db, aliases_amount=amount)
+
+    logger.info("Generate random local id -> Creating id...")
+
+    while True:
+        alias_id = _generate_id(db, length)
+
+        if not check_if_alias_exists(db, local=alias_id, domain=domain):
+            logger.info(f"Generate random local id -> Created id {alias_id}.")
+            return alias_id
+
+        generation_round += 1
+
+        if generation_round > MAX_RANDOM_ALIAS_ID_GENERATION:
+            length += 1
+
+
+def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
+    while True:
+        suffix = _generate_suffix(db)
+
+        suggested_local = f"{local}.{suffix}"
+
+        if not check_if_alias_exists(db, local=suggested_local, domain=domain):
+            return suggested_local
+
+
+def create_alias(db: Session, /, data: AliasCreate, user: User) -> EmailAlias:
+    if data.type == AliasType.RANDOM:
+        logger.info("Request: Create Alias -> Type is AliasType.RANDOM")
+        local = generate_random_local_id(db, domain=MAIL_DOMAIN)
+    else:
+        logger.info("Request: Create Alias -> Type is AliasType.CUSTOM")
+        local = create_local_with_suffix(db, domain=MAIL_DOMAIN, local=data.local)
+
+    logger.info(
+        f"Request: Create Alias -> Creating email alias with local={local} and domain={MAIL_DOMAIN} "
+        f"for {user.email.address}."
+    )
+    alias = EmailAlias(
+        local=local,
+        domain=MAIL_DOMAIN,
+        is_active=data.is_active,
+        type=data.type,
+        user_id=user.id,
+        encrypted_notes=data.encrypted_notes,
+
+        pref_remove_trackers=data.pref_remove_trackers,
+        pref_create_mail_report=data.pref_create_mail_report,
+        pref_proxy_images=data.pref_proxy_images,
+        pref_proxy_user_agent=data.pref_proxy_user_agent,
+        pref_image_proxy_format=data.pref_image_proxy_format,
+        pref_expand_url_shorteners=data.pref_expand_url_shorteners,
+    )
+
+    logger.info("Request: Create Alias -> Saving instance.")
+    db.add(alias)
+    db.commit()
+    db.refresh(alias)
+    logger.info("Request: Create Alias -> Instance saved successfully.")
+
+    return alias
+
+
+def update_alias(db: Session, /, alias: EmailAlias, data: AliasUpdate) -> None:
+    logger.info(f"Request: Update Alias -> Updating values of Alias {alias.id}.")
+    update_data = data.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(alias, key, value)
+
+    logger.info(f"Request: Update Alias -> Saving Alias {alias.id} to database.")
+    db.add(alias)
+    db.commit()
+    db.refresh(alias)
+
+    logger.info(f"Request: Update Alias -> Alias {alias.id} saved successfully.")

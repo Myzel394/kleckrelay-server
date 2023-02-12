@@ -1,13 +1,14 @@
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
-from app.life_constants import CUSTOM_EMAIL_SUFFIX_LENGTH, MAX_ENCRYPTED_NOTES_SIZE
+from app import constants, life_constants
 from app.logger import logger
-from app.models.alias import AliasType, ImageProxyFormatType
-from app.models.enums.alias import ProxyUserAgentType
+from app.models.enums.alias import AliasType, ImageProxyFormatType, ProxyUserAgentType
+
+from app.schemas.global_settings import GlobalSettingsModel
 
 __all__ = [
     "AliasCreate",
@@ -20,7 +21,7 @@ __all__ = [
 class AliasBase(BaseModel):
     is_active: Optional[bool] = None
     encrypted_notes: str = Field(
-        max_length=MAX_ENCRYPTED_NOTES_SIZE,
+        max_length=life_constants.MAX_ENCRYPTED_NOTES_SIZE,
         default="",
     )
 
@@ -34,6 +35,7 @@ class AliasBase(BaseModel):
 
 
 class AliasCreate(AliasBase):
+    settings: GlobalSettingsModel
     type: AliasType = AliasType.RANDOM
     local: str = Field(
         regex=LOCAL_REGEX,
@@ -42,6 +44,18 @@ class AliasCreate(AliasBase):
         description="Only required if type == AliasType.CUSTOM. To avoid collisions, a random "
                     "suffix will be added to the end.",
     )
+
+    @validator("local")
+    def validate_local(cls, value: str, values: dict[str, Any]) -> str:
+        settings: GlobalSettingsModel = values["settings"]
+
+        max_length = constants.MAX_LOCAL_LENGTH - settings.custom_email_suffix_length - 1
+        if len(value) > max_length:
+            raise ValueError(
+                f"`local` is too long. It should be at most {max_length} characters long."
+            )
+
+        return value
 
     @root_validator()
     def validate_type(cls, values: dict):
@@ -55,16 +69,15 @@ class AliasCreate(AliasBase):
                 logger.info("AliasCreate: Local is defined, but should not be. Raising exception.")
 
                 raise ValueError("`local` may be None or empty if `type` is AliasType.RANDOM.")
-        else:
+        elif alias_type == AliasType.CUSTOM:
             logger.info("AliasCreate: Type is AliasType.CUSTOM")
-            # Validate length
 
-            if len(values.get("local", "")) > \
-                    (max_length := MAX_LOCAL_LENGTH - CUSTOM_EMAIL_SUFFIX_LENGTH - 1):
-                raise ValueError(
-                    f"`local` is too long. It should be at most {max_length} characters long."
-                )
+            if not values.get("local"):
+                logger.info("AliasCreate: Local is not defined, but shouldbe. Raising exception.")
 
+                raise ValueError("`local` may not be None or empty if `type` is AliasType.CUSTOM.")
+
+        logger.info(f"AliasCreate: Validation complete.")
         return values
 
 
