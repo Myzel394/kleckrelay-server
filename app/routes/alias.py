@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from fastapi_pagination import Page, paginate, Params
@@ -10,7 +12,7 @@ from app import constants, logger
 from app.authentication.handler import access_security
 from app.controllers.alias import (
     create_alias, find_aliases_from_user_ordered, get_alias_from_user,
-    get_alias_from_user_by_address, update_alias,
+    update_alias,
 )
 from app.controllers.global_settings import get_filled_settings
 from app.controllers.user import get_user_by_id
@@ -86,7 +88,7 @@ async def create_alias_api(
     }
 )
 def update_alias_api(
-    id: str,
+    id: uuid.UUID,
     update: AliasUpdate,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
@@ -110,7 +112,7 @@ def update_alias_api(
 
 @router.get("/{id}", response_model=AliasDetail)
 def get_alias(
-    id: str,
+    id: uuid.UUID,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):

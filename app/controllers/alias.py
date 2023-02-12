@@ -1,4 +1,5 @@
 import secrets
+import uuid
 from typing import Optional
 
 from sqlalchemy import and_, func
@@ -108,7 +109,7 @@ def find_aliases_from_user_ordered(
         .all()
 
 
-def get_alias_from_user(db: Session, /, user: User, id: str) -> EmailAlias:
+def get_alias_from_user(db: Session, /, user: User, id: uuid.UUID) -> EmailAlias:
     return db \
         .query(EmailAlias) \
         .filter(and_(EmailAlias.user == user, EmailAlias.id == id)) \
