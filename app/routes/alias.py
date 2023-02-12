@@ -108,21 +108,19 @@ def update_alias_api(
         return alias
 
 
-@router.get("/{alias}", response_model=AliasDetail)
+@router.get("/{id}", response_model=AliasDetail)
 def get_alias(
-    alias: str = Query(regex=constants.EMAIL_REGEX),
+    id: str,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):
     user = get_user_by_id(db, credentials["id"])
-    local, domain = alias.split("@")
 
     try:
-        alias = get_alias_from_user_by_address(
+        alias = get_alias_from_user(
             db,
             user=user,
-            domain=domain,
-            local=local,
+            id=id,
         )
     except NoResultFound:
         raise HTTPException(
