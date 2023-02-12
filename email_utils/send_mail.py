@@ -1,4 +1,5 @@
 import smtplib
+import time
 from email.message import EmailMessage, Message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -30,9 +31,9 @@ def _send_mail_to_smtp_server(
         f"Send mail -> Sending mail {from_address=} {to_address=}; "
         f"Postfix Host={life_constants.POSTFIX_HOST}, Postfix Port={life_constants.POSTFIX_PORT}.")
     with smtplib.SMTP(host=life_constants.POSTFIX_HOST, port=life_constants.POSTFIX_PORT) as smtp:
-        if life_constants.POSTFIX_USE_TLS:
-            logger.info("Send mail -> Activating TLS.")
-            smtp.starttls()
+        logger.info("Send mail -> Activating TLS.")
+        time.sleep(1)
+        smtp.starttls()
 
         logger.info("Send mail -> Sending mail now.")
         smtp.sendmail(
@@ -74,7 +75,7 @@ def send_mail(
         headers.TO, to_mail
     )
 
-    add_dkim_signature(message)
+    #add_dkim_signature(message)
 
     if life_constants.DEBUG_MAILS:
         _debug_email(
@@ -91,7 +92,7 @@ def send_mail(
 
 
 def send_error_mail(
-    mail: str,
+    from_mail: str,
     targeted_mail: str,
     error: Optional[EmailHandlerError] = None,
     language: LanguageType = LanguageType.EN_US,
@@ -107,7 +108,7 @@ def send_error_mail(
             ),
         ),
         from_mail=life_constants.FROM_MAIL,
-        to_mail=mail,
+        to_mail=from_mail,
     )
 
 

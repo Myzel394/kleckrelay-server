@@ -153,3 +153,4 @@ ALLOW_STATISTICS = get_bool("ALLOW_STATISTICS")
 ADMINS = [value.lower() for value in get_list("ADMINS")]
 USE_GLOBAL_SETTINGS = get_bool("USE_GLOBAL_SETTINGS")
 DKIM_PRIVATE_KEY = get_str("DKIM_PRIVATE_KEY")
+ALLOW_LOGS = get_bool("ALLOW_LOGS")

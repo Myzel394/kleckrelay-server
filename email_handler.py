@@ -8,6 +8,7 @@ from aiosmtpd.smtp import Envelope
 
 from app import logger
 from email_utils import status
+from email_utils.errors import EmailHandlerError
 from email_utils.handler import handle
 from email_utils.sanitizers import sanitize_envelope, sanitize_message
 from email_utils.send_mail import (
@@ -17,10 +18,14 @@ from email_utils.send_mail import (
 
 class ExampleHandler:
     def validate(self, envelope: Envelope) -> tuple[Envelope, Message]:
+        logger.info("Validating data...")
         sanitize_envelope(envelope)
 
         message = message_from_bytes(envelope.original_content)
         sanitize_message(message)
+
+        if not envelope.mail_from:
+            raise ValueError("No mail from address provided.")
 
         logger.info("Data validated successfully.")
 
@@ -34,12 +39,31 @@ class ExampleHandler:
 
             logger.info(f"New mail received from {envelope.mail_from} to {envelope.rcpt_tos[0]}")
 
-            return handle(envelope, message)
+            if len(envelope.rcpt_tos) != 1:
+                send_error_mail(
+                    from_mail=envelope.mail_from,
+                    targeted_mail=envelope.rcpt_tos[0],
+                    error=EmailHandlerError(
+                        "We currently only support sending to one recipient at a time."
+                    ),
+                )
+                return status.E501
+
+            status_code = handle(envelope, message)
+
+            logger.info(f"Mail handled successfully. Returning status code: {status_code}.")
+
+            return status_code
         except Exception as error:
+            logger.warning("An error occurred while handling the mail.")
             traceback.print_exception(error)
+            logger.info(
+                f"Error occurred while handling mail from {envelope.mail_from} to "
+                f"{envelope.rcpt_tos}."
+            )
 
             send_error_mail(
-                mail=envelope.mail_from,
+                from_mail=envelope.mail_from,
                 targeted_mail=envelope.rcpt_tos[0],
             )
 

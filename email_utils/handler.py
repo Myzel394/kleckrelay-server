@@ -187,7 +187,7 @@ def handle(envelope: Envelope, message: Message) -> str:
             raise AliasNotFoundError(status_code=status.E515)
         except EmailHandlerError as error:
             send_error_mail(
-                mail=envelope.mail_from,
+                from_mail=envelope.mail_from,
                 targeted_mail=envelope.rcpt_tos[0],
                 error=error,
                 language=user.language if user is not None else LanguageType.EN_US,

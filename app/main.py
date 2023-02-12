@@ -38,5 +38,4 @@ if life_constants.IS_DEBUG:
         ],
         allow_methods=["*"],
         allow_headers=["*"],
-        allow_credentials=True,
     )

@@ -25,7 +25,6 @@ services:
     restart: on-failure:5
     build:
       context: .
-      dockerfile: Server.Dockerfile
 
     ports:
       - "8000:80"
@@ -38,23 +37,7 @@ services:
 
     cap_add:
       - NET_BIND_SERVICE
-
-    env_file:
-      - .env
-
-  kleckrelay-email:
-    container_name: kleckrelay-email
-    restart: on-failure:5
-    build:
-      context: .
-      dockerfile: EmailHandler.Dockerfile
-
-    ports:
-      - "20381:20381"
-
-    depends_on:
-      kleckrelay-database:
-        condition: service_healthy
+      - SYS_PTRACE
 
     env_file:
       - .env
