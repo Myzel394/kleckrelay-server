@@ -243,8 +243,11 @@ async def login_with_email_token(
 
     user = await get_user_by_email(db, email=email)
 
-    logger.info(f"Request: Login with email token -> Email {email} not verified.")
     if not user.email.is_verified:
+        logger.info(f"Request: Login with email token -> Email {email} not verified.")
+
+        send_verification_email(user.email, language=user.language)
+
         raise HTTPException(
             status_code=400,
             detail="Your email has not been verified. Please verify it.",
