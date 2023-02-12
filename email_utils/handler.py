@@ -150,13 +150,12 @@ def handle(envelope: Envelope, message: Message) -> str:
                     f"Relaying email to locally saved user {alias.user.email.address}."
                 )
 
-                for user in alias.users:
-                    send_mail(
-                        message,
-                        from_mail=alias.create_outside_email(envelope.mail_from),
-                        from_name=envelope.mail_from,
-                        to_mail=user.email.address,
-                    )
+                send_mail(
+                    message,
+                    from_mail=alias.create_outside_email(envelope.mail_from),
+                    from_name=envelope.mail_from,
+                    to_mail=alias.user.email.address,
+                )
                 server_statistics.add_sent_email(db)
 
                 return status.E200
