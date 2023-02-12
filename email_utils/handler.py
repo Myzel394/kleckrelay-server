@@ -1,15 +1,19 @@
 from mailbox import Message
+from typing import Union
 
 from aiosmtpd.smtp import Envelope
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import Alias
 
 from app import life_constants, logger
 from app.controllers import global_settings as settings
 from app.controllers.email_report import create_email_report_from_report_data
 from app.controllers import server_statistics
+from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
 from app.email_report_data import EmailReportData
-from app.models import LanguageType, User
+from app.models import LanguageType, ReservedAlias, User
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
 from email_utils.html_handler import (
@@ -33,6 +37,14 @@ __all__ = [
 ]
 
 
+def get_alias(db: Session, /, local: str, domain: str) -> Union[Alias, ReservedAlias, None]:
+    # Try reserved alias
+    try:
+        return get_reserved_alias_by_address(db, local=local, domain=domain)
+    except NoResultFound:
+        pass
+
+
 def handle(envelope: Envelope, message: Message) -> str:
     logger.info("Retrieving mail from database.")
 
@@ -49,11 +61,11 @@ def handle(envelope: Envelope, message: Message) -> str:
 
             if (result := extract_alias_address(envelope.rcpt_tos[0])) is not None:
                 # LOCALLY saved user wants to send a mail FROM alias TO the outside.
+                alias_address, target = result
                 logger.info(
-                    f"{envelope.rcpt_tos[0]} is an alias address. Checking if FROM user owns it."
+                    f"{envelope.rcpt_tos[0]} is an alias address. It should be sent to {target} "
+                    f"via alias {alias_address} Checking if FROM {envelope.mail_from} user owns it."
                 )
-
-                alias, target = result
 
                 try:
                     email = get_email_by_from(db, envelope.mail_from)
@@ -63,21 +75,29 @@ def handle(envelope: Envelope, message: Message) -> str:
 
                 user = email.user
 
-                try:
-                    local_alias = get_alias_from_user(db, user, alias)
-                except NoResultFound:
-                    raise AliasNotYoursError()
+                local, domain = alias_address.split("@")
 
-                validate_alias(local_alias)
+                if (alias := get_reserved_alias_by_address(db, local, domain)) is not None:
+                    # Reserved alias
+                    if user not in alias.users:
+                        raise AliasNotYoursError()
+                else:
+                    # Local alias
+                    try:
+                        alias = get_alias_from_user(db, user, local=local, domain=domain)
+                    except NoResultFound:
+                        raise AliasNotYoursError()
+
+                validate_alias(alias)
 
                 logger.info(
-                    f"Local mail {local_alias.address} should be relayed to outside mail {target}. "
+                    f"Local mail {alias.address} should be relayed to outside mail {target}. "
                     f"Sending email now..."
                 )
 
                 send_mail(
                     message,
-                    from_mail=local_alias.address,
+                    from_mail=alias.address,
                     to_mail=target,
                 )
                 server_statistics.add_sent_email(db)

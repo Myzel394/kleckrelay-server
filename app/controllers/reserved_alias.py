@@ -1,5 +1,8 @@
+from typing import Optional
+
 from fastapi import HTTPException
 from sqlalchemy import func
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import logger
@@ -17,6 +20,7 @@ __all__ = [
     "update_reserved_alias",
     "delete_reserved_alias",
     "get_reserved_alias_by_id",
+    "get_reserved_alias_by_address",
 ]
 
 
@@ -146,4 +150,21 @@ def delete_reserved_alias(db: Session, /, alias_id: str) -> None:
     db.commit()
 
     logger.info(f"Request: Delete Alias -> Success!")
+    return alias
+
+
+def get_reserved_alias_by_address(
+    db: Session,
+    /,
+    local: str,
+    domain: str
+) -> Optional[ReservedAlias]:
+    logger.info(f"Get reserved alias by address -> Getting alias with {local=} and {domain=}.")
+    try:
+        alias = db.query(ReservedAlias).filter_by(local=local, domain=domain).one()
+    except NoResultFound:
+        logger.info(f"Get reserved alias by address -> Alias not found.")
+        return None
+
+    logger.info(f"Get reserved alias by address -> Success! Returning alias.")
     return alias

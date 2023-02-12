@@ -56,3 +56,8 @@ class ReservedAlias(Base, IDMixin):
             secondary=ReservedAliasUser.__table__,
             back_populates="reserved_aliases",
         )
+
+    @property
+    def address(self) -> str:
+        return f"{self.local}@{self.domain}"
+
