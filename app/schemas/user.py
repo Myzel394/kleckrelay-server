@@ -1,14 +1,14 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field, validator
+from sqlalchemy.orm import Session
 
 from app import constants, life_constants, logger
 from app.gpg_handler import gpg
 from app.helpers.check_email_is_disposable import check_if_email_is_disposable
 from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
-from app.models import User
 from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 from app.models.user import LanguageType
 
@@ -19,6 +19,10 @@ __all__ = [
     "UserPreferences",
     "SimpleUserResponseModel",
 ]
+
+from app.schemas.global_settings import GlobalSettingsModel
+
+from app.schemas.server import SettingsModel
 
 
 class UserBase(BaseModel):
@@ -52,27 +56,27 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    settings: GlobalSettingsModel
     email: str = Field(
         regex=constants.EMAIL_REGEX,
         max_length=constants.MAX_EMAIL_LENGTH,
     )
 
     @validator("email")
-    def validate_email(cls, value: str) -> str:
-        if not life_constants.USER_EMAIL_ENABLE_OTHER_RELAYS \
-                and check_if_email_is_from_relay(value):
+    def validate_email(cls, value: str, values: dict[str, Any]) -> str:
+        settings: GlobalSettingsModel = values["settings"]
+        if not settings.user_email_enable_other_relays and check_if_email_is_from_relay(value):
             logger.info("Request: Signup -> Email is from another relay.")
             raise ValueError(
-                "Email is from another relay. This instance does not allow using another email relay."
+                "Email is from another relay. "
+                "This instance does not allow using another email relay."
             )
 
-        if not life_constants.USER_EMAIL_ENABLE_DISPOSABLE_EMAILS \
-                and check_if_email_is_disposable(value):
+        if not settings.user_email_enable_disposable_emails and check_if_email_is_disposable(value):
             logger.info("Request: Signup -> Email is disposable.")
             raise ValueError(
                 "Email is disposable. This instance does not allow using disposable emails.",
             )
-
         return value
 
 
@@ -107,6 +111,7 @@ class User(UserBase):
     created_at: datetime
     email: Email
     preferences: UserPreferences
+    is_admin: bool
 
     class Config:
         orm_mode = True

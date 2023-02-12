@@ -114,7 +114,7 @@ async def sanitize_email(email: str) -> str:
 
 
 def get_email_by_from(db: Session, /, email: str) -> Optional[Email]:
-    return db.query(Email).filter_by(address=email).first()
+    return db.query(Email).filter_by(address=email).one()
 
 
 def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
@@ -127,9 +127,7 @@ def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
         .first()
 
 
-def get_alias_from_user(db: Session, /, user: User, alias: str) -> EmailAlias:
-    local, domain = alias.split("@")
-
+def get_alias_from_user(db: Session, /, user: User, local: str, domain: str) -> EmailAlias:
     return db\
         .query(EmailAlias)\
         .filter_by(local=local)\

@@ -1,7 +1,7 @@
 import base64
 import string
 
-DB_URI = "postgresql://user:password@localhost:35432/mail"
+DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
 MAX_ENCRYPTED_NOTES_SIZE = 10_000
 ACCESS_TOKEN_EXPIRE_IN_MINUTES = 60 * 3  # 3 hours
 REFRESH_TOKEN_EXPIRE_IN_MINUTES = 60 * 24 * 60  # 60 Days
@@ -20,7 +20,7 @@ MAIL_DOMAIN = "mail.kleckrelay.com"
 APP_DOMAIN = "app.kleckrelay.com"
 RANDOM_EMAIL_ID_MIN_LENGTH = 6
 RANDOM_EMAIL_ID_CHARS = string.ascii_letters + string.digits
-RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE = 0.4
+RANDOM_EMAIL_LENGTH_INCREASE_ON_PERCENTAGE = 0.0005  # 0.05%
 CUSTOM_EMAIL_SUFFIX_LENGTH = 4
 CUSTOM_EMAIL_SUFFIX_CHARS = string.digits
 POSTFIX_HOST = "127.0.0.1"
@@ -110,4 +110,6 @@ EMAIL_RESEND_WAIT_TIME_IN_SECONDS = 60
 INSTANCE_SALT = "KleckRelay-Salt-ChangeMe"
 ALLOW_STATISTICS = "True"
 DKIM_PRIVATE_KEY = ""
+ADMINS = ""
+USE_GLOBAL_SETTINGS = "True"
 ALLOW_LOGS = "True"

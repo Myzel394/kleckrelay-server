@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Body, Depends, HTTPException, Response, Security
 from fastapi_jwt import JwtAuthorizationCredentials
+from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from app.controllers import global_settings as settings
 from app import constants, life_constants, logger
 from app.authentication.authentication_response import (
     set_authentication_cookies,
@@ -18,6 +21,7 @@ from app.controllers.email_login import (
     create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, is_token_valid,
 )
+from app.controllers.global_settings import get_filled_settings, get_settings
 from app.controllers.user import (
     check_if_email_exists, create_user,
     get_user_by_email, get_user_by_id,
@@ -49,10 +53,32 @@ router = APIRouter()
         400: {
             "model": HTTPBadRequestExceptionModel
         }
-    }
+    },
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "schema": UserCreate.schema(ref_template="#/components/schemas/{model}")
+                }
+            }
+        }
+    },
 )
-async def signup(user: UserCreate, db: Session = Depends(get_db)):
+async def signup(
+    request: Request,
+    db: Session = Depends(get_db),
+):
     logger.info("Request: Signup -> Sign up request.")
+
+    user_data = await request.json()
+    try:
+        user = UserCreate(settings=get_filled_settings(db), **user_data)
+    except ValidationError as error:
+        logger.info("Request: Signup -> Validation Error.")
+        raise HTTPException(
+            status_code=422,
+            detail=error.errors(),
+        )
 
     if await check_if_email_exists(db, user.email):
         logger.info("Request: Signup -> Email does not exist.")
@@ -217,8 +243,11 @@ async def login_with_email_token(
 
     user = await get_user_by_email(db, email=email)
 
-    logger.info(f"Request: Login with email token -> Email {email} not verified.")
     if not user.email.is_verified:
+        logger.info(f"Request: Login with email token -> Email {email} not verified.")
+
+        send_verification_email(user.email, language=user.language)
+
         raise HTTPException(
             status_code=400,
             detail="Your email has not been verified. Please verify it.",
