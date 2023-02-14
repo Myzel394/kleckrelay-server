@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from fastapi_pagination import Page, paginate, Params
@@ -30,7 +32,7 @@ def get_reports(
 
 @router.get("/{id}", response_model=Report)
 def get_report(
-    id: str,
+    id: uuid.UUID,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):
@@ -52,7 +54,7 @@ def get_report(
 
 @router.delete("/{id}", response_model=SimpleDetailResponseModel)
 def delete_report(
-    id: str,
+    id: uuid.UUID,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):

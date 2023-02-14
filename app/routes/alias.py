@@ -8,7 +8,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
-from app import constants, logger
+from app import logger
 from app.authentication.handler import access_security
 from app.controllers.alias import (
     create_alias, delete_alias_from_user, find_aliases_from_user_ordered, get_alias_from_user,

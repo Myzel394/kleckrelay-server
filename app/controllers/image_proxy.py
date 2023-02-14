@@ -1,3 +1,4 @@
+import uuid
 from io import BytesIO
 from uuid import UUID
 
@@ -49,11 +50,11 @@ def find_image_by_url(
     db: Session,
     /,
     url: str,
-    id: str,
+    id: uuid.UUID,
 ) -> ImageProxy:
     instance = db\
         .query(ImageProxy)\
-        .filter_by(id=UUID(id))\
+        .filter_by(id=id)\
         .one()
 
     if verify_fast_hash(instance.hashed_url, url):

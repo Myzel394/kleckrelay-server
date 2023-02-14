@@ -1,3 +1,4 @@
+import uuid
 from uuid import UUID
 
 from fastapi import HTTPException
@@ -61,9 +62,9 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
     return db_user
 
 
-def get_user_by_id(db: Session, /, user_id: str) -> User:
+def get_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:
     try:
-        return db.query(User).filter_by(id=UUID(user_id)).one()
+        return db.query(User).filter_by(id=user_id).one()
     except NoResultFound:
         raise HTTPException(
             status_code=401,
@@ -71,9 +72,9 @@ def get_user_by_id(db: Session, /, user_id: str) -> User:
         )
 
 
-def get_admin_user_by_id(db: Session, /, user_id: str) -> User:
+def get_admin_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:
     try:
-        user = db.query(User).filter_by(id=UUID(user_id)).one()
+        user = db.query(User).filter_by(id=user_id).one()
 
         if not user.is_admin:
             raise HTTPException(

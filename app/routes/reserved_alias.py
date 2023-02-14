@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from fastapi_pagination import Page, paginate, Params
@@ -53,7 +55,7 @@ def get_reserved_aliases_api(
     response_model=ReservedAliasDetail
 )
 def get_reserved_alias_api(
-    id: str,
+    id: uuid.UUID,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):
@@ -105,7 +107,7 @@ def create_reserved_alias_api(
     response_model=ReservedAliasDetail
 )
 def update_reserved_alias_api(
-    id: str,
+    id: uuid.UUID,
     alias_data: ReservedAliasUpdate,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
@@ -125,7 +127,7 @@ def update_reserved_alias_api(
     response_model=SimpleDetailResponseModel
 )
 def update_reserved_alias_api(
-    id: str,
+    id: uuid.UUID,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):

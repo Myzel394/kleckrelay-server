@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional
 
 from fastapi import HTTPException
@@ -67,7 +68,7 @@ def find_reserved_aliases_ordered(db: Session, /, search: str = "") -> list[Rese
         .all()
 
 
-def get_reserved_alias_by_id(db: Session, /, alias_id: str) -> ReservedAlias:
+def get_reserved_alias_by_id(db: Session, /, alias_id: uuid.UUID) -> ReservedAlias:
     return db.query(ReservedAlias).filter_by(id=alias_id).one()
 
 
@@ -105,11 +106,11 @@ def create_reserved_alias(db: Session, /, data: ReservedAliasCreate) -> Reserved
 def update_reserved_alias(
     db: Session,
     /,
-    alias_id: str,
+    alias_id: uuid.UUID,
     data: ReservedAliasUpdate
 ) -> ReservedAlias:
     logger.info(f"Request: Update Reserved Alias -> Updating alias with {data=}.")
-    alias: ReservedAlias = db.query(ReservedAlias).filter_by(id=alias_id).one()
+    alias: ReservedAlias = get_reserved_alias_by_id(db, alias_id)
 
     if data.is_active is not None:
         logger.info(f"Request: Update Reserved Alias -> Changing is_active.")
@@ -141,7 +142,7 @@ def update_reserved_alias(
     return alias
 
 
-def delete_reserved_alias(db: Session, /, alias_id: str) -> None:
+def delete_reserved_alias(db: Session, /, alias_id: uuid.UUID) -> None:
     logger.info(f"Request: Delete Alias -> Deleting {alias_id=}.")
     alias = db.query(ReservedAlias).filter_by(id=alias_id).one()
 

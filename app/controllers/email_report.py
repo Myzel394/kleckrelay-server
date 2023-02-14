@@ -6,13 +6,13 @@ from app.email_report_data import EmailReportData
 from app.gpg_handler import sign_message
 from app.models import EmailReport, User
 
+from email_utils.utils import DataclassJSONEncoder
+
 __all__ = [
     "create_email_report_from_report_data",
     "get_report_by_id",
     "get_report_from_user_by_id",
 ]
-
-from email_utils.utils import DataclassJSONEncoder
 
 
 def create_email_report_from_report_data(
