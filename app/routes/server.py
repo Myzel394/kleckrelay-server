@@ -38,6 +38,7 @@ def get_settings(
         "public_key": gpg_handler.SERVER_PUBLIC_KEY,
         "allow_statistics": settings.get(db, "ALLOW_STATISTICS"),
         "allow_alias_deletion": settings.get(db, "ALLOW_ALIAS_DELETION"),
+        "max_aliases_per_user": settings.get(db, "MAX_ALIASES_PER_USER"),
     }
 
 

@@ -80,3 +80,7 @@ class GlobalSettings(Base, IDMixin):
         default=None,
         nullable=True,
     )
+    max_aliases_per_user = sa.Column(
+        sa.Integer(),
+        default=0,
+    )
