@@ -1,9 +1,6 @@
-from fastapi import APIRouter, Depends, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.authentication.handler import access_security
-from app.controllers.user import get_user_by_id
 from app.controllers.user_preferences import update_user_preferences
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_user

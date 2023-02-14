@@ -1,17 +1,16 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import Page, paginate, Params
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import logger
-from app.authentication.handler import access_security
 from app.controllers.alias_utils import check_if_alias_exists
-from app.controllers.user import get_admin_user_by_id
 from app.database.dependencies import get_db
+from app.dependencies.get_user import get_admin_user
 from app.life_constants import MAIL_DOMAIN
+from app.models import User
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
@@ -27,14 +26,12 @@ router = APIRouter()
     response_model=Page[ReservedAliasDetail]
 )
 def get_reserved_aliases_api(
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
     params: Params = Depends(),
     query: str = Query(""),
 ):
     logger.info("Request: Get all reserved aliases -> New Request.")
-
-    get_admin_user_by_id(db, credentials["id"])
 
     aliases = find_reserved_aliases_ordered(
         db,
@@ -56,12 +53,10 @@ def get_reserved_aliases_api(
 )
 def get_reserved_alias_api(
     id: uuid.UUID,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Get Reserved Alias -> New Request.")
-
-    get_admin_user_by_id(db, credentials["id"])
 
     try:
         alias = get_reserved_alias_by_id(db, id)
@@ -81,18 +76,16 @@ def get_reserved_alias_api(
 )
 def create_reserved_alias_api(
     alias_data: ReservedAliasCreate,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Create Reserved Alias -> New Request.")
 
-    # Validate user being an admin
-    user = get_admin_user_by_id(db, credentials["id"])
-    logger.info(f"Request: Create Reserved Alias -> User {user=} is an admin.")
-
     if check_if_alias_exists(db, local=alias_data.local, domain=MAIL_DOMAIN):
-        logger.info(f"Request: Create Reserved Alias -> Alias {alias_data.local}@{MAIL_DOMAIN} "
-                    f"already exists.")
+        logger.info(
+            f"Request: Create Reserved Alias -> "
+            f"Alias {alias_data.local}@{MAIL_DOMAIN} already exists."
+        )
         raise HTTPException(status_code=400, detail="Alias already exists.")
 
     alias = create_reserved_alias(db, alias_data)
@@ -109,13 +102,10 @@ def create_reserved_alias_api(
 def update_reserved_alias_api(
     id: uuid.UUID,
     alias_data: ReservedAliasUpdate,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Update Reserved Alias -> New Request.")
-
-    # Validate user being an admin
-    get_admin_user_by_id(db, credentials["id"])
 
     alias = update_reserved_alias(db, id, alias_data)
 
@@ -128,13 +118,10 @@ def update_reserved_alias_api(
 )
 def update_reserved_alias_api(
     id: uuid.UUID,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Delete Reserved Alias -> New Request.")
-
-    # Validate user being an admin
-    get_admin_user_by_id(db, credentials["id"])
 
     delete_reserved_alias_by_id(db, id)
 

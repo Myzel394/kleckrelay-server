@@ -1,7 +1,5 @@
 import uuid
-from uuid import UUID
 
-from fastapi import HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
@@ -17,7 +15,6 @@ __all__ = [
     "get_user_by_email",
     "create_user",
     "get_user_by_id",
-    "get_admin_user_by_id",
 ]
 
 
@@ -66,21 +63,3 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 # commonly used to simply get the user from the database.
 def get_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:
     return db.query(User).filter_by(id=user_id).one()
-
-
-def get_admin_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:
-    try:
-        user = db.query(User).filter_by(id=user_id).one()
-
-        if not user.is_admin:
-            raise HTTPException(
-                status_code=401,
-                detail="You need to be an admin."
-            )
-
-        return user
-    except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="User account not found."
-        )

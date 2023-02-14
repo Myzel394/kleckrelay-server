@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from app.controllers import global_settings as settings
 from app import constants, life_constants, logger
 from app.authentication.authentication_response import (
     set_authentication_cookies,
@@ -21,7 +20,7 @@ from app.controllers.email_login import (
     change_allow_login_from_different_devices, create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, is_token_valid,
 )
-from app.controllers.global_settings import get_filled_settings, get_settings
+from app.controllers.global_settings import get_filled_settings
 from app.controllers.user import (
     check_if_email_exists, create_user,
     get_user_by_email, get_user_by_id,

@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Depends, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from app import life_constants, logger
-from app.authentication.handler import access_security
 from app.controllers.admin import get_admin_users
 from app.controllers.global_settings import get_settings, update_settings
-from app.controllers.user import get_admin_user_by_id
 from app.database.dependencies import get_db
+from app.dependencies.get_user import get_admin_user
+from app.models import User
 from app.schemas.admin import AdminSettingsModel, AdminUsersResponseModel
 
 router = APIRouter()
@@ -19,14 +18,10 @@ router = APIRouter()
     response_model=AdminUsersResponseModel,
 )
 def get_admin_users_api(
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Get Admins -> New Request.")
-
-    # Validate user being an admin
-    user = get_admin_user_by_id(db, credentials["id"])
-    logger.info(f"Request: Get Admins -> User {user=} is an admin.")
 
     return {
         "users": get_admin_users(db)
@@ -39,14 +34,10 @@ def get_admin_users_api(
 )
 def get_settings_api(
     response: Response,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Get Admin Settings -> New Request.")
-
-    # Validate user being an admin
-    user = get_admin_user_by_id(db, credentials["id"])
-    logger.info(f"Request: Get Admin Settings -> User {user=} is an admin.")
 
     if not life_constants.USE_GLOBAL_SETTINGS:
         logger.info(
@@ -70,14 +61,10 @@ def get_settings_api(
 def update_settings_api(
     response: Response,
     update_data: AdminSettingsModel,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Update Admin Settings -> New Request.")
-
-    # Validate user being an admin
-    user = get_admin_user_by_id(db, credentials["id"])
-    logger.info(f"Request: Update Admin Settings -> User {user=} is an admin.")
 
     if not life_constants.USE_GLOBAL_SETTINGS:
         logger.info(

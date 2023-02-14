@@ -1,7 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import Page, paginate, Params
 from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
@@ -9,13 +8,11 @@ from sqlalchemy.orm import Session
 from starlette.requests import Request
 
 from app import logger
-from app.authentication.handler import access_security
 from app.controllers.alias import (
     create_alias, delete_alias_from_user, find_aliases_from_user_ordered, get_alias_from_user,
     update_alias,
 )
 from app.controllers.global_settings import get_filled_settings
-from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_user
 from app.models import User
