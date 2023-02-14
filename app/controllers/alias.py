@@ -2,6 +2,7 @@ import secrets
 import uuid
 from typing import Optional
 
+from fastapi import HTTPException
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
@@ -150,6 +151,15 @@ def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
 
 
 def create_alias(db: Session, /, data: AliasCreate, user: User) -> EmailAlias:
+    max_aliases_per_user = settings.get(db, "MAX_ALIASES_PER_USER")
+
+    if max_aliases_per_user != 0:
+        if len(user.email_aliases) >= max_aliases_per_user:
+            raise HTTPException(
+                status_code=403,
+                detail="You have reached the maximum number of aliases."
+            )
+
     if data.type == AliasType.RANDOM:
         logger.info("Request: Create Alias -> Type is AliasType.RANDOM")
         local = generate_random_local_id(db, domain=MAIL_DOMAIN)
