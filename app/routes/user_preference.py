@@ -6,7 +6,8 @@ from app.authentication.handler import access_security
 from app.controllers.user import get_user_by_id
 from app.controllers.user_preferences import update_user_preferences
 from app.database.dependencies import get_db
-from app.models import EmailAlias
+from app.dependencies.get_user import get_user
+from app.models import EmailAlias, User
 from app.schemas.user_preferences import UserPreferencesUpdate
 
 router = APIRouter()
@@ -18,11 +19,9 @@ router = APIRouter()
 )
 def update_user_preferences_api(
     update: UserPreferencesUpdate,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
-    user = get_user_by_id(db, credentials["id"])
-
     update_user_preferences(
         db,
         preferences=user.preferences,

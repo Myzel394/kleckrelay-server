@@ -13,7 +13,7 @@ __all__ = [
     "create_email_report_from_report_data",
     "get_report_by_id",
     "get_report_from_user_by_id",
-    "delete_report_by_id",
+    "delete_report",
 ]
 
 
@@ -57,8 +57,6 @@ def get_report_from_user_by_id(db: Session, user: User, id: uuid.UUID) -> EmailR
     return db.query(EmailReport).filter_by(user_id=user.id, id=id).one()
 
 
-def delete_report_by_id(db: Session, id: uuid.UUID) -> None:
-    report = get_report_by_id(db, id=id)
-
+def delete_report(db: Session, report: EmailReport) -> None:
     db.delete(report)
     db.commit()

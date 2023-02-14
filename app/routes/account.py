@@ -6,6 +6,8 @@ from app.authentication.handler import access_security
 from app.controllers.account import update_account_data
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
+from app.dependencies.get_user import get_user
+from app.models import User
 from app.schemas.user import SimpleUserResponseModel, UserUpdate
 
 router = APIRouter()
@@ -17,11 +19,9 @@ router = APIRouter()
 )
 def update_account_data_api(
     user_data: UserUpdate,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
-    user = get_user_by_id(db, credentials["id"])
-
     update_account_data(
         db,
         user=user,
@@ -39,11 +39,8 @@ def update_account_data_api(
     response_model=SimpleUserResponseModel,
 )
 def get_me(
-        credentials: JwtAuthorizationCredentials = Security(access_security),
-        db: Session = Depends(get_db),
+    user: User = Depends(get_user),
 ):
-    user = get_user_by_id(db, credentials["id"])
-
     return {
         "user": user,
         "detail": "Returned user successfully!",

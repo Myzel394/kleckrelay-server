@@ -65,13 +65,7 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
 # Only `get_user_by_id` and `get_admin_user_by_id` may raise an `HTTPException` as they are very
 # commonly used to simply get the user from the database.
 def get_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:
-    try:
-        return db.query(User).filter_by(id=user_id).one()
-    except NoResultFound:
-        raise HTTPException(
-            status_code=401,
-            detail="User account not found."
-        )
+    return db.query(User).filter_by(id=user_id).one()
 
 
 def get_admin_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:

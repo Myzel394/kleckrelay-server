@@ -1,4 +1,5 @@
 import base64
+import uuid
 from io import BytesIO
 
 import requests
@@ -94,7 +95,7 @@ def download_image_on_fly(
 )
 def proxy_image(
     encoded_url: str,
-    proxy_id: str,
+    proxy_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Proxy Image -> New request")

@@ -17,6 +17,8 @@ from app.controllers.alias import (
 from app.controllers.global_settings import get_filled_settings
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
+from app.dependencies.get_user import get_user
+from app.models import User
 from app.models.alias import AliasType
 from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
 from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
@@ -30,7 +32,7 @@ router = APIRouter()
     response_model=Page[AliasList]
 )
 def get_all_aliases(
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
     params: Params = Depends(),
     query: str = Query(""),
@@ -38,8 +40,6 @@ def get_all_aliases(
     alias_type: AliasType = Query(None),
 ):
     logger.info("Request: Get all aliases -> New Request.")
-
-    user = get_user_by_id(db, credentials["id"])
 
     return paginate(
         find_aliases_from_user_ordered(
@@ -59,8 +59,8 @@ def get_all_aliases(
 )
 async def create_alias_api(
     request: Request,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
 ):
     logger.info("Request: Create Alias -> New request. Validating data.")
 
@@ -72,7 +72,6 @@ async def create_alias_api(
         raise HTTPException(status_code=422, detail=error.errors())
 
     logger.info("Request: Create Alias -> Valid data. Creating alias.")
-    user = get_user_by_id(db, credentials["id"])
 
     alias = create_alias(db, alias_data, user)
 
@@ -91,11 +90,10 @@ async def create_alias_api(
 def update_alias_api(
     id: uuid.UUID,
     update: AliasUpdate,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
     logger.info(f"Request: Update Alias -> Updating alias with id={id}.")
-    user = get_user_by_id(db, credentials["id"])
 
     try:
         alias = get_alias_from_user(db, user=user, id=id)
@@ -123,11 +121,9 @@ def update_alias_api(
 )
 def get_alias(
     id: uuid.UUID,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
-    user = get_user_by_id(db, credentials["id"])
-
     try:
         alias = get_alias_from_user(
             db,
@@ -159,7 +155,7 @@ def get_alias(
 )
 def delete_alias(
     id: uuid.UUID,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
     logger.info(f"Request: Delete Alias -> New request to delete alias with {id=}.")
@@ -171,7 +167,6 @@ def delete_alias(
             detail="Alias deletion is not allowed."
         )
 
-    user = get_user_by_id(db, credentials["id"])
     logger.info(f"Request: Delete Alias -> Alias deletion is allowed. Deleting alias with {id=}.")
 
     try:
