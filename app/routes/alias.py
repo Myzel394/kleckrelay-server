@@ -111,13 +111,30 @@ def update_alias_api(
         return alias
 
 
-@router.get("/{id}", response_model=AliasDetail)
+@router.get(
+    "/{id}",
+    response_model=AliasDetail,
+    responses={
+        403: {
+            "model": SimpleDetailResponseModel,
+            "description": "Maximum number of aliases reached."
+        }
+    }
+)
 def get_alias(
     id: uuid.UUID,
     credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
 ):
     user = get_user_by_id(db, credentials["id"])
+    max_aliases_per_user = settings.get(db, "MAX_ALIASES_PER_USER")
+
+    if max_aliases_per_user is not None and max_aliases_per_user != 0:
+        if len(user.email_aliases) >= max_aliases_per_user:
+            raise HTTPException(
+                status_code=403,
+                detail="You have reached the maximum number of aliases."
+            )
 
     try:
         alias = get_alias_from_user(
