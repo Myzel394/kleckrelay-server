@@ -152,3 +152,26 @@ def test_can_delete_alias_if_deletion_is_enabled(
     assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
     deleted_alias = db.query(DeletedEmailAlias).one()
     assert deleted_alias.email == address, "Alias should be in deleted aliases table"
+
+
+def test_can_not_surpass_max_amount(
+    client: TestClient,
+    create_user,
+    create_auth_tokens,
+    create_random_alias
+):
+    life_constants.MAX_ALIASES_PER_USER = 1
+
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+    create_random_alias(user)
+
+    response = client.post(
+        "/v1/alias/",
+        json={
+            "type": AliasType.RANDOM,
+        },
+        headers=auth["headers"]
+    )
+
+    assert response.status_code == 403, f"Status code should be 403 but is {response.status_code}"
