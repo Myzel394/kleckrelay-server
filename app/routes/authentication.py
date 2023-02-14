@@ -40,7 +40,7 @@ from app.schemas.authentication import (
     LoginWithEmailTokenModel,
     ResendEmailModel, SignupResponseModel, VerifyEmailModel,
 )
-from app.schemas.user import SimpleUserResponseModel, UserCreate
+from app.schemas.user import UserCreate, UserDetail
 
 router = APIRouter()
 
@@ -141,7 +141,7 @@ def resend_email(
 
 @router.post(
     "/verify-email",
-    response_model=SimpleUserResponseModel,
+    response_model=UserDetail,
     responses={
         400: {
             "model": HTTPBadRequestExceptionModel,
@@ -150,7 +150,7 @@ def resend_email(
             "model": HTTPNotFoundExceptionModel,
         },
         202: {
-            "model": SimpleUserResponseModel,
+            "model": UserDetail,
             "description": "Email is already verified."
         }
     }
@@ -173,10 +173,7 @@ def signup_verify_email(
 
             response.status_code = 202
 
-            return {
-                "user": email.user,
-                "detail": "Email has already been verified."
-            }
+            return email.user
 
         logger.info(f"Request: Verify Email -> Verifying email {email.address}.")
         verify_email(db, email=email, token=input_data.token)
@@ -186,10 +183,7 @@ def signup_verify_email(
 
         set_authentication_cookies(response, email.user)
 
-        return {
-            "user": email.user,
-            "detail": "Email verified successfully!"
-        }
+        return email.user
     except NoResultFound:
         logger.info(f"Request: Verify Email -> Email {input_data.email} not found.")
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
@@ -263,7 +257,7 @@ async def login_with_email_token(
 
 @router.post(
     "/login/email-token/verify",
-    response_model=SimpleUserResponseModel,
+    response_model=UserDetail,
     responses={
         404: {
             "model": HTTPNotFoundExceptionModel,
@@ -370,10 +364,7 @@ async def verify_email_token(
 
             set_authentication_cookies(response, user)
 
-            return {
-                "user": user,
-                "detail": "Logged in successfully!"
-            }
+            return user
     else:
         logger.info(
             f"Request: Verify Email Token -> No Login Token for {input_data.email} found."
@@ -446,7 +437,7 @@ async def email_login_allow_login_from_different_devices(
 
 @router.post(
     "/refresh",
-    response_model=SimpleUserResponseModel,
+    response_model=UserDetail,
 )
 async def refresh_token(
     response: Response,
@@ -461,10 +452,7 @@ async def refresh_token(
 
     set_authentication_cookies(response, user)
 
-    return {
-        "user": user,
-        "detail": "Token refreshed successfully!"
-    }
+    return user
 
 
 @router.post(

@@ -15,9 +15,8 @@ from app.schemas.global_settings import GlobalSettingsModel
 __all__ = [
     "UserCreate",
     "UserUpdate",
-    "User",
+    "UserDetail",
     "UserPreferences",
-    "SimpleUserResponseModel",
 ]
 
 
@@ -101,7 +100,7 @@ class UserPreferences(BaseModel):
         orm_mode = True
 
 
-class User(UserBase):
+class UserDetail(UserBase):
     id: uuid.UUID
     salt: str
     created_at: datetime
@@ -111,8 +110,3 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
-
-
-class SimpleUserResponseModel(BaseModel):
-    user: User
-    detail: str

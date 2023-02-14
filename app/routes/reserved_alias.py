@@ -90,8 +90,9 @@ def create_reserved_alias_api(
 
     alias = create_reserved_alias(db, alias_data)
 
-    logger.info(f"Request: Create Reserved Alias -> Alias created successfully! Returning "
-                f"{alias=}.")
+    logger.info(
+        f"Request: Create Reserved Alias -> Alias created successfully! Returning {alias=}."
+    )
     return alias
 
 
