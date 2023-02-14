@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from sqlalchemy.orm import Session
 
@@ -12,6 +13,7 @@ __all__ = [
     "create_email_report_from_report_data",
     "get_report_by_id",
     "get_report_from_user_by_id",
+    "delete_report_by_id",
 ]
 
 
@@ -47,9 +49,16 @@ def create_email_report_from_report_data(
     return report
 
 
-def get_report_by_id(db: Session, id: str) -> EmailReport:
+def get_report_by_id(db: Session, id: uuid.UUID) -> EmailReport:
     return db.query(EmailReport).filter_by(id=id).one()
 
 
-def get_report_from_user_by_id(db: Session, user: User, id: str) -> EmailReport:
+def get_report_from_user_by_id(db: Session, user: User, id: uuid.UUID) -> EmailReport:
     return db.query(EmailReport).filter_by(user_id=user.id, id=id).one()
+
+
+def delete_report_by_id(db: Session, id: uuid.UUID) -> None:
+    report = get_report_by_id(db, id=id)
+
+    db.delete(report)
+    db.commit()

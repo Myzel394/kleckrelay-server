@@ -19,7 +19,7 @@ __all__ = [
     "find_reserved_aliases_ordered",
     "create_reserved_alias",
     "update_reserved_alias",
-    "delete_reserved_alias",
+    "delete_reserved_alias_by_id",
     "get_reserved_alias_by_id",
     "get_reserved_alias_by_address",
 ]
@@ -142,7 +142,7 @@ def update_reserved_alias(
     return alias
 
 
-def delete_reserved_alias(db: Session, /, alias_id: uuid.UUID) -> None:
+def delete_reserved_alias_by_id(db: Session, /, alias_id: uuid.UUID) -> None:
     logger.info(f"Request: Delete Alias -> Deleting {alias_id=}.")
     alias = db.query(ReservedAlias).filter_by(id=alias_id).one()
 

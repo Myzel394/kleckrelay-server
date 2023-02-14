@@ -15,7 +15,7 @@ from app.life_constants import MAIL_DOMAIN
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
-    create_reserved_alias, delete_reserved_alias,
+    create_reserved_alias, delete_reserved_alias_by_id,
     find_reserved_aliases_ordered, get_reserved_alias_by_id, update_reserved_alias,
 )
 
@@ -136,7 +136,7 @@ def update_reserved_alias_api(
     # Validate user being an admin
     get_admin_user_by_id(db, credentials["id"])
 
-    delete_reserved_alias(db, id)
+    delete_reserved_alias_by_id(db, id)
 
     return {
         "detail": "Alias deleted successfully."

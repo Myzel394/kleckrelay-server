@@ -18,7 +18,7 @@ from app.authentication.errors import (
 from app.authentication.handler import refresh_security
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
 from app.controllers.email_login import (
-    create_email_login_token,
+    change_allow_login_from_different_devices, create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, is_token_valid,
 )
 from app.controllers.global_settings import get_filled_settings, get_settings
@@ -434,16 +434,11 @@ async def email_login_allow_login_from_different_devices(
     db: Session = Depends(get_db),
     email_login_token: EmailLoginToken = Depends(get_email_login_token),
 ):
-    logger.info(
-        f"Request: Allow Login From Different Device: New Request for "
-        f"{email_login_token.user.email.address}."
+    change_allow_login_from_different_devices(
+        db,
+        email_login_token,
+        allow,
     )
-
-    email_login_token.bypass_same_request_token = allow
-
-    db.add(email_login_token)
-    db.commit()
-    db.refresh(email_login_token)
 
     return {
         "detail": "Login from different devices updated."

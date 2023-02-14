@@ -124,6 +124,24 @@ async def get_email_login_token_from_email(db: Session, /, email: str) -> Option
         return None
 
 
+def change_allow_login_from_different_devices(
+    db: Session,
+    /,
+    email_login_token: EmailLoginToken,
+    allow_login_from_other_device: bool
+) -> None:
+    logger.info(
+        f"Request: Allow Login From Different Device: New Request for "
+        f"{email_login_token.user.email.address}."
+    )
+
+    email_login_token.bypass_same_request_token = allow_login_from_other_device
+
+    db.add(email_login_token)
+    db.commit()
+    db.refresh(email_login_token)
+
+
 def generate_token() -> str:
     return "".join(
         secrets.choice(EMAIL_LOGIN_TOKEN_CHARS)

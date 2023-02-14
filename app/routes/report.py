@@ -8,7 +8,10 @@ from sqlalchemy.orm import Session
 
 from app import logger
 from app.authentication.handler import access_security
-from app.controllers.email_report import get_report_by_id, get_report_from_user_by_id
+from app.controllers.email_report import (
+    delete_report_by_id, get_report_by_id,
+    get_report_from_user_by_id,
+)
 from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
 from app.schemas._basic import SimpleDetailResponseModel
@@ -62,16 +65,16 @@ def delete_report(
     user = get_user_by_id(db, credentials["id"])
 
     try:
-        report = get_report_by_id(db, id=id)
+        delete_report_by_id(
+            db,
+            id=id,
+        )
     except NoResultFound:
         logger.info(f"Request: Delete Report -> Report with {id=} not found.")
         raise HTTPException(
             status_code=404,
             detail="Report not found."
         )
-    else:
-        db.delete(report)
-        db.commit()
 
     return {
         "detail": "Deleted report successfully!",
