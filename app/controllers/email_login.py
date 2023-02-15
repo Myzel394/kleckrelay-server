@@ -22,7 +22,7 @@ from app.life_constants import (
 from app.mails.send_email_login_token import send_email_login_token
 from app.models.email_login import EmailLoginToken
 from app.models.user import User
-from app.utils import hash_fast, verify_fast_hash
+from app.utils.hashes import hash_fast, verify_fast_hash
 
 
 def is_token_expired(instance: EmailLoginToken) -> bool:

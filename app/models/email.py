@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.constants import MAX_EMAIL_LENGTH
 from app.database.base import Base
 from app.models._mixins import IDMixin
-from app.utils import hash_slowly
+from app.utils.hashes import hash_slowly
 
 __all__ = [
     "Email",

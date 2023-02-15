@@ -8,7 +8,7 @@ from app.controllers.user_preferences import create_user_preferences
 from app.logger import logger
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.utils import normalize_email
+from app.utils.email import normalize_email
 
 __all__ = [
     "check_if_email_exists",
