@@ -1,1 +1,1 @@
-* * * * * source $HOME/.poetry/env && poetry run python maid.py >> /var/log/cron.log 2>&1
+* * * * * cd /home/maid/ && /usr/local/bin/poetry run python maid.py >> /var/log/cron.log 2>&1

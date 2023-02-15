@@ -4,24 +4,19 @@ ENV PYTHONPATH "/app"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1
-
-# Prepend poetry and venv to path
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
 # Install dependencies
 RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
     && apt install python3 python3-pip cron -y \
     && pip install psycopg2
 
-RUN mkdir /app
 
-WORKDIR /app
+RUN useradd -ms /bin/bash maid
 
-COPY pyproject.toml /app
+WORKDIR /home/maid
+
+COPY pyproject.toml /home/maid
+COPY maid.py /home/maid
 
 # Install poetry
 RUN pip3 install poetry
