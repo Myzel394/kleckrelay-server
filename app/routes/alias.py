@@ -131,7 +131,7 @@ def delete_alias_api(
     alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
     db: Session = Depends(get_db),
 ):
-    logger.info(f"Request: Delete Alias -> New request to delete alias with {id=}.")
+    logger.info(f"Request: Delete Alias -> New request to delete {alias=}.")
 
     if not settings.get(db, "ALLOW_ALIAS_DELETION"):
         logger.info(f"Request: Delete Alias -> Alias deletion is not allowed.")
@@ -140,7 +140,7 @@ def delete_alias_api(
             detail="Alias deletion is not allowed."
         )
 
-    logger.info(f"Request: Delete Alias -> Alias deletion is allowed. Deleting alias with {id=}.")
+    logger.info(f"Request: Delete Alias -> Alias deletion is allowed. Deleting alias.")
 
     delete_alias(
         db,

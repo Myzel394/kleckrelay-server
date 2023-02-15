@@ -3,7 +3,7 @@ from math import log
 
 from . import constants, default_life_constants, life_constants, logger
 from .gpg_handler import gpg
-from .utils import _get_words
+from .utils.common import _get_words
 
 __all__ = [
     "check_life_constants",
@@ -91,6 +91,7 @@ def check_life_constants() -> None:
         life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
     )
 
+    # Cache word list
     _get_words()
 
     logger.logger.info(

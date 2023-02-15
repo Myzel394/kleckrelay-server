@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app import logger
 from app.controllers.account import update_account_data
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_user
@@ -19,11 +20,13 @@ def update_account_data_api(
     user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
+    logger.info(f"Request: Update Account Data -> Update {user=} with {user_data=}.")
     update_account_data(
         db,
         user=user,
         data=user_data,
     )
+    logger.info(f"Request: Update Account Data -> Updating successfully.")
 
     return user
 
