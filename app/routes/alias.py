@@ -14,9 +14,10 @@ from app.controllers.alias import (
 )
 from app.controllers.global_settings import get_filled_settings
 from app.database.dependencies import get_db
+from app.dependencies.get_instance_from_user import get_instance_from_user
 from app.dependencies.get_user import get_user
 from app.models import User
-from app.models.alias import AliasType
+from app.models.alias import AliasType, EmailAlias
 from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
 from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
 from app.controllers import global_settings as settings
@@ -85,26 +86,15 @@ async def create_alias_api(
     }
 )
 def update_alias_api(
-    id: uuid.UUID,
     update: AliasUpdate,
-    user: User = Depends(get_user),
+    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
     db: Session = Depends(get_db),
 ):
-    logger.info(f"Request: Update Alias -> Updating alias with id={id}.")
+    logger.info(f"Request: Update Alias -> Updating {alias=}.")
+    update_alias(db, alias, update)
+    logger.info(f"Request: Update Alias -> Updated successfully!")
 
-    try:
-        alias = get_alias_from_user(db, user=user, id=id)
-    except NoResultFound:
-        logger.info(f"Request: Update Alias -> Alias {id} not found.")
-        raise HTTPException(
-            status_code=404,
-            detail="Alias not found."
-        )
-    else:
-        logger.info(f"Request: Update Alias -> Alias {id} found! Updating now.")
-        update_alias(db, alias, update)
-
-        return alias
+    return alias
 
 
 @router.get(
@@ -118,23 +108,9 @@ def update_alias_api(
     }
 )
 def get_alias(
-    id: uuid.UUID,
-    user: User = Depends(get_user),
-    db: Session = Depends(get_db),
+    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
 ):
-    try:
-        alias = get_alias_from_user(
-            db,
-            user=user,
-            id=id,
-        )
-    except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Alias not found."
-        )
-    else:
-        return alias
+    return alias
 
 
 @router.delete(
@@ -152,8 +128,7 @@ def get_alias(
     }
 )
 def delete_alias_api(
-    id: uuid.UUID,
-    user: User = Depends(get_user),
+    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
     db: Session = Depends(get_db),
 ):
     logger.info(f"Request: Delete Alias -> New request to delete alias with {id=}.")
@@ -167,19 +142,11 @@ def delete_alias_api(
 
     logger.info(f"Request: Delete Alias -> Alias deletion is allowed. Deleting alias with {id=}.")
 
-    try:
-        alias = get_alias_from_user(db, user=user, id=id)
-    except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="Alias not found."
-        )
-    else:
-        delete_alias(
-            db,
-            alias=alias,
-        )
-        logger.info(f"Request: Delete Alias -> Alias deleted successfully.")
-        return {
-            "detail": "Alias deleted successfully."
-        }
+    delete_alias(
+        db,
+        alias=alias,
+    )
+    logger.info(f"Request: Delete Alias -> Alias deleted successfully.")
+    return {
+        "detail": "Alias deleted successfully."
+    }
