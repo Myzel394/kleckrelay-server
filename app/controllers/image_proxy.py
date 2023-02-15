@@ -11,14 +11,13 @@ from app import life_constants, logger
 from app.constants import ROOT_DIR
 from app.models import EmailAlias, ImageProxy
 from app.utils.hashes import hash_fast, verify_fast_hash
+from app.utils.download_image import download_image
 
 __all__ = [
     "create_image_proxy",
     "find_image_by_url",
     "download_image_to_database"
 ]
-
-from app.utils.download_image import download_image
 
 STORAGE_PATH = ROOT_DIR / life_constants.IMAGE_PROXY_STORAGE_PATH
 
