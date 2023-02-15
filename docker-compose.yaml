@@ -42,6 +42,13 @@ services:
     env_file:
       - .env
 
+  kleckrelay-maid:
+    container_name: kleckrelay-maid
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Maid.Dockerfile
+
   nginx:
     container_name: nginx
     image: bunkerity/bunkerweb
@@ -70,6 +77,7 @@ services:
       - api.app.krl_REVERSE_PROXY_URL=/
       - api.app.krl_REVERSE_PROXY_HOST=http://kleckrelay-server:80
       - api.app.krl_ALLOWED_METHODS=GET|POST|PUT|PATCH|DELETE|OPTIONS
+      - api.app.krl_REVERSE_PROXY_INTERCEPT_ERRORS=no
       # Security is too strict
       - api.app.krl_BLOCK_ABUSERS=no
 
