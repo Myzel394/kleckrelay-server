@@ -86,27 +86,14 @@ def check_life_constants() -> None:
     validate_value_is_random_string("FAST_HASH_SALT")
     validate_value_is_random_string("USER_PASSWORD_HASH_SALT")
 
-    email_token_entropy = calculate_entropy(
-        len(life_constants.EMAIL_LOGIN_TOKEN_CHARS),
-        life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
-    )
-
     # Cache word list
     _get_words()
 
     logger.logger.info(
-        f"Doctor: The domain for the app is: {life_constants.API_DOMAIN}."
+        f"Doctor: App Domain: {life_constants.API_DOMAIN}."
     )
     logger.logger.info(
-        f"Doctor: The domain for the mails is: {life_constants.MAIL_DOMAIN}."
-    )
-
-    logger.logger.info(
-        f"Doctor: Root dir is: {constants.ROOT_DIR}"
-    )
-
-    logger.logger.info(
-        f"Doctor: DB URI is: {life_constants.DB_URI.split('@')[1]}"
+        f"Doctor: Mail Domain: {life_constants.MAIL_DOMAIN}."
     )
 
     create_image_proxy_storage_path()
