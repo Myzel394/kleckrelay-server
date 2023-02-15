@@ -19,13 +19,12 @@ from app.utils import contains_word
 
 __all__ = [
     "get_alias_from_user",
-    "get_alias_from_user_by_address",
     "find_aliases_from_user_ordered",
     "create_local_with_suffix",
     "generate_random_local_id",
     "create_alias",
     "update_alias",
-    "delete_alias_from_user"
+    "delete_alias"
 ]
 
 
@@ -68,19 +67,6 @@ def _generate_suffix(db: Session, /) -> str:
         secrets.choice(chars)
         for _ in range(length)
     )
-
-
-def get_alias_from_user_by_address(
-    db: Session,
-    /,
-    user: User,
-    domain: str,
-    local: str
-) -> EmailAlias:
-    return db \
-        .query(EmailAlias) \
-        .filter(and_(EmailAlias.user == user, EmailAlias.domain == domain, EmailAlias.local == local)) \
-        .one()
 
 
 def find_aliases_from_user_ordered(
@@ -210,9 +196,7 @@ def update_alias(db: Session, /, alias: EmailAlias, data: AliasUpdate) -> None:
     logger.info(f"Request: Update Alias -> Alias {alias.id} saved successfully.")
 
 
-def delete_alias_from_user(db: Session, /, user: User, id: uuid.UUID) -> None:
-    alias = get_alias_from_user(db, user=user, id=id)
-
+def delete_alias(db: Session, /, alias: EmailAlias) -> None:
     logger.info(f"Request: Delete Alias -> Deleting Alias {alias.id}.")
 
     logger.info("Request: Delete Alias -> Creating DeletedEmailAlias.")

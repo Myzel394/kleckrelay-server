@@ -8,7 +8,7 @@ from sqlalchemy.sql import Alias
 
 from app import life_constants, logger
 from app.controllers import global_settings as settings
-from app.controllers.email_report import create_email_report_from_report_data
+from app.controllers.email_report import create_email_report
 from app.controllers import server_statistics
 from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
@@ -138,7 +138,7 @@ def handle(envelope: Envelope, message: Message) -> str:
                     message.set_payload(content, "utf-8")
 
                 if alias.create_mail_report and alias.user.public_key is not None:
-                    create_email_report_from_report_data(
+                    create_email_report(
                         db,
                         report_data=report,
                         user=alias.user,

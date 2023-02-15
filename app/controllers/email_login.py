@@ -108,9 +108,10 @@ def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToke
     return instance, same_request_token
 
 
-def delete_email_login_token(db: Session, /, instance: EmailLoginToken):
-    logger.info(f"Delete email login token: Deleting email login token for "
-                f"{instance.user.email.address}.")
+def delete_email_login_token(db: Session, /, instance: EmailLoginToken) -> None:
+    logger.info(
+        f"Delete email login token: Deleting email login token for {instance.user.email.address}."
+    )
     db.delete(instance)
     db.commit()
 

@@ -59,7 +59,5 @@ async def create_user(db: Session, /, user: UserCreate) -> User:
     return db_user
 
 
-# Only `get_user_by_id` and `get_admin_user_by_id` may raise an `HTTPException` as they are very
-# commonly used to simply get the user from the database.
 def get_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:
     return db.query(User).filter_by(id=user_id).one()

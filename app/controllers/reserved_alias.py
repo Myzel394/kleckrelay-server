@@ -19,7 +19,7 @@ __all__ = [
     "find_reserved_aliases_ordered",
     "create_reserved_alias",
     "update_reserved_alias",
-    "delete_reserved_alias_by_id",
+    "delete_reserved_alias",
     "get_reserved_alias_by_id",
     "get_reserved_alias_by_address",
 ]
@@ -106,11 +106,10 @@ def create_reserved_alias(db: Session, /, data: ReservedAliasCreate) -> Reserved
 def update_reserved_alias(
     db: Session,
     /,
-    alias_id: uuid.UUID,
+    alias: ReservedAlias,
     data: ReservedAliasUpdate
 ) -> ReservedAlias:
     logger.info(f"Request: Update Reserved Alias -> Updating alias with {data=}.")
-    alias: ReservedAlias = get_reserved_alias_by_id(db, alias_id)
 
     if data.is_active is not None:
         logger.info(f"Request: Update Reserved Alias -> Changing is_active.")
@@ -142,16 +141,14 @@ def update_reserved_alias(
     return alias
 
 
-def delete_reserved_alias_by_id(db: Session, /, alias_id: uuid.UUID) -> None:
-    logger.info(f"Request: Delete Alias -> Deleting {alias_id=}.")
-    alias = db.query(ReservedAlias).filter_by(id=alias_id).one()
+def delete_reserved_alias(db: Session, /, alias: ReservedAlias) -> None:
+    logger.info(f"Request: Delete Alias -> Deleting {alias=}.")
 
     logger.info(f"Request: Delete Alias -> Found alias! Committing to database.")
     db.delete(alias)
     db.commit()
 
     logger.info(f"Request: Delete Alias -> Success!")
-    return alias
 
 
 def get_reserved_alias_by_address(
@@ -162,10 +159,7 @@ def get_reserved_alias_by_address(
 ) -> Optional[ReservedAlias]:
     logger.info(f"Get reserved alias by address -> Getting alias with {local=} and {domain=}.")
     try:
-        alias = db.query(ReservedAlias).filter_by(local=local, domain=domain).one()
+        return db.query(ReservedAlias).filter_by(local=local, domain=domain).one()
     except NoResultFound:
         logger.info(f"Get reserved alias by address -> Alias not found.")
         return None
-
-    logger.info(f"Get reserved alias by address -> Success! Returning alias.")
-    return alias

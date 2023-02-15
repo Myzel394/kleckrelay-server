@@ -1,5 +1,4 @@
 import secrets
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -82,7 +81,7 @@ def verify_email(db: Session, /, email: Email, token: str):
     logger.info(f"Verify email: {email.address} saved successfully.")
 
 
-def get_email_by_address(db: Session, address: str) -> Optional[Email]:
+def get_email_by_address(db: Session, address: str) -> Email:
     return db\
         .query(Email)\
         .filter_by(address=address)\

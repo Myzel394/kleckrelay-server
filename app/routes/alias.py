@@ -9,7 +9,7 @@ from starlette.requests import Request
 
 from app import logger
 from app.controllers.alias import (
-    create_alias, delete_alias_from_user, find_aliases_from_user_ordered, get_alias_from_user,
+    create_alias, delete_alias, find_aliases_from_user_ordered, get_alias_from_user,
     update_alias,
 )
 from app.controllers.global_settings import get_filled_settings
@@ -101,6 +101,7 @@ def update_alias_api(
             detail="Alias not found."
         )
     else:
+        logger.info(f"Request: Update Alias -> Alias {id} found! Updating now.")
         update_alias(db, alias, update)
 
         return alias
@@ -150,7 +151,7 @@ def get_alias(
         },
     }
 )
-def delete_alias(
+def delete_alias_api(
     id: uuid.UUID,
     user: User = Depends(get_user),
     db: Session = Depends(get_db),
@@ -167,17 +168,17 @@ def delete_alias(
     logger.info(f"Request: Delete Alias -> Alias deletion is allowed. Deleting alias with {id=}.")
 
     try:
-        delete_alias_from_user(
-            db,
-            user=user,
-            id=id,
-        )
+        alias = get_alias_from_user(db, user=user, id=id)
     except NoResultFound:
         raise HTTPException(
             status_code=404,
             detail="Alias not found."
         )
     else:
+        delete_alias(
+            db,
+            alias=alias,
+        )
         logger.info(f"Request: Delete Alias -> Alias deleted successfully.")
         return {
             "detail": "Alias deleted successfully."

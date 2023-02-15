@@ -14,7 +14,7 @@ from app.models import User
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
-    create_reserved_alias, delete_reserved_alias_by_id,
+    create_reserved_alias, delete_reserved_alias,
     find_reserved_aliases_ordered, get_reserved_alias_by_id, update_reserved_alias,
 )
 
@@ -108,7 +108,8 @@ def update_reserved_alias_api(
 ):
     logger.info("Request: Update Reserved Alias -> New Request.")
 
-    alias = update_reserved_alias(db, id, alias_data)
+    alias = get_reserved_alias_by_id(db, id)
+    update_reserved_alias(db, alias, alias_data)
 
     return alias
 
@@ -124,7 +125,7 @@ def update_reserved_alias_api(
 ):
     logger.info("Request: Delete Reserved Alias -> New Request.")
 
-    delete_reserved_alias_by_id(db, id)
+    delete_reserved_alias(db, id)
 
     return {
         "detail": "Alias deleted successfully."
