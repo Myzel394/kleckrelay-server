@@ -1,82 +1,20 @@
 import base64
-from io import BytesIO
+import uuid
 
-import requests
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from PIL import UnidentifiedImageError
-from requests import HTTPError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
-from urllib3.exceptions import ConnectTimeoutError
 
-from app import life_constants, logger
-from app.controllers.image_proxy import download_image, find_image_by_url
+from app import logger
+from app.controllers.image_proxy import download_image_to_database, find_image_by_url
 from app.database.dependencies import get_db
 from app.helpers.parse_proxied_image import convert_image_to_type
-from app.models.enums.alias import ImageProxyFormatType
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
+from app.utils import download_image
 
 router = APIRouter()
-
-
-def download_image_on_fly(
-    url: str,
-    preferred_type: ImageProxyFormatType,
-    user_agent: str,
-) -> BytesIO:
-    try:
-        proxied_response = requests.request(
-            method="GET",
-            url=url,
-            allow_redirects=True,
-            timeout=life_constants.IMAGE_PROXY_TIMEOUT_IN_SECONDS,
-            headers={
-                "User-Agent": user_agent,
-            }
-        )
-    except ConnectTimeoutError:
-        logger.info(
-            f"Request: Proxy Image -> Timeout while trying to proxy {url=}."
-        )
-        raise HTTPException(
-            status_code=502,
-            detail="Timeout while trying to proxy image.",
-        )
-    except HTTPError:
-        logger.info(
-            f"Request: Proxy Image -> Error while trying to proxy {url=}."
-        )
-        raise HTTPException(
-            status_code=502,
-            detail="Error while trying to proxy image.",
-        )
-
-    if proxied_response.status_code == 404:
-        logger.info(
-            f"Request: Proxy Image -> `404` Error while trying to proxy {url=}."
-        )
-        raise HTTPException(
-            detail="Upstream Server returned a status of `404`.",
-            status_code=404,
-        )
-
-    if proxied_response.status_code != 200:
-        logger.info(
-            f"Request: Proxy Image -> {url=} did not return a status code of `200`."
-        )
-        raise HTTPException(
-            detail={
-                "message": "Image could not be proxied.",
-                "original_status_code": proxied_response.status_code,
-            },
-            status_code=502,
-        )
-
-    return convert_image_to_type(
-        proxied_response.content,
-        preferred_type=preferred_type
-    )
 
 
 @router.get(
@@ -94,7 +32,7 @@ def download_image_on_fly(
 )
 def proxy_image(
     encoded_url: str,
-    proxy_id: str,
+    proxy_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Proxy Image -> New request")
@@ -117,7 +55,7 @@ def proxy_image(
                 f"Request: Proxy Image -> Url {url=} should be cached. Downloading image now..."
             )
 
-            download_image(
+            download_image_to_database(
                 db,
                 instance=proxy_instance,
                 url=url,
@@ -146,8 +84,9 @@ def proxy_image(
         logger.info(
             f"Request: Proxy Image -> Proxying image {url=} now."
         )
+
         return StreamingResponse(
-            download_image_on_fly(
+            download_image(
                 url=url,
                 preferred_type=proxy_instance.email_alias.proxy_image_format,
                 user_agent=proxy_instance.email_alias.get_user_agent_string(),

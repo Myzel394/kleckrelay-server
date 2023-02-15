@@ -14,6 +14,7 @@ from ..mixins.model_preference import ModelPreference
 
 __all__ = [
     "EmailAlias",
+    "DeletedEmailAlias",
 ]
 
 

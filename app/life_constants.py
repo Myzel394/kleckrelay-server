@@ -50,6 +50,7 @@ __all__ = [
     "ADMINS",
     "DKIM_PRIVATE_KEY",
     "USER_EMAIL_OTHER_RELAY_DOMAINS",
+    "MAX_ALIASES_PER_USER",
 ]
 
 load_dotenv()
@@ -154,3 +155,5 @@ ADMINS = [value.lower() for value in get_list("ADMINS")]
 USE_GLOBAL_SETTINGS = get_bool("USE_GLOBAL_SETTINGS")
 DKIM_PRIVATE_KEY = get_str("DKIM_PRIVATE_KEY")
 ALLOW_LOGS = get_bool("ALLOW_LOGS")
+ALLOW_ALIAS_DELETION = get_bool("ALLOW_ALIAS_DELETION")
+MAX_ALIASES_PER_USER = get_int("MAX_ALIASES_PER_USER")

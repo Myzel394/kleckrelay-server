@@ -1,23 +1,26 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import Page, paginate, Params
 from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
-from app import constants, logger
-from app.authentication.handler import access_security
+from app import logger
 from app.controllers.alias import (
-    create_alias, find_aliases_from_user_ordered, get_alias_from_user,
-    get_alias_from_user_by_address, update_alias,
+    create_alias, delete_alias, find_aliases_from_user_ordered, get_alias_from_user,
+    update_alias,
 )
 from app.controllers.global_settings import get_filled_settings
-from app.controllers.user import get_user_by_id
 from app.database.dependencies import get_db
-from app.models.alias import AliasType
-from app.schemas._basic import HTTPNotFoundExceptionModel
+from app.dependencies.get_instance_from_user import get_instance_from_user
+from app.dependencies.get_user import get_user
+from app.models import User
+from app.models.alias import AliasType, EmailAlias
+from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
 from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
+from app.controllers import global_settings as settings
 
 router = APIRouter()
 
@@ -27,7 +30,7 @@ router = APIRouter()
     response_model=Page[AliasList]
 )
 def get_all_aliases(
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
     params: Params = Depends(),
     query: str = Query(""),
@@ -35,8 +38,6 @@ def get_all_aliases(
     alias_type: AliasType = Query(None),
 ):
     logger.info("Request: Get all aliases -> New Request.")
-
-    user = get_user_by_id(db, credentials["id"])
 
     return paginate(
         find_aliases_from_user_ordered(
@@ -56,8 +57,8 @@ def get_all_aliases(
 )
 async def create_alias_api(
     request: Request,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
 ):
     logger.info("Request: Create Alias -> New request. Validating data.")
 
@@ -69,7 +70,6 @@ async def create_alias_api(
         raise HTTPException(status_code=422, detail=error.errors())
 
     logger.info("Request: Create Alias -> Valid data. Creating alias.")
-    user = get_user_by_id(db, credentials["id"])
 
     alias = create_alias(db, alias_data, user)
 
@@ -86,48 +86,67 @@ async def create_alias_api(
     }
 )
 def update_alias_api(
-    id: str,
     update: AliasUpdate,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
     db: Session = Depends(get_db),
 ):
-    logger.info(f"Request: Update Alias -> Updating alias with id={id}.")
-    user = get_user_by_id(db, credentials["id"])
+    logger.info(f"Request: Update Alias -> Updating {alias=}.")
+    update_alias(db, alias, update)
+    logger.info(f"Request: Update Alias -> Updated successfully!")
 
-    try:
-        alias = get_alias_from_user(db, user=user, id=id)
-    except NoResultFound:
-        logger.info(f"Request: Update Alias -> Alias {id} not found.")
-        raise HTTPException(
-            status_code=404,
-            detail="Alias not found."
-        )
-    else:
-        update_alias(db, alias, update)
-
-        return alias
+    return alias
 
 
-@router.get("/{alias}", response_model=AliasDetail)
+@router.get(
+    "/{id}",
+    response_model=AliasDetail,
+    responses={
+        403: {
+            "model": SimpleDetailResponseModel,
+            "description": "Maximum number of aliases reached."
+        }
+    }
+)
 def get_alias(
-    alias: str = Query(regex=constants.EMAIL_REGEX),
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
+):
+    return alias
+
+
+@router.delete(
+    "/{id}",
+    response_model=SimpleDetailResponseModel,
+    responses={
+        403: {
+            "model": SimpleDetailResponseModel,
+            "description": "Alias deletion is not allowed."
+        },
+        404: {
+            "model": HTTPNotFoundExceptionModel,
+            "description": "Alias not found."
+        },
+    }
+)
+def delete_alias_api(
+    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
     db: Session = Depends(get_db),
 ):
-    user = get_user_by_id(db, credentials["id"])
-    local, domain = alias.split("@")
+    logger.info(f"Request: Delete Alias -> New request to delete {alias=}.")
 
-    try:
-        alias = get_alias_from_user_by_address(
-            db,
-            user=user,
-            domain=domain,
-            local=local,
-        )
-    except NoResultFound:
+    if not settings.get(db, "ALLOW_ALIAS_DELETION"):
+        logger.info(f"Request: Delete Alias -> Alias deletion is not allowed.")
         raise HTTPException(
-            status_code=404,
-            detail="Alias not found."
+            status_code=403,
+            detail="Alias deletion is not allowed."
         )
-    else:
-        return alias
+
+    logger.info(f"Request: Delete Alias -> Alias deletion is allowed. Deleting alias.")
+
+    delete_alias(
+        db,
+        alias=alias,
+    )
+    logger.info(f"Request: Delete Alias -> Alias deleted successfully.")
+    return {
+        "detail": "Alias deleted successfully."
+    }

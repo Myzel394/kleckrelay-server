@@ -1,5 +1,5 @@
 from typing import Any, Optional
-from uuid import UUID
+import uuid
 
 from pydantic import BaseModel, Field, root_validator, validator
 
@@ -87,7 +87,7 @@ class AliasUpdate(AliasBase):
 
 class AliasList(BaseModel):
     is_active: bool
-    id: UUID
+    id: uuid.UUID
     domain: str
     local: str
     type: AliasType
@@ -98,7 +98,7 @@ class AliasList(BaseModel):
 
 
 class AliasDetail(AliasBase):
-    id: UUID
+    id: uuid.UUID
     domain: str
     local: str
     type: AliasType

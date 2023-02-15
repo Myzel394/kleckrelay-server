@@ -1,4 +1,4 @@
-from datetime import datetime
+import uuid
 
 from pydantic import BaseModel, Field
 
@@ -16,5 +16,5 @@ class EmailBase(BaseModel):
 
 
 class Email(EmailBase):
-    id: str
+    id: uuid.UUID
     is_verified: bool

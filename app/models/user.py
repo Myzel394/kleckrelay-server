@@ -102,6 +102,10 @@ class User(Base, IDMixin, CreationMixin):
         return self.email.address.lower() in life_constants.ADMINS
 
     def to_jwt_object(self) -> dict[str, Any]:
+        # Only save the absolute minimum information that is required to the retrieve the user;
+        # in this case only their ID.
+        # We want all other information to be retrieved from the database freshly, so that there
+        # is no permission leakage.
         return {
             "id": str(self.id),
         }

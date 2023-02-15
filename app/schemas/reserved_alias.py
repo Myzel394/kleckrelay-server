@@ -1,7 +1,7 @@
-from typing import Any, Optional
-from uuid import UUID
+from typing import Optional
+import uuid
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, validator
 
 from app.constants import LOCAL_REGEX, MAX_LOCAL_LENGTH
 
@@ -15,7 +15,7 @@ __all__ = [
 
 
 class ReservedAliasUserEmail(BaseModel):
-    id: UUID
+    id: uuid.UUID
     address: str
 
     class Config:
@@ -23,7 +23,7 @@ class ReservedAliasUserEmail(BaseModel):
 
 
 class ReservedAliasUser(BaseModel):
-    id: UUID
+    id: uuid.UUID
     email: ReservedAliasUserEmail
 
     class Config:
@@ -31,16 +31,16 @@ class ReservedAliasUser(BaseModel):
 
 
 class ReservedAliasCreateUser(BaseModel):
-    id: UUID
+    id: uuid.UUID
 
 
 class ReservedAliasUserEmailDetail(BaseModel):
-    id: UUID
+    id: uuid.UUID
     address: str
 
 
 class ReservedAliasUserDetail(BaseModel):
-    id: UUID
+    id: uuid.UUID
     email: ReservedAliasUserEmailDetail
 
 
@@ -86,7 +86,7 @@ class ReservedAliasUpdate(ReservedAliasBase):
 
 
 class ReservedAliasDetail(ReservedAliasBase):
-    id: UUID
+    id: uuid.UUID
     local: str
     domain: str
     users: list[ReservedAliasUser]

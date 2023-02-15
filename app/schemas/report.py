@@ -1,4 +1,4 @@
-from uuid import UUID
+import uuid
 
 from pydantic import BaseModel
 
@@ -12,7 +12,7 @@ class ReportBase(BaseModel):
 
 
 class Report(ReportBase):
-    id: UUID
+    id: uuid.UUID
     encrypted_content: str
 
     class Config:

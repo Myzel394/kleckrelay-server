@@ -1,52 +1,41 @@
-from fastapi import APIRouter, Depends, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.authentication.handler import access_security
-from app.controllers.user import get_user_by_id
+from app import logger
+from app.controllers.account import update_account_data
 from app.database.dependencies import get_db
-from app.schemas.user import SimpleUserResponseModel, UserUpdate
+from app.dependencies.get_user import get_user
+from app.models import User
+from app.schemas.user import UserDetail, UserUpdate
 
 router = APIRouter()
 
 
 @router.patch(
     "/",
-    response_model=SimpleUserResponseModel
+    response_model=UserDetail
 )
-def update_account_data(
+def update_account_data_api(
     user_data: UserUpdate,
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
-    user = get_user_by_id(db, credentials["id"])
+    logger.info(f"Request: Update Account Data -> Update {user=} with {user_data=}.")
+    update_account_data(
+        db,
+        user=user,
+        data=user_data,
+    )
+    logger.info(f"Request: Update Account Data -> Updating successfully.")
 
-    update_data = user_data.dict(exclude_unset=True)
-
-    for key, value in update_data.items():
-        setattr(user, key, value)
-
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    return {
-        "user": user,
-        "detail": "Updates user successfully!"
-    }
+    return user
 
 
 @router.get(
     "/me",
-    response_model=SimpleUserResponseModel,
+    response_model=UserDetail
 )
 def get_me(
-        credentials: JwtAuthorizationCredentials = Security(access_security),
-        db: Session = Depends(get_db),
+    user: User = Depends(get_user),
 ):
-    user = get_user_by_id(db, credentials["id"])
-
-    return {
-        "user": user,
-        "detail": "Returned user successfully!",
-    }
+    return user

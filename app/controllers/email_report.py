@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from sqlalchemy.orm import Session
 
@@ -6,16 +7,16 @@ from app.email_report_data import EmailReportData
 from app.gpg_handler import sign_message
 from app.models import EmailReport, User
 
-__all__ = [
-    "create_email_report_from_report_data",
-    "get_report_by_id",
-    "get_report_from_user_by_id",
-]
-
 from email_utils.utils import DataclassJSONEncoder
 
+__all__ = [
+    "create_email_report",
+    "get_report_from_user_by_id",
+    "delete_report",
+]
 
-def create_email_report_from_report_data(
+
+def create_email_report(
     db: Session,
     /,
     report_data: EmailReportData,
@@ -47,9 +48,10 @@ def create_email_report_from_report_data(
     return report
 
 
-def get_report_by_id(db: Session, id: str) -> EmailReport:
-    return db.query(EmailReport).filter_by(id=id).one()
-
-
-def get_report_from_user_by_id(db: Session, user: User, id: str) -> EmailReport:
+def get_report_from_user_by_id(db: Session, user: User, id: uuid.UUID) -> EmailReport:
     return db.query(EmailReport).filter_by(user_id=user.id, id=id).one()
+
+
+def delete_report(db: Session, report: EmailReport) -> None:
+    db.delete(report)
+    db.commit()

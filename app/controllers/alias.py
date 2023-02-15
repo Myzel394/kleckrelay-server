@@ -1,6 +1,8 @@
 import secrets
+import uuid
 from typing import Optional
 
+from fastapi import HTTPException
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
@@ -10,19 +12,19 @@ from app.constants import MAX_RANDOM_ALIAS_ID_GENERATION
 from app.controllers.alias_utils import check_if_alias_exists, get_aliases_amount
 from app.life_constants import MAIL_DOMAIN
 from app.models import User
-from app.models.alias import EmailAlias
+from app.models.alias import DeletedEmailAlias, EmailAlias
 from app.models.enums.alias import AliasType
 from app.schemas.alias import AliasCreate, AliasUpdate
 from app.utils import contains_word
 
 __all__ = [
     "get_alias_from_user",
-    "get_alias_from_user_by_address",
     "find_aliases_from_user_ordered",
     "create_local_with_suffix",
     "generate_random_local_id",
     "create_alias",
-    "update_alias"
+    "update_alias",
+    "delete_alias"
 ]
 
 
@@ -67,19 +69,6 @@ def _generate_suffix(db: Session, /) -> str:
     )
 
 
-def get_alias_from_user_by_address(
-    db: Session,
-    /,
-    user: User,
-    domain: str,
-    local: str
-) -> EmailAlias:
-    return db \
-        .query(EmailAlias) \
-        .filter(and_(EmailAlias.user == user, EmailAlias.domain == domain, EmailAlias.local == local)) \
-        .one()
-
-
 def find_aliases_from_user_ordered(
     db: Session,
     /,
@@ -108,7 +97,7 @@ def find_aliases_from_user_ordered(
         .all()
 
 
-def get_alias_from_user(db: Session, /, user: User, id: str) -> EmailAlias:
+def get_alias_from_user(db: Session, /, user: User, id: uuid.UUID) -> EmailAlias:
     return db \
         .query(EmailAlias) \
         .filter(and_(EmailAlias.user == user, EmailAlias.id == id)) \
@@ -148,6 +137,15 @@ def create_local_with_suffix(db: Session, /, local: str, domain: str) -> str:
 
 
 def create_alias(db: Session, /, data: AliasCreate, user: User) -> EmailAlias:
+    max_aliases_per_user = settings.get(db, "MAX_ALIASES_PER_USER")
+
+    if max_aliases_per_user != 0:
+        if len(user.email_aliases) >= max_aliases_per_user:
+            raise HTTPException(
+                status_code=403,
+                detail="You have reached the maximum number of aliases."
+            )
+
     if data.type == AliasType.RANDOM:
         logger.info("Request: Create Alias -> Type is AliasType.RANDOM")
         local = generate_random_local_id(db, domain=MAIL_DOMAIN)
@@ -196,3 +194,25 @@ def update_alias(db: Session, /, alias: EmailAlias, data: AliasUpdate) -> None:
     db.refresh(alias)
 
     logger.info(f"Request: Update Alias -> Alias {alias.id} saved successfully.")
+
+
+def delete_alias(db: Session, /, alias: EmailAlias) -> None:
+    logger.info(f"Request: Delete Alias -> Deleting Alias {alias.id}.")
+
+    logger.info("Request: Delete Alias -> Creating DeletedEmailAlias.")
+
+    deleted_alias = DeletedEmailAlias(
+        email=alias.address,
+    )
+
+    logger.info("Request: Delete Alias -> Saving DeletedEmailAlias.")
+    db.add(deleted_alias)
+    db.commit()
+    db.refresh(deleted_alias)
+
+    logger.info("Request: Delete Alias -> Deleting Alias.")
+
+    db.delete(alias)
+    db.commit()
+
+    logger.info(f"Request: Delete Alias -> Alias {alias.id} deleted successfully.")

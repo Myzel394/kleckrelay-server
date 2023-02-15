@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.models import ReservedAlias
-from app.models.alias import EmailAlias
+from app.models.alias import DeletedEmailAlias, EmailAlias
 
 __all__ = [
     "get_aliases_amount",
@@ -27,6 +27,5 @@ def check_if_alias_exists(db: Session, /, local: str, domain: str) -> bool:
                  .filter_by(domain=domain)
                  .filter_by(local=local)
                  .exists()
-                 ).scalar()
-
-
+                 ).scalar() or \
+        db.query(db.query(DeletedEmailAlias).filter_by(email=f"{local}@{domain}").exists()).scalar()

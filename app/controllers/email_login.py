@@ -108,9 +108,10 @@ def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToke
     return instance, same_request_token
 
 
-def delete_email_login_token(db: Session, /, instance: EmailLoginToken):
-    logger.info(f"Delete email login token: Deleting email login token for "
-                f"{instance.user.email.address}.")
+def delete_email_login_token(db: Session, /, instance: EmailLoginToken) -> None:
+    logger.info(
+        f"Delete email login token: Deleting email login token for {instance.user.email.address}."
+    )
     db.delete(instance)
     db.commit()
 
@@ -122,6 +123,24 @@ async def get_email_login_token_from_email(db: Session, /, email: str) -> Option
         return user.email_login_token
     except NoResultFound:
         return None
+
+
+def change_allow_login_from_different_devices(
+    db: Session,
+    /,
+    email_login_token: EmailLoginToken,
+    allow_login_from_other_device: bool
+) -> None:
+    logger.info(
+        f"Request: Allow Login From Different Device: New Request for "
+        f"{email_login_token.user.email.address}."
+    )
+
+    email_login_token.bypass_same_request_token = allow_login_from_other_device
+
+    db.add(email_login_token)
+    db.commit()
+    db.refresh(email_login_token)
 
 
 def generate_token() -> str:

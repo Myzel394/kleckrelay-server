@@ -75,4 +75,13 @@ class GlobalSettings(Base, IDMixin):
         default=None,
         nullable=True,
     )
-
+    allow_alias_deletion = sa.Column(
+        sa.Boolean(),
+        default=None,
+        nullable=True,
+    )
+    max_aliases_per_user = sa.Column(
+        sa.Integer(),
+        default=None,
+        nullable=True,
+    )

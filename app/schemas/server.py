@@ -27,6 +27,7 @@ class SettingsModel(BaseModel):
     custom_alias_suffix_length: int
     instance_salt: str
     public_key: str
+    allow_alias_deletion: bool
 
 
 class ServerStatisticsModel(BaseModel):
