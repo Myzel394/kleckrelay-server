@@ -8,7 +8,10 @@ from app.controllers.global_settings import get_settings, update_settings
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_admin_user
 from app.models import User
-from app.schemas.admin import AdminSettingsModel, AdminUsersResponseModel
+from app.schemas.admin import (
+    AdminGlobalSettingsDisabledResponseModel, AdminSettingsModel,
+    AdminUsersResponseModel,
+)
 
 router = APIRouter()
 
@@ -31,6 +34,12 @@ def get_admin_users_api(
 @router.get(
     "/settings/",
     response_model=AdminSettingsModel,
+    responses={
+        202: {
+            "description": "Global settings are disabled.",
+            "model": AdminGlobalSettingsDisabledResponseModel,
+        },
+    }
 )
 def get_settings_api(
     response: Response,
@@ -44,10 +53,11 @@ def get_settings_api(
             "Request: Get Admin Settings -> Global settings are disabled. Returning error."
         )
 
-        response.status_code = 204
+        response.status_code = 202
 
         return {
-            "detail": "Global settings are disabled."
+            "detail": "Global settings are disabled.",
+            "code": "error:settings:global_settings_disabled"
         }
 
     logger.info("Request: Get Admin Settings -> Global settings are enabled. Returning settings.")
@@ -57,6 +67,12 @@ def get_settings_api(
 @router.patch(
     "/settings/",
     response_model=AdminSettingsModel,
+    responses={
+        202: {
+            "description": "Global settings are disabled.",
+            "model": AdminGlobalSettingsDisabledResponseModel,
+        },
+    }
 )
 def update_settings_api(
     response: Response,
@@ -71,10 +87,11 @@ def update_settings_api(
             "Request: Update Admin Settings -> Global settings are disabled. Returning error."
         )
 
-        response.status_code = 204
+        response.status_code = 202
 
         return {
-            "detail": "Global settings are disabled."
+            "detail": "Global settings are disabled.",
+            "code": "error:settings:global_settings_disabled"
         }
 
     # Update settings

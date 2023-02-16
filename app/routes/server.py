@@ -8,7 +8,10 @@ from app.controllers.server_statistics import get_server_statistics as \
     get_server_statistics_instance
 from app.database.dependencies import get_db
 from app.schemas._basic import SimpleDetailResponseModel
-from app.schemas.server import ServerStatisticsModel, SettingsModel
+from app.schemas.server import (
+    ServerStatisticsDisabledResponseModel, ServerStatisticsModel,
+    SettingsModel,
+)
 
 router = APIRouter()
 
@@ -50,7 +53,7 @@ def get_settings(
             "model": ServerStatisticsModel,
         },
         202: {
-            "model": SimpleDetailResponseModel,
+            "model": ServerStatisticsDisabledResponseModel,
             "description": "Server statistics are disabled."
         }
     }
@@ -63,10 +66,11 @@ def get_server_statistics(
 
     if not settings.get(db, "ALLOW_STATISTICS"):
         logger.info("Request: Get Server statistics -> Statistics disabled.")
-        response.status_code = 204
+        response.status_code = 202
 
         return {
-            "detail": "Server statistics are disabled."
+            "detail": "Server statistics are disabled.",
+            "code": "error:settings:statistics_disabled"
         }
     else:
         logger.info("Request: Get Server statistics -> Statistics enabled. Returning them.")

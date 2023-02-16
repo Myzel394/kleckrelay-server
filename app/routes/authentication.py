@@ -38,7 +38,8 @@ from app.schemas.authentication import (
     EmailLoginTokenResponseModel,
     EmailLoginTokenVerifyModel,
     LoginWithEmailTokenModel,
-    ResendEmailModel, SignupResponseModel, VerifyEmailModel,
+    ResendEmailAlreadyVerifiedResponseModel, ResendEmailModel, SignupResponseModel,
+    VerifyEmailModel,
 )
 from app.schemas.user import UserCreate, UserDetail
 
@@ -112,13 +113,14 @@ async def signup(
             "description": "Email address not found."
         },
         202: {
-            "model": {},
+            "model": ResendEmailAlreadyVerifiedResponseModel,
             "description": "Email is already verified. No verification email sent."
         }
     }
 )
 def resend_email(
     input_data: ResendEmailModel,
+    response: Response,
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Resend Email -> New Request.")
@@ -126,7 +128,15 @@ def resend_email(
     try:
         email = get_email_by_address(db, address=input_data.email)
 
-        send_verification_email(email, language=email.user.language)
+        if email.is_verified:
+            response.status_code = 202
+
+            return {
+                "detail": "Email is already verified.",
+                "code": "ok:email_already_verified",
+            }
+        else:
+            send_verification_email(email, language=email.user.language)
     except NoResultFound:
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
             raise HTTPException(
@@ -134,9 +144,9 @@ def resend_email(
                 status_code=404,
             )
 
-    return JSONResponse({
+    return {
         "detail": "Verification code was resent."
-    }, status_code=200)
+    }
 
 
 @router.post(

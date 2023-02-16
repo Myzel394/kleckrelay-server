@@ -101,7 +101,7 @@ def test_can_not_get_settings_when_disabled(
         headers=auth["headers"],
     )
 
-    assert response.status_code == 204, f"Status code should be 204 but is {response.status_code}"
+    assert response.status_code == 202, f"Status code should be 202 but is {response.status_code}"
 
 
 def test_can_not_set_empty_chars(

@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 __all__ = [
     "AdminUsersResponseModel",
     "AdminSettingsModel",
+    "AdminGlobalSettingsDisabledResponseModel"
 ]
 
 SMALL_INTEGER_LIMIT = 32_767
@@ -30,6 +31,11 @@ class AdminUsersResponseUserModel(BaseModel):
 
 class AdminUsersResponseModel(BaseModel):
     users: list[AdminUsersResponseUserModel]
+
+
+class AdminGlobalSettingsDisabledResponseModel(BaseModel):
+    detail: str
+    code: str = "error:settings:global_settings_disabled"
 
 
 # Since admins can change everything about the settings, we can simply use one model for creating
