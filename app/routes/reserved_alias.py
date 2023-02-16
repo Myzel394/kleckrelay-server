@@ -98,7 +98,13 @@ def create_reserved_alias_api(
 
 @router.patch(
     "/{id}",
-    response_model=ReservedAliasDetail
+    response_model=ReservedAliasDetail,
+    responses={
+        404: {
+            "description": "Alias not found.",
+            "model": SimpleDetailResponseModel,
+        }
+    }
 )
 def update_reserved_alias_api(
     id: uuid.UUID,
@@ -108,7 +114,14 @@ def update_reserved_alias_api(
 ):
     logger.info("Request: Update Reserved Alias -> New Request.")
 
-    alias = get_reserved_alias_by_id(db, id)
+    try:
+        alias = get_reserved_alias_by_id(db, id)
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Alias not found."
+        )
+
     update_reserved_alias(db, alias, alias_data)
 
     return alias
@@ -116,7 +129,13 @@ def update_reserved_alias_api(
 
 @router.delete(
     "/{id}",
-    response_model=SimpleDetailResponseModel
+    response_model=SimpleDetailResponseModel,
+    responses={
+        404: {
+            "description": "Alias not found.",
+            "model": SimpleDetailResponseModel,
+        }
+    }
 )
 def update_reserved_alias_api(
     id: uuid.UUID,
@@ -125,7 +144,15 @@ def update_reserved_alias_api(
 ):
     logger.info("Request: Delete Reserved Alias -> New Request.")
 
-    delete_reserved_alias(db, id)
+    try:
+        alias = get_reserved_alias_by_id(db, id)
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="Alias not found."
+        )
+
+    delete_reserved_alias(db, alias)
 
     return {
         "detail": "Alias deleted successfully."
