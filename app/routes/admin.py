@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 from app import life_constants, logger
 from app.controllers.admin import get_admin_users
@@ -42,7 +42,6 @@ def get_admin_users_api(
     }
 )
 def get_settings_api(
-    response: Response,
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
@@ -53,12 +52,10 @@ def get_settings_api(
             "Request: Get Admin Settings -> Global settings are disabled. Returning error."
         )
 
-        response.status_code = 202
-
-        return {
+        return JSONResponse({
             "detail": "Global settings are disabled.",
             "code": "error:settings:global_settings_disabled"
-        }
+        }, status_code=202)
 
     logger.info("Request: Get Admin Settings -> Global settings are enabled. Returning settings.")
     return get_settings(db)
@@ -75,7 +72,6 @@ def get_settings_api(
     }
 )
 def update_settings_api(
-    response: Response,
     update_data: AdminSettingsModel,
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
@@ -87,12 +83,10 @@ def update_settings_api(
             "Request: Update Admin Settings -> Global settings are disabled. Returning error."
         )
 
-        response.status_code = 202
-
-        return {
+        return JSONResponse({
             "detail": "Global settings are disabled.",
             "code": "error:settings:global_settings_disabled"
-        }
+        }, status_code=202)
 
     # Update settings
     logger.info(f"Request: Update Admin Settings -> Updating settings with {update_data=}.")

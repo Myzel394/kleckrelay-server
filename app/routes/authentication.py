@@ -120,7 +120,6 @@ async def signup(
 )
 def resend_email(
     input_data: ResendEmailModel,
-    response: Response,
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Resend Email -> New Request.")
@@ -129,12 +128,10 @@ def resend_email(
         email = get_email_by_address(db, address=input_data.email)
 
         if email.is_verified:
-            response.status_code = 202
-
-            return {
+            return JSONResponse({
                 "detail": "Email is already verified.",
                 "code": "ok:email_already_verified",
-            }
+            }, status_code=202)
         else:
             send_verification_email(email, language=email.user.language)
     except NoResultFound:
@@ -181,9 +178,7 @@ def signup_verify_email(
                 f"Request: Verify Email -> Email {email.address} already verified. Returning 202."
             )
 
-            response.status_code = 202
-
-            return email.user
+            return JSONResponse(email.user, status_code=202)
 
         logger.info(f"Request: Verify Email -> Verifying email {email.address}.")
         verify_email(db, email=email, token=input_data.token)
