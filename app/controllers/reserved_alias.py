@@ -142,13 +142,12 @@ def update_reserved_alias(
 
 
 def delete_reserved_alias(db: Session, /, alias: ReservedAlias) -> None:
-    logger.info(f"Request: Delete Alias -> Deleting {alias=}.")
+    logger.info(f"Request: Delete Reserved Alias -> Deleting {alias=}.")
 
-    logger.info(f"Request: Delete Alias -> Found alias! Committing to database.")
     db.delete(alias)
     db.commit()
 
-    logger.info(f"Request: Delete Alias -> Success!")
+    logger.info(f"Request: Delete Reserved Alias -> Success!")
 
 
 def get_reserved_alias_by_address(
