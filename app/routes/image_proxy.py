@@ -10,7 +10,7 @@ from starlette.responses import StreamingResponse
 from app import logger
 from app.controllers.image_proxy import download_image_to_database, find_image_by_url
 from app.database.dependencies import get_db
-from app.helpers.parse_proxied_image import convert_image_to_type
+from app.utils.parse_proxied_image import convert_image_to_type
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.utils import download_image
 

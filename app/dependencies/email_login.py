@@ -6,7 +6,7 @@ from app.constants import EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH, EMAIL_REG
 from app.controllers.email_login import get_email_login_token_from_email
 from app.database.dependencies import get_db
 from app.models import EmailLoginToken
-from app.utils import verify_fast_hash
+from app.utils.hashes import verify_fast_hash
 
 __all__ = [
     "get_email_login_token"

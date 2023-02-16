@@ -15,7 +15,7 @@ from app.models import User
 from app.models.alias import DeletedEmailAlias, EmailAlias
 from app.models.enums.alias import AliasType
 from app.schemas.alias import AliasCreate, AliasUpdate
-from app.utils import contains_word
+from app.utils.common import contains_word
 
 __all__ = [
     "get_alias_from_user",

@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field, validator
 
 from app import constants, logger
 from app.gpg_handler import gpg
-from app.helpers.check_email_is_disposable import check_if_email_is_disposable
-from app.helpers.check_email_is_from_relay import check_if_email_is_from_relay
+from app.utils.check_email_is_disposable import check_if_email_is_disposable
+from app.utils.check_email_is_from_relay import check_if_email_is_from_relay
 from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 from app.models.user import LanguageType
 from app.schemas.global_settings import GlobalSettingsModel

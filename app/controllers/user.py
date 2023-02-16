@@ -11,7 +11,7 @@ from app.logger import logger
 from app.models import Email
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.utils import normalize_email
+from app.utils.email import normalize_email
 
 from .global_settings import get
 
