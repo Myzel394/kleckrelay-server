@@ -6,7 +6,7 @@ from requests import HTTPError
 from urllib3.exceptions import ConnectTimeoutError
 
 from app import life_constants, logger
-from app.helpers.parse_proxied_image import convert_image_to_type
+from app.utils.parse_proxied_image import convert_image_to_type
 from app.models.enums.alias import ImageProxyFormatType
 
 

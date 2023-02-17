@@ -1,5 +1,5 @@
 from app import life_constants
-from app.helpers.domain import get_top_domain
+from app.utils.domain import get_top_domain
 
 __all__ = [
     "check_if_email_is_from_relay"

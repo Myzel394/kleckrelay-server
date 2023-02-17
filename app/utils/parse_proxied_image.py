@@ -3,12 +3,11 @@ from io import BytesIO
 from PIL import Image, UnidentifiedImageError
 
 from app import logger
+from app.models.enums.alias import ImageProxyFormatType
 
 __all__ = [
     "convert_image_to_type"
 ]
-
-from app.models.enums.alias import ImageProxyFormatType
 
 
 def _convert(content: bytes, image_format: str) -> BytesIO:

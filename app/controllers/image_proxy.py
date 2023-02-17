@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app import life_constants, logger
 from app.constants import ROOT_DIR
 from app.models import EmailAlias, ImageProxy
-from app.utils import hash_fast, verify_fast_hash
+from app.utils.hashes import hash_fast, verify_fast_hash
 from app.utils.download_image import download_image
 from .global_settings import get
 

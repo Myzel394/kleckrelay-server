@@ -86,6 +86,10 @@ services:
       - api.app.krl_CORS_ALLOW_METHODS=GET, POST, PUT, PATCH, DELETE, OPTIONS
       - api.app.krl_CORS_ALLOW_CREDENTIALS=yes
       - api.app.krl_COOKIE_AUTO_SECURE_FLAG=no
+      - api.app.krl_REMOVE_HEADERS=Server X-Powered-By Access-Control-Allow-Origin Access-Control-Allow-Credentials
+      - api.app.krl_USE_LIMIT_REQ=no
+      - api.app.krl_USE_LIMIT_CONN=no
+      - api.app.krl_REVERSE_PROXY_INTERCEPT_ERRORS=no
 
       - app.krl_REVERSE_PROXY_URL=/
       - app.krl_REVERSE_PROXY_HOST=http://192.168.178.129:5173

@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from app import life_constants
 from app.database.base import Base
 from app.models._mixins import CreationMixin, IDMixin
-from app.utils import hash_fast
+from app.utils.hashes import hash_fast
 
 __all__ = [
     "EmailLoginToken",

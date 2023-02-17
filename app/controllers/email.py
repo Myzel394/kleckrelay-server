@@ -10,7 +10,7 @@ from app.constants import (
 from app.mails.send_email_verification import send_email_verification
 from app.models import LanguageType
 from app.models.email import Email
-from app.utils import normalize_email
+from app.utils.email import normalize_email
 
 __all__ = [
     "create_email",
