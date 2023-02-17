@@ -40,9 +40,9 @@ class CronReportData(Base, IDMixin):
 # This class contains the metadata of the report and includes multiple CronReportDatas
 class CronReport(Base, CreationMixin):
     if TYPE_CHECKING:
-        data: list[CronReportData]
+        report_data: list[CronReportData]
     else:
-        data = relationship(
+        report_data = relationship(
             "CronReportData",
             back_populates="report",
         )
