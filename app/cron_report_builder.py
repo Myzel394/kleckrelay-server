@@ -10,12 +10,12 @@ __all__ = [
 @dataclass
 class CronReportBuilder:
     version = "1.0"
-    id: uuid.UUID
     started_at: datetime
-    finished_at: datetime
-    status: str
-    expired_images: int
-    non_verified_users: int
+    finished_at: datetime = None
+    id: uuid.UUID = None
+    status: str = None
+    expired_images: int = None
+    non_verified_users: int = None
 
     def as_dict(self) -> dict[str, str]:
         return {
