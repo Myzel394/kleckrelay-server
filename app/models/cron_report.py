@@ -15,6 +15,8 @@ __all__ = [
 
 # This class contains the actual data of the report
 class CronReportData(Base, IDMixin):
+    __tablename__ = "cron_report_data"
+
     if TYPE_CHECKING:
         from .user import User
         encrypted_report: str
@@ -38,7 +40,9 @@ class CronReportData(Base, IDMixin):
 
 
 # This class contains the metadata of the report and includes multiple CronReportDatas
-class CronReport(Base, CreationMixin):
+class CronReport(Base, IDMixin, CreationMixin):
+    __tablename__ = "cron_report"
+
     if TYPE_CHECKING:
         report_data: list[CronReportData]
     else:
