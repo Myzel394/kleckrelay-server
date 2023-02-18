@@ -72,6 +72,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         image_proxies = relationship(
             "ImageProxy",
             backref="email_alias",
+            cascade="all, delete",
         )
 
         pref_remove_trackers = sa.Column(

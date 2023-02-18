@@ -42,6 +42,13 @@ services:
     env_file:
       - .env
 
+  kleckrelay-maid:
+    container_name: kleckrelay-maid
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Maid.Dockerfile
+
   nginx:
     container_name: nginx
     image: bunkerity/bunkerweb
@@ -66,6 +73,7 @@ services:
       # If you want to receive a notification when your certificates are not automatically
       # renewed and will expire soon, enter an email here
       # - EMAIL_LETS_ENCRYPT=
+      - USE_BAD_BEHAVIOR=no
 
       - api.app.krl_REVERSE_PROXY_URL=/
       - api.app.krl_REVERSE_PROXY_HOST=http://kleckrelay-server:80

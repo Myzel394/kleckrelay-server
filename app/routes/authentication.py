@@ -178,7 +178,9 @@ def signup_verify_email(
                 f"Request: Verify Email -> Email {email.address} already verified. Returning 202."
             )
 
-            return JSONResponse(email.user, status_code=202)
+            response.status_code = 202
+
+            return email.user
 
         logger.info(f"Request: Verify Email -> Verifying email {email.address}.")
         verify_email(db, email=email, token=input_data.token)

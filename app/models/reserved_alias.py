@@ -55,6 +55,7 @@ class ReservedAlias(Base, IDMixin):
             "User",
             secondary=ReservedAliasUser.__table__,
             back_populates="reserved_aliases",
+            cascade="all, delete",
         )
 
     @property

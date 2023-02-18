@@ -1,8 +1,6 @@
 import uuid
-from io import BytesIO
-from uuid import UUID
+from datetime import datetime, timedelta
 
-import requests
 from PIL import Image
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -12,11 +10,13 @@ from app.constants import ROOT_DIR
 from app.models import EmailAlias, ImageProxy
 from app.utils.hashes import hash_fast, verify_fast_hash
 from app.utils.download_image import download_image
+from .global_settings import get
 
 __all__ = [
     "create_image_proxy",
     "find_image_by_url",
-    "download_image_to_database"
+    "download_image_to_database",
+    "get_expired_images"
 ]
 
 STORAGE_PATH = ROOT_DIR / life_constants.IMAGE_PROXY_STORAGE_PATH
@@ -95,3 +95,12 @@ def download_image_to_database(
     db.add(instance)
     db.commit()
     db.refresh(instance)
+
+
+def get_expired_images(db: Session, /) -> list[ImageProxy]:
+    lifetime_in_hours = get(db, "IMAGE_PROXY_STORAGE_LIFE_TIME_IN_HOURS")
+
+    return db\
+        .query(ImageProxy)\
+        .filter(ImageProxy.created_at > datetime.now() - timedelta(hours=lifetime_in_hours))\
+        .all()
