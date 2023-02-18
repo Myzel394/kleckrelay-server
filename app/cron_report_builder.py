@@ -16,6 +16,7 @@ class CronReportBuilder:
     status: str = None
     expired_images: int = None
     non_verified_users: int = None
+    expired_reports: int = None
 
     def as_dict(self) -> dict[str, str]:
         return {
@@ -27,5 +28,6 @@ class CronReportBuilder:
                 "status": self.status,
                 "expired_images": self.expired_images,
                 "non_verified_users": self.non_verified_users,
+                "expired_reports": self.expired_reports,
             }
         }
