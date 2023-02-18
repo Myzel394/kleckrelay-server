@@ -4,7 +4,10 @@ import logging
 from sqlalchemy.orm import Session
 
 from app import logger
-from app.controllers.cron_report import create_cron_report
+from app.controllers.cron_report import (
+    create_cron_report, delete_cron_report,
+    get_expired_cron_reports,
+)
 from app.controllers.image_proxy import get_expired_images
 from app.controllers.user import delete_user, get_non_verified_users_to_delete
 from app.cron_report_builder import CronReportBuilder
@@ -42,6 +45,15 @@ def clean_up(
 
     report_builder.non_verified_users = len(users)
 
+    reports = get_expired_cron_reports(db)
+
+    logger.info(f"Maid: Found {len(reports)} reports to delete.")
+    for report in reports:
+        delete_cron_report(db, report)
+        logger.info(f"Maid: Deleted report {report.id}.")
+
+    report_builder.expired_reports = len(reports)
+
     logger.info("Maid: Finished cleanup.")
 
 
@@ -50,6 +62,7 @@ def main() -> None:
 
     logger.info("Maid: Getting database.")
     with with_db() as db:
+        logger.info("Maid: Got database.")
         report_builder = CronReportBuilder(
             started_at=datetime.now(),
         )

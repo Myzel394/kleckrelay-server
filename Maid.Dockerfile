@@ -7,7 +7,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Install dependencies
 RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
-    && apt install python3 python3-pip cron -y \
+    && apt install python3 python3-pip gnupg2 cron -y \
     && pip install psycopg2
 
 
@@ -17,6 +17,11 @@ WORKDIR /home/maid
 
 COPY pyproject.toml /home/maid
 COPY maid.py /home/maid
+
+COPY . .
+
+# Create gnupg path
+RUN mkdir ~/.gnupg
 
 # Install poetry
 RUN pip3 install poetry

@@ -73,11 +73,11 @@ services:
       # If you want to receive a notification when your certificates are not automatically
       # renewed and will expire soon, enter an email here
       # - EMAIL_LETS_ENCRYPT=
+      - USE_BAD_BEHAVIOR=no
 
       - api.app.krl_REVERSE_PROXY_URL=/
       - api.app.krl_REVERSE_PROXY_HOST=http://kleckrelay-server:80
       - api.app.krl_ALLOWED_METHODS=GET|POST|PUT|PATCH|DELETE|OPTIONS
-      - api.app.krl_REVERSE_PROXY_INTERCEPT_ERRORS=no
       # Security is too strict
       - api.app.krl_BLOCK_ABUSERS=no
 
