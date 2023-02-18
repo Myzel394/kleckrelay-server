@@ -12,7 +12,7 @@ from app.controllers.image_proxy import download_image_to_database, find_image_b
 from app.database.dependencies import get_db
 from app.utils.parse_proxied_image import convert_image_to_type
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
-from app.utils import download_image
+from app.utils.download_image import download_image
 
 router = APIRouter()
 

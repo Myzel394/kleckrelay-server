@@ -48,6 +48,5 @@ class CronReport(Base, IDMixin, CreationMixin):
     else:
         report_data = relationship(
             "CronReportData",
-            back_populates="report",
+            cascade="all, delete",
         )
-

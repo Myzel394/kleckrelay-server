@@ -17,7 +17,7 @@ from app.main import app
 from app.models import Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserPreferences
 from app.models.enums.alias import AliasType
 from app.tests.helpers import create_item
-from app.utils import hash_fast
+from app.utils.hashes import hash_fast
 
 
 @pytest.fixture(scope="session", autouse=True)

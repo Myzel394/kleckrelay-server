@@ -48,6 +48,7 @@ class User(Base, IDMixin, CreationMixin):
             "Email",
             backref="user",
             uselist=False,
+            cascade="all, delete",
         )
         language = sa.Column(
             sa.Enum(LanguageType),
@@ -76,25 +77,30 @@ class User(Base, IDMixin, CreationMixin):
         email_aliases = relationship(
             "EmailAlias",
             backref="user",
+            cascade="all, delete",
         )
         email_reports = relationship(
             "EmailReport",
             backref="user",
+            cascade="all, delete",
         )
         email_login_token = relationship(
             "EmailLoginToken",
             backref="user",
             uselist=False,
+            cascade="all, delete",
         )
         preferences = relationship(
             "UserPreferences",
             backref="user",
             uselist=False,
+            cascade="all, delete",
         )
         reserved_aliases = relationship(
             "ReservedAlias",
             secondary=ReservedAliasUser.__table__,
             back_populates="users",
+            cascade="all, delete",
         )
 
     @property
