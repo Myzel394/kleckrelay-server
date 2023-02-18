@@ -142,10 +142,17 @@ def update_reserved_alias(
 
 
 def delete_reserved_alias(db: Session, /, alias: ReservedAlias) -> None:
-    logger.info(f"Request: Delete Alias -> Deleting {alias=}.")
+    logger.info(f"Request: Delete Reserved Alias -> Getting many-to-many related admin users.")
+    users = db.query(ReservedAliasUserModel).filter_by(reserved_alias_id=alias.id).all()
 
-    logger.info(f"Request: Delete Alias -> Found alias! Committing to database.")
+    logger.info(f"Request: Delete Reserved Alias -> Deleting many-to-many related admin users.")
+    for user in users:
+        db.delete(user)
+
+    logger.info(f"Request: Delete Alias -> Deleting {alias=}.")
     db.delete(alias)
+
+    logger.info(f"Request: Delete Alias -> Committing to database.")
     db.commit()
 
     logger.info(f"Request: Delete Alias -> Success!")
