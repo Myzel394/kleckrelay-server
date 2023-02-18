@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 from app import constants, life_constants, gpg_handler, logger
 from app.controllers import global_settings as settings
@@ -8,7 +8,10 @@ from app.controllers.server_statistics import get_server_statistics as \
     get_server_statistics_instance
 from app.database.dependencies import get_db
 from app.schemas._basic import SimpleDetailResponseModel
-from app.schemas.server import ServerStatisticsModel, SettingsModel
+from app.schemas.server import (
+    ServerStatisticsDisabledResponseModel, ServerStatisticsModel,
+    SettingsModel,
+)
 
 router = APIRouter()
 
@@ -50,24 +53,24 @@ def get_settings(
             "model": ServerStatisticsModel,
         },
         202: {
-            "model": SimpleDetailResponseModel,
+            "model": ServerStatisticsDisabledResponseModel,
             "description": "Server statistics are disabled."
         }
     }
 )
 def get_server_statistics(
-    response: Response,
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Get Server statistics -> New Request.")
 
     if not settings.get(db, "ALLOW_STATISTICS"):
         logger.info("Request: Get Server statistics -> Statistics disabled.")
-        response.status_code = 204
 
-        return {
-            "detail": "Server statistics are disabled."
-        }
+        return JSONResponse({
+            "detail": "Global settings are disabled.",
+            "code": "error:settings:global_settings_disabled"
+        }, status_code=202)
+
     else:
         logger.info("Request: Get Server statistics -> Statistics enabled. Returning them.")
         statistics = get_server_statistics_instance(db)

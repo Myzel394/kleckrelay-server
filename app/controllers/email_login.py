@@ -46,8 +46,9 @@ def is_token_valid(
 
     if not instance.bypass_same_request_token and not \
             verify_fast_hash(instance.hashed_same_request_token, same_request_token):
-        logger.info(f"Is token valid: Same Request Token for {instance.user.email.address} is "
-                    f"incorrect.")
+        logger.info(
+            f"Is token valid: Same Request Token for {instance.user.email.address} is incorrect."
+        )
         raise EmailLoginTokenSameRequestTokenInvalidError()
 
     if instance.tries > EMAIL_LOGIN_TOKEN_MAX_TRIES:

@@ -1,8 +1,5 @@
-import uuid
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi_pagination import Page, paginate, Params
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import logger

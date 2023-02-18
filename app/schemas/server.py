@@ -4,7 +4,8 @@ from pydantic import BaseModel
 
 __all__ = [
     "SettingsModel",
-    "ServerStatisticsModel"
+    "ServerStatisticsModel",
+    "ServerStatisticsDisabledResponseModel"
 ]
 
 
@@ -39,3 +40,8 @@ class ServerStatisticsModel(BaseModel):
     aliases_amount: int
     app_version: str
     launch_date: datetime
+
+
+class ServerStatisticsDisabledResponseModel(BaseModel):
+    detail: str
+    code: str = "error:settings:statistics_disabled"

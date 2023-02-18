@@ -16,6 +16,7 @@ __all__ = [
     "ResendEmailModel",
     "EmailLoginTokenChangeModel",
     "EmailLoginTokenChangeAllowFromDifferentDevicesModel",
+    "ResendEmailAlreadyVerifiedResponseModel",
 ]
 
 
@@ -67,4 +68,9 @@ class LoginWithEmailTokenModel(BaseModel):
 class SignupResponseModel(BaseModel):
     normalized_email: str
     detail: str
+
+
+class ResendEmailAlreadyVerifiedResponseModel(BaseModel):
+    detail: str
+    code: str = "ok:email_already_verified"
 
