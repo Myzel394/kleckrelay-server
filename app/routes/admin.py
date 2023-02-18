@@ -4,6 +4,7 @@ from starlette.responses import JSONResponse, Response
 
 from app import life_constants, logger
 from app.controllers.admin import get_admin_users
+from app.controllers.cron_report import get_latest_cron_report
 from app.controllers.global_settings import get_settings, update_settings
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_admin_user
@@ -12,6 +13,7 @@ from app.schemas.admin import (
     AdminGlobalSettingsDisabledResponseModel, AdminSettingsModel,
     AdminUsersResponseModel,
 )
+from app.schemas.cron_report import CronReportResponseModel
 
 router = APIRouter()
 
@@ -94,3 +96,17 @@ def update_settings_api(
     logger.info(f"Request: Update Admin Settings -> Success! Returning updated settings.")
 
     return settings
+
+
+@router.get("/latest-cron-report/", response_model=CronReportResponseModel)
+def get_cron_jobs(
+    user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db),
+):
+    logger.info("Request: Get Cron Jobs -> New Request.")
+
+    report = get_latest_cron_report(db)
+
+    response_data = CronReportResponseModel.from_orm(report, user_id=user.id)
+
+    return response_data
