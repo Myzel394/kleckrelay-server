@@ -98,7 +98,7 @@ def update_settings_api(
     return settings
 
 
-@router.get("/latest-cron-report/", response_model=CronReportResponseModel)
+@router.get("/cron-report/latest/", response_model=CronReportResponseModel)
 def get_cron_jobs(
     user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
@@ -106,7 +106,9 @@ def get_cron_jobs(
     logger.info("Request: Get Cron Jobs -> New Request.")
 
     report = get_latest_cron_report(db)
+    logger.info(f"Request: Get Cron Jobs -> Latest report is {report=}.")
 
     response_data = CronReportResponseModel.from_orm(report, user_id=user.id)
+    logger.info(f"Request: Get Cron Jobs -> Returning data.")
 
     return response_data

@@ -28,7 +28,7 @@ def create_cron_report(
     db.commit()
     db.refresh(report)
 
-    report_data.report_id = report.id
+    report_data.id = report.id
 
     for user in admins:
         encrypted_content = str(sign_message(
@@ -39,13 +39,13 @@ def create_cron_report(
                 ),
             )
         ))
-        report_data = CronReportData(
+        data = CronReportData(
             encrypted_report=encrypted_content,
             user_id=user.id,
             report_id=report.id,
         )
 
-        user_encrypted_reports.append(report_data)
+        user_encrypted_reports.append(data)
 
     db.add_all(user_encrypted_reports)
     db.commit()
