@@ -3,13 +3,7 @@
 echo "Configuring Postfix"
 
 echo "Configuring basic Postfix config"
-if [[ "${IS_DEBUG,,}" =~ ^(yes|true|t|1|y)$ ]]; then \
-  echo "Debug mode is enabled, Postfix logs will be saved to /var/log/mail.log"
-  postconf -e "maillog_file = /var/log/mail.log"
-else
-  echo "Debug mode is disabled, Postfix logs will not be saved"
-  postconf -e "maillog_file = /dev/null"
-fi
+postconf -e "maillog_file = /var/log/mail.log"
 
 postconf -e "inet_protocols = ipv4"
 postconf -e "inet_interfaces = all"
@@ -24,15 +18,17 @@ postconf -e "readme_directory = no"
 #postconf -e "smtp_sasl_auth_enable = yes"
 #postconf -e "smtp_sasl_password_maps = hash:/etc/postfix/sasl_password"
 #postconf -e "smtp_sasl_security_options = noanonymous"
-echo "nameserver 1.1.1.1" > /var/spool/postfix/etc/resolv.conf
-echo "nameserver 1.1.1.1" > /etc/resolv.conf
+cp /etc/resolv.conf /var/spool/postfix/etc/
 
 echo "Creating broken symlinks for Postfix"
 cp -f /etc/services /var/spool/postfix/etc/services
 
 echo "Configuring incoming mail handling for Postfix"
+export DB_HOST=$(echo "$DB_URI" | sed 's/.*@\([^/]*\).*/\1/')
+echo "Database Host is $DB_HOST"
+
 cat > /etc/postfix/pgsql-relay-domains.cf<< EOF
-hosts = $(echo "$DB_URI" | sed 's/.*@\([^/]*\).*/\1/')
+hosts = $(dig +short "$DB_HOST")
 user = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f1)
 password = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f2)
 dbname = $(echo "$DB_URI" | sed 's/.*\/\([^:]*\).*/\1/')
@@ -40,7 +36,7 @@ dbname = $(echo "$DB_URI" | sed 's/.*\/\([^:]*\).*/\1/')
 query = SELECT '%s' WHERE '%s' = '${MAIL_DOMAIN}' LIMIT 1;
 EOF
 cat > /etc/postfix/pgsql-transport-maps.cf<< EOF
-hosts = $(echo "$DB_URI" | sed 's/.*@\([^/]*\).*/\1/')
+hosts = $(dig +short "$DB_HOST")
 user = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f1)
 password = $(echo "$DB_URI" | sed 's/postgresql:\/\///' | sed 's/@.*//' | cut -d':' -f2)
 dbname = $(echo "$DB_URI" | sed 's/.*\/\([^:]*\).*/\1/')
@@ -58,12 +54,17 @@ EOF
 postconf -e "policyd-spf_time_limit = 3600"
 
 echo "Configuring DKIM for Postfix"
-mkdir -p /etc/opendkim/keys
+if [ -f "/etc/opendkim/keys/${MAIL_DOMAIN}/kleckrelay.private" ]; then
+  echo "DKIM key already exists, skipping generation"
+else
+  echo "Generating DKIM key"
+  mkdir -p /etc/opendkim/keys
 
-opendkim-genkey -r -h rsa-sha256 -s kleckrelay -d "${MAIL_DOMAIN}"
-mkdir -p /etc/opendkim/keys/"${MAIL_DOMAIN}"
-mv kleckrelay.private /etc/opendkim/keys/"${MAIL_DOMAIN}"/kleckrelay.private
-mv kleckrelay.txt /tutorial/dns-for-dkim-txt-entry.txt
+  opendkim-genkey -r -h rsa-sha256 -s kleckrelay -d "${MAIL_DOMAIN}"
+  mkdir -p /etc/opendkim/keys/"${MAIL_DOMAIN}"
+  mv kleckrelay.private /etc/opendkim/keys/"${MAIL_DOMAIN}"/kleckrelay.private
+  mv kleckrelay.txt /tutorial/dns-for-dkim-txt-entry.txt
+fi
 
 cat > /etc/opendkim/KeyTable<< EOF
 kleckrelay._domainkey.${MAIL_DOMAIN} ${MAIL_DOMAIN}:kleckrelay:/etc/opendkim/keys/${MAIL_DOMAIN}/kleckrelay.private
@@ -99,6 +100,7 @@ UserID opendkim:opendkim
 Domain ${MAIL_DOMAIN}
 Selector kleckrelay
 EOF
+
 chown -R opendkim:opendkim /etc/opendkim
 chmod go-rwx /etc/opendkim
 
