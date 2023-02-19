@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 
-from app.life_constants import FAST_HASH_SALT, SLOW_HASH_SALT
+from app.constant_keys import FAST_HASH_SALT, SLOW_HASH_SALT
 
 __all__ = [
     "hash_slowly",

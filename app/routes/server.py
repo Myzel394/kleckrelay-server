@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse, Response
 
 from app import constants, life_constants, gpg_handler, logger
+from app.constant_keys import INSTANCE_SALT
 from app.controllers import global_settings as settings
 from app.controllers.server_statistics import get_server_statistics as \
     get_server_statistics_instance
 from app.database.dependencies import get_db
-from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.server import (
     ServerStatisticsDisabledResponseModel, ServerStatisticsModel,
     SettingsModel,
@@ -37,7 +37,7 @@ def get_settings(
         "email_login_token_length": life_constants.EMAIL_LOGIN_TOKEN_LENGTH,
         "email_login_expiration_in_seconds": life_constants.EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS,
         "email_resend_wait_time": life_constants.EMAIL_RESEND_WAIT_TIME_IN_SECONDS,
-        "instance_salt": life_constants.INSTANCE_SALT,
+        "instance_salt": INSTANCE_SALT,
         "public_key": gpg_handler.SERVER_PUBLIC_KEY,
         "allow_statistics": settings.get(db, "ALLOW_STATISTICS"),
         "allow_alias_deletion": settings.get(db, "ALLOW_ALIAS_DELETION"),

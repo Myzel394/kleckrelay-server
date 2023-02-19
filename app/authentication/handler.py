@@ -1,10 +1,11 @@
 from datetime import timedelta
 
-from fastapi_jwt import JwtAccessBearerCookie, JwtRefreshBearer, JwtRefreshBearerCookie
+from fastapi_jwt import JwtAccessBearerCookie, JwtRefreshBearerCookie
 
+from app.constant_keys import JWT_REFRESH_SECRET_KEY, JWT_SECRET_KEY
 from app.life_constants import (
-    ACCESS_TOKEN_EXPIRE_IN_MINUTES, JWT_REFRESH_SECRET_KEY,
-    JWT_SECRET_KEY, REFRESH_TOKEN_EXPIRE_IN_MINUTES,
+    ACCESS_TOKEN_EXPIRE_IN_MINUTES,
+    REFRESH_TOKEN_EXPIRE_IN_MINUTES,
 )
 
 __all__ = [
