@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  kleckrelay-database:
+  kleckrelay_database:
     image: 'postgres:latest'
-    container_name: kleckrelay-database
+    container_name: kleckrelay_database
     restart: on-failure:5
 
     environment:
@@ -20,8 +20,8 @@ services:
     networks:
       - kleckrelay_database
 
-  kleckrelay-server:
-    container_name: kleckrelay-server
+  kleckrelay_server:
+    container_name: kleckrelay_server
     restart: on-failure:5
     build:
       context: .
@@ -32,7 +32,7 @@ services:
       - "587:587"
 
     depends_on:
-      kleckrelay-database:
+      kleckrelay_database:
         condition: service_healthy
 
     networks:
@@ -46,8 +46,8 @@ services:
     env_file:
       - .env
 
-  kleckrelay-maid:
-    container_name: kleckrelay-maid
+  kleckrelay_maid:
+    container_name: kleckrelay_maid
     restart: on-failure
     build:
       context: .
@@ -58,7 +58,7 @@ services:
       - kleckrelay_database
 
     depends_on:
-      kleckrelay-database:
+      kleckrelay_database:
         condition: service_healthy
 
   nginx:
@@ -91,7 +91,7 @@ services:
       - USE_BAD_BEHAVIOR=no
 
       - api.app.krl_REVERSE_PROXY_URL=/
-      - api.app.krl_REVERSE_PROXY_HOST=http://kleckrelay-server:80
+      - api.app.krl_REVERSE_PROXY_HOST=http://kleckrelay_server:80
       - api.app.krl_ALLOWED_METHODS=GET|POST|PUT|PATCH|DELETE|OPTIONS
       # Security is too strict
       - api.app.krl_BLOCK_ABUSERS=no
