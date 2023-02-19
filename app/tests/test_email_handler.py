@@ -85,3 +85,26 @@ def test_can_not_send_from_disabled_alias(
     )
 
     assert response == status.E518
+
+
+def test_outside_can_send_to_local_user_with_multipart(
+        create_user,
+        create_random_alias,
+):
+    user = create_user(is_verified=True)
+    alias = create_random_alias(user=user)
+
+    message = EmailMessage()
+    envelope = Envelope()
+    envelope.mail_from = "outside@example.com"
+    envelope.rcpt_tos = [alias.address]
+
+    message.set_content("Hello")
+    message.add_alternative("<p>Hello</p>", subtype="html")
+
+    response = handle(
+        envelope=envelope,
+        message=message,
+    )
+
+    assert response == status.E200
