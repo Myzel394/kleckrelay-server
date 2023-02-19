@@ -118,6 +118,7 @@ def send_template_mail(
     to: str,
     language: LanguageType = LanguageType.EN_US,
     from_address: str = life_constants.FROM_MAIL,
+    from_name: str = life_constants.SUPPORT_MAIL_FROM_NAME,
     context: dict[str, Any] = None,
 ) -> None:
     send_mail(
@@ -129,6 +130,7 @@ def send_template_mail(
                 **(context or {})
             ),
         ),
+        from_name=from_name,
         from_mail=from_address,
         to_mail=to,
     )
