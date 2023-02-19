@@ -121,7 +121,7 @@ def handle(envelope: Envelope, message: Message) -> str:
                     message_id=message[headers.MESSAGE_ID],
                 )
 
-                if (content := message.get_payload()) is not None:
+                if (content := message.get_payload(0)) is not None:
                     if alias.remove_trackers:
                         content = remove_single_pixel_image_trackers(report, html=content)
 
