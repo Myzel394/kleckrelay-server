@@ -11,14 +11,14 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mail
 
-    ports:
-      - "35432:5432"
-
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d mail"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+    networks:
+      - kleckrelay_database
 
   kleckrelay-server:
     container_name: kleckrelay-server
@@ -35,6 +35,10 @@ services:
       kleckrelay-database:
         condition: service_healthy
 
+    networks:
+      - kleckrelay_server
+      - kleckrelay_database
+
     cap_add:
       - NET_BIND_SERVICE
       - SYS_PTRACE
@@ -49,6 +53,14 @@ services:
       context: .
       dockerfile: Maid.Dockerfile
 
+    networks:
+      - kleckrelay_maid
+      - kleckrelay_database
+
+    depends_on:
+      kleckrelay-database:
+        condition: service_healthy
+
   nginx:
     container_name: nginx
     image: bunkerity/bunkerweb
@@ -60,6 +72,9 @@ services:
       # Change to your own path where you would like to store your HTTPS certificates and
       # uncomment the line
       # ./letsencrypt:/etc/letsencrypt
+    networks:
+      - kleckrelay_server
+      - kleckrelay_maid
     environment:
       - MULTISITE=yes
       # Specify your domains here (including subdomains)
@@ -95,3 +110,11 @@ services:
       - app.krl_REVERSE_PROXY_HOST=http://192.168.178.129:5173
       - app.krl_USE_LIMIT_CONN=no
       - app.krl_REVERSE_PROXY_WS=yes
+
+networks:
+  kleckrelay_server:
+    driver: bridge
+  kleckrelay_database:
+    driver: bridge
+  kleckrelay_maid:
+    driver: bridge
