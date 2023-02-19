@@ -10,7 +10,8 @@ postconf -e "inet_interfaces = all"
 postconf -e "mydomain = ${MAIL_DOMAIN}"
 postconf -e "mynetworks = 127.0.0.0/8, [::1]/128"
 postconf -e "myorigin = ${MAIL_DOMAIN}"
-postconf -e "myhostname = ${APP_DOMAIN}"
+postconf -e "myhostname = ${MAIL_DOMAIN}"
+postconf -e "mydestination = ${MAIL_DOMAIN}, localhost, localhost.localdomain"
 # Use Docker's built-in DNS server
 postconf -e "resolve_numeric_domain = yes"
 postconf -e "smtp_host_lookup = native,dns"
@@ -118,7 +119,7 @@ if [[ "${POSTFIX_USE_TLS,,}" =~ ^(yes|true|t|1|y)$ ]]; then
     echo "TLS certificate already exists, skipping generation"
   else
     echo "Creating TLS certificate for Postfix"
-    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=GB/ST=London/L=London/O=KleckRelay Instance/OU=${APP_DOMAIN}/CN=${MAIL_DOMAIN}"
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=GB/ST=London/L=London/O=KleckRelay Instance/OU=${MAIL_DOMAIN}/CN=${MAIL_DOMAIN}"
     echo "Done creating TLS certificate."
   fi
 

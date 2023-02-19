@@ -34,6 +34,9 @@ COPY . .
 COPY server-entrypoint.sh .
 COPY setup-postfix.sh .
 
+# Force key generation on first run
+RUN rm /etc/ssl/certs/ssl-cert-snakeoil.pem
+
 # Config Postfix
 RUN chmod +x ./setup-postfix.sh
 
