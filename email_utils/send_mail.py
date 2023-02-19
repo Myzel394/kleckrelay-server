@@ -29,7 +29,8 @@ def _send_mail_to_smtp_server(
 ) -> None:
     logger.info(
         f"Send mail -> Sending mail {from_address=} {to_address=}; "
-        f"Postfix Host={life_constants.POSTFIX_HOST}, Postfix Port={life_constants.POSTFIX_PORT}.")
+        f"Postfix Host={life_constants.POSTFIX_HOST}, Postfix Port={life_constants.POSTFIX_PORT}."
+    )
     with smtplib.SMTP(host=life_constants.POSTFIX_HOST, port=life_constants.POSTFIX_PORT) as smtp:
         logger.info("Send mail -> Activating TLS.")
         time.sleep(1)
