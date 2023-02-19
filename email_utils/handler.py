@@ -121,7 +121,19 @@ def handle(envelope: Envelope, message: Message) -> str:
                     message_id=message[headers.MESSAGE_ID],
                 )
 
-                if (content := message.get_payload()) is not None:
+                content = message.get_payload()
+
+                if type(content) is list:
+                    # Find html part
+                    for part in content:
+                        if part.get_content_type() == "text/html":
+                            content = part.get_payload()
+                            break
+                    else:
+                        # No html part found
+                        content = None
+
+                if content is not None:
                     if alias.remove_trackers:
                         content = remove_single_pixel_image_trackers(report, html=content)
 
