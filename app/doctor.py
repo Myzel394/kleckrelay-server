@@ -80,11 +80,7 @@ def check_server_private_key():
 
 
 def check_life_constants() -> None:
-    validate_value_is_random_string("JWT_SECRET_KEY")
-    validate_value_is_random_string("JWT_REFRESH_SECRET_KEY")
-    validate_value_is_random_string("SLOW_HASH_SALT")
-    validate_value_is_random_string("FAST_HASH_SALT")
-    validate_value_is_random_string("USER_PASSWORD_HASH_SALT")
+    validate_value_is_random_string("KLECK_SECRET")
 
     # Cache word list
     _get_words()
@@ -99,14 +95,6 @@ def check_life_constants() -> None:
     create_image_proxy_storage_path()
 
     check_server_private_key()
-
-    if life_constants.INSTANCE_SALT == default_life_constants.INSTANCE_SALT:
-        logger.logger.warning(
-            "Doctor: `INSTANCE_SALT` has not been changed. "
-            "Please change it to a random value for increased security "
-            "(You can smash any keys on your keyboard. Make sure you use many random characters "
-            "and it should be at least 20 characters long)."
-        )
 
     if len(life_constants.ADMINS) > 0:
         logger.logger.info(
