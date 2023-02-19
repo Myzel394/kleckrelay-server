@@ -22,8 +22,6 @@ def render(name: str, language: LanguageType, /, **kwargs) -> str:
     template = env.get_template(template_name)
 
     return template.render(
-        EMAIL_LANDING_PAGE_URL_TEXT=life_constants.EMAIL_LANDING_PAGE_URL_TEXT,
-        EMAIL_LANDING_PAGE_URL=life_constants.EMAIL_LANDING_PAGE_URL,
         APP_DOMAIN=life_constants.API_DOMAIN,
         **kwargs,
     )
