@@ -1,4 +1,3 @@
-import base64
 import string
 
 DB_URI = "postgresql://user:password@127.0.0.1:35432/mail"
@@ -110,5 +109,5 @@ MAX_ALIASES_PER_USER = "0"
 NON_VERIFIED_USER_LIFE_TIME_IN_DAYS = "1"
 KEEP_CRON_JOBS_AMOUNT = 14
 SUPPORT_MAIL_FROM_NAME = "KleckRelay Support"
-KDF_ITERATIONS = 100_394
+KDF_ITERATIONS = 101_394
 KLECK_SECRET = "change_me"
