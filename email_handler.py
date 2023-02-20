@@ -49,7 +49,7 @@ class ExampleHandler:
                 )
                 return status.E501
 
-            status_code = handle(envelope, message)
+            status_code = await handle(envelope, message)
 
             logger.info(f"Mail handled successfully. Returning status code: {status_code}.")
 
