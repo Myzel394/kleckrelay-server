@@ -20,7 +20,7 @@ from app.controllers.email_login import (
     change_allow_login_from_different_devices, create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, is_token_valid,
 )
-from app.controllers.global_settings import get_filled_settings
+from app.controllers.global_settings import get_settings, get_settings_model
 from app.controllers.user import (
     check_if_email_exists, create_user,
     get_user_by_email, get_user_by_id,
@@ -72,7 +72,7 @@ async def signup(
 
     user_data = await request.json()
     try:
-        user = UserCreate(settings=get_filled_settings(db), **user_data)
+        user = UserCreate(settings=get_settings_model(db), **user_data)
     except ValidationError as error:
         logger.info("Request: Signup -> Validation Error.")
         raise HTTPException(

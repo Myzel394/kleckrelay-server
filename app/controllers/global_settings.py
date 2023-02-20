@@ -3,14 +3,13 @@ from sqlalchemy.orm import Session
 
 from app import life_constants, logger
 from app.models.global_settings import GlobalSettings
-
-from app.schemas.admin import AdminSettingsModel
 from app.schemas.global_settings import GlobalSettingsModel
+
 from app.schemas.server import SettingsModel
 
 __all__ = [
     "get_settings",
-    "get_filled_settings",
+    "get_settings_model",
     "get",
     "update_settings"
 ]
@@ -30,7 +29,12 @@ SETTINGS_FIELDS = _get_changeable_constants()
 
 
 def _create_settings(db: Session, /) -> GlobalSettings:
-    settings = GlobalSettings()
+    settings = GlobalSettings(
+        **{
+            field.lower(): getattr(life_constants, field)
+            for field in SETTINGS_FIELDS
+        }
+    )
 
     db.add(settings)
     db.commit()
@@ -45,19 +49,15 @@ def get_settings(db: Session, /) -> GlobalSettings:
         return _create_settings(db)
 
 
-def get_filled_settings(db: Session, /) -> GlobalSettingsModel:
-    settings_instance = get_settings(db)
-    settings = {}
+def get_settings_model(db: Session, /) -> GlobalSettingsModel:
+    settings = get_settings(db)
 
-    for life_constant_field_name in SETTINGS_FIELDS:
-        field_name = life_constant_field_name.lower()
-
-        if (value := getattr(settings_instance, field_name)) is not None:
-            settings[field_name] = value
-        else:
-            settings[field_name] = getattr(life_constants, life_constant_field_name)
-
-    return GlobalSettingsModel(**settings)
+    return GlobalSettingsModel(
+        **{
+            field.lower(): getattr(settings, field.lower())
+            for field in SETTINGS_FIELDS
+        }
+    )
 
 
 def get(db: Session, /, field: str):
@@ -76,10 +76,10 @@ def get(db: Session, /, field: str):
     return default_value
 
 
-def update_settings(db: Session, /, update: AdminSettingsModel) -> GlobalSettings:
+def update_settings(db: Session, /, update: SettingsModel) -> GlobalSettings:
     settings = get_settings(db)
 
-    for field, value in update.dict(exclude_unset=True).items():
+    for field, value in update.dict(exclude_unset=True, exclude_none=True).items():
         setattr(settings, field, value)
 
     logger.info(f"Request: Update Admin Settings -> Updated data. Committing to database.")

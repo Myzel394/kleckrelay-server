@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 __all__ = [
     "AdminUsersResponseModel",
-    "AdminSettingsModel",
     "AdminGlobalSettingsDisabledResponseModel"
 ]
 
@@ -38,21 +37,16 @@ class AdminGlobalSettingsDisabledResponseModel(BaseModel):
     code: str = "error:settings:global_settings_disabled"
 
 
-# Since admins can change everything about the settings, we can simply use one model for creating
-# / updating and returning the settings model.
-class AdminSettingsModel(BaseModel):
+class AdminUpdateGlobalSettingsModel(BaseModel):
     random_email_id_min_length: Optional[int] = Field(None, ge=1, le=SMALL_INTEGER_LIMIT)
     random_email_id_chars: Optional[str] = Field(None, max_length=1023)
     random_email_length_increase_on_percentage: Optional[float] = Field(None, ge=0.0, le=1.0)
     custom_email_suffix_length: Optional[int] = Field(None, ge=1, le=SMALL_INTEGER_LIMIT)
     custom_email_suffix_chars: Optional[str] = Field(None, max_length=1023)
     image_proxy_storage_life_time_in_hours: Optional[int] = Field(None, ge=1, le=INTEGER_LIMIT)
-    enable_image_proxy: Optional[bool]
-    user_email_enable_disposable_emails: Optional[bool]
-    user_email_enable_other_relays: Optional[bool]
-    allow_statistics: Optional[bool]
-    allow_alias_deletion: Optional[bool]
-    max_aliases_per_user: int = Field(None, ge=1, le=INTEGER_LIMIT)
-
-    class Config:
-        orm_mode = True
+    enable_image_proxy: Optional[bool] = None
+    user_email_enable_disposable_emails: Optional[bool] = None
+    user_email_enable_other_relays: Optional[bool] = None
+    allow_statistics: Optional[bool] = None
+    allow_alias_deletion: Optional[bool] = None
+    max_aliases_per_user: Optional[int] = Field(None, ge=1, le=INTEGER_LIMIT)

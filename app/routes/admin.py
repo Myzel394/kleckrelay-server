@@ -10,10 +10,11 @@ from app.database.dependencies import get_db
 from app.dependencies.get_user import get_admin_user
 from app.models import User
 from app.schemas.admin import (
-    AdminGlobalSettingsDisabledResponseModel, AdminSettingsModel,
-    AdminUsersResponseModel,
+    AdminGlobalSettingsDisabledResponseModel,
+    AdminUpdateGlobalSettingsModel, AdminUsersResponseModel,
 )
 from app.schemas.cron_report import CronReportResponseModel
+from app.schemas.global_settings import GlobalSettingsModel
 
 router = APIRouter()
 
@@ -35,7 +36,7 @@ def get_admin_users_api(
 
 @router.get(
     "/settings/",
-    response_model=AdminSettingsModel,
+    response_model=GlobalSettingsModel,
     responses={
         202: {
             "description": "Global settings are disabled.",
@@ -65,7 +66,7 @@ def get_settings_api(
 
 @router.patch(
     "/settings/",
-    response_model=AdminSettingsModel,
+    response_model=GlobalSettingsModel,
     responses={
         202: {
             "description": "Global settings are disabled.",
@@ -74,7 +75,7 @@ def get_settings_api(
     }
 )
 def update_settings_api(
-    update_data: AdminSettingsModel,
+    update_data: AdminUpdateGlobalSettingsModel,
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
