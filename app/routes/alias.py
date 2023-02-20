@@ -1,9 +1,6 @@
-import uuid
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import Page, paginate, Params
 from pydantic import ValidationError
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
@@ -12,7 +9,7 @@ from app.controllers.alias import (
     create_alias, delete_alias, find_aliases_from_user_ordered, get_alias_from_user,
     update_alias,
 )
-from app.controllers.global_settings import get_filled_settings
+from app.controllers.global_settings import get_settings, get_settings_model
 from app.database.dependencies import get_db
 from app.dependencies.get_instance_from_user import get_instance_from_user
 from app.dependencies.get_user import get_user
@@ -64,7 +61,7 @@ async def create_alias_api(
 
     try:
         request_data = await request.json()
-        alias_data = AliasCreate(settings=get_filled_settings(db), **request_data)
+        alias_data = AliasCreate(settings=get_settings_model(db), **request_data)
     except ValidationError as error:
         logger.info(f"Request: Create Alias -> Invalid data. {error.json()}")
         raise HTTPException(status_code=422, detail=error.errors())

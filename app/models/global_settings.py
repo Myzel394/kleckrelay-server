@@ -21,67 +21,43 @@ class GlobalSettings(Base, IDMixin):
 
     random_email_id_min_length = sa.Column(
         sa.SmallInteger(),
-        default=None,
-        nullable=True,
     )
     random_email_id_chars = sa.Column(
         sa.String(
             length=1023,
         ),
-        default=None,
-        nullable=True,
     )
     random_email_length_increase_on_percentage = sa.Column(
         sa.Float(),
-        default=None,
-        nullable=True,
     )
     custom_email_suffix_length = sa.Column(
         sa.SmallInteger(),
-        default=None,
-        nullable=True,
     )
     custom_email_suffix_chars = sa.Column(
         sa.String(
             length=1023,
         ),
-        default=None,
-        nullable=True,
     )
     image_proxy_storage_life_time_in_hours = sa.Column(
         # A `SmallInteger` would limit the user to a maximum of about 3 years,
         # but we want to allow the user to set a higher timeout.
         sa.Integer(),
-        default=None,
-        nullable=True,
     )
     enable_image_proxy = sa.Column(
         sa.Boolean(),
-        default=None,
-        nullable=True,
     )
     user_email_enable_disposable_emails = sa.Column(
         sa.Boolean(),
-        default=None,
-        nullable=True,
     )
     user_email_enable_other_relays = sa.Column(
         sa.Boolean(),
-        default=None,
-        nullable=True,
     )
     allow_statistics = sa.Column(
         sa.Boolean(),
-        default=None,
-        nullable=True,
     )
     allow_alias_deletion = sa.Column(
         sa.Boolean(),
-        default=None,
-        nullable=True,
     )
     max_aliases_per_user = sa.Column(
         sa.Integer(),
-        default=None,
-        nullable=True,
     )

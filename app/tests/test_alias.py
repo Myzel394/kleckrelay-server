@@ -22,6 +22,8 @@ def test_can_create_random_alias(
         },
         headers=auth["headers"]
     )
+    print("======================")
+    print(response.json())
 
     assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
 

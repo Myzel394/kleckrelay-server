@@ -1,11 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 __all__ = [
     "GlobalSettingsModel"
 ]
 
 
-# This model is only used internally for other schemes to use.
+# Since admins can change everything about the settings, we can simply use one model for creating
+# / updating and returning the settings model.
 class GlobalSettingsModel(BaseModel):
     random_email_id_min_length: int
     random_email_id_chars: str
@@ -19,3 +20,6 @@ class GlobalSettingsModel(BaseModel):
     allow_statistics: bool
     allow_alias_deletion: bool
     max_aliases_per_user: int
+
+    class Config:
+        orm_mode = True

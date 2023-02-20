@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse, Response
 
@@ -10,10 +11,11 @@ from app.database.dependencies import get_db
 from app.dependencies.get_user import get_admin_user
 from app.models import User
 from app.schemas.admin import (
-    AdminGlobalSettingsDisabledResponseModel, AdminSettingsModel,
-    AdminUsersResponseModel,
+    AdminGlobalSettingsDisabledResponseModel,
+    AdminUpdateGlobalSettingsModel, AdminUsersResponseModel,
 )
 from app.schemas.cron_report import CronReportResponseModel
+from app.schemas.global_settings import GlobalSettingsModel
 
 router = APIRouter()
 
@@ -35,7 +37,7 @@ def get_admin_users_api(
 
 @router.get(
     "/settings/",
-    response_model=AdminSettingsModel,
+    response_model=GlobalSettingsModel,
     responses={
         202: {
             "description": "Global settings are disabled.",
@@ -65,7 +67,7 @@ def get_settings_api(
 
 @router.patch(
     "/settings/",
-    response_model=AdminSettingsModel,
+    response_model=GlobalSettingsModel,
     responses={
         202: {
             "description": "Global settings are disabled.",
@@ -74,7 +76,7 @@ def get_settings_api(
     }
 )
 def update_settings_api(
-    update_data: AdminSettingsModel,
+    update_data: AdminUpdateGlobalSettingsModel,
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
@@ -106,6 +108,12 @@ def get_cron_jobs(
     logger.info("Request: Get Cron Jobs -> New Request.")
 
     report = get_latest_cron_report(db)
+
+    if report is None:
+        return JSONResponse({
+            "detail": "No reports found.",
+            "code": "error:cron_report:no_reports_found"
+        }, status_code=202)
     logger.info(f"Request: Get Cron Jobs -> Latest report is {report=}.")
 
     response_data = CronReportResponseModel.from_orm(report, user_id=user.id)
