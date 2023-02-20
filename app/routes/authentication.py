@@ -27,9 +27,10 @@ from app.controllers.user import (
 )
 from app.database.dependencies import get_db
 from app.dependencies.email_login import get_email_login_token
+from app.dependencies.get_user import get_user
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.mails.send_email_login_token import send_email_login_token
-from app.models import EmailLoginToken
+from app.models import EmailLoginToken, User
 from app.schemas._basic import (
     HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel,
     SimpleDetailResponseModel,
@@ -448,12 +449,9 @@ async def email_login_allow_login_from_different_devices(
 )
 async def refresh_token(
     response: Response,
-    credentials: JwtAuthorizationCredentials = Security(refresh_security),
-    db: Session = Depends(get_db),
+    user: User = Depends(get_user),
 ):
     logger.info("Request: Refresh -> New Request to refresh JWT token.")
-
-    user = get_user_by_id(db, credentials["id"])
 
     logger.info("Request: Refresh -> Returning new credentials.")
 
