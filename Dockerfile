@@ -21,10 +21,10 @@ RUN mkdir /tutorial
 
 WORKDIR /app
 
-COPY pyproject.toml /app
-
 # Install poetry
 RUN pip3 install poetry
+
+COPY pyproject.toml /app
 
 # Install dependencies
 RUN poetry install --only main --no-interaction --no-ansi
