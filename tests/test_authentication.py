@@ -3,7 +3,7 @@ from starlette.testclient import TestClient
 
 from app import constants, life_constants
 from app.models import User
-from app.tests.helpers import is_a_jwt_token
+from tests.helpers import is_a_jwt_token
 
 PUBLIC_KEY = """-----BEGIN PGP PUBLIC KEY BLOCK-----
 
