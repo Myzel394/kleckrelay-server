@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse, Response
 
@@ -107,6 +108,12 @@ def get_cron_jobs(
     logger.info("Request: Get Cron Jobs -> New Request.")
 
     report = get_latest_cron_report(db)
+
+    if report is None:
+        return JSONResponse({
+            "detail": "No reports found.",
+            "code": "error:cron_report:no_reports_found"
+        }, status_code=202)
     logger.info(f"Request: Get Cron Jobs -> Latest report is {report=}.")
 
     response_data = CronReportResponseModel.from_orm(report, user_id=user.id)
