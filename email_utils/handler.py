@@ -14,6 +14,7 @@ from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
 from app.email_report_data import EmailReportData
 from app.models import LanguageType, ReservedAlias, User
+from app.utils.email import normalize_email
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
 from email_utils.html_handler import (
@@ -45,7 +46,7 @@ def get_alias(db: Session, /, local: str, domain: str) -> Union[Alias, ReservedA
         pass
 
 
-def handle(envelope: Envelope, message: Message) -> str:
+async def handle(envelope: Envelope, message: Message) -> str:
     logger.info("Retrieving mail from database.")
 
     with with_db() as db:
@@ -62,33 +63,43 @@ def handle(envelope: Envelope, message: Message) -> str:
             if (result := extract_alias_address(envelope.rcpt_tos[0])) is not None:
                 # LOCALLY saved user wants to send a mail FROM alias TO the outside.
                 alias_address, target = result
+                from_mail = await normalize_email(envelope.mail_from)
                 logger.info(
-                    f"{envelope.rcpt_tos[0]} is an alias address. It should be sent to {target} "
-                    f"via alias {alias_address} Checking if FROM {envelope.mail_from} user owns it."
+                    f"{envelope.rcpt_tos[0]} is an forward alias address (LOCAL wants to send to "
+                    f"OUTSIDE). It should be sent to {target} via alias {alias_address} "
+                    f"Checking if FROM {from_mail} user owns it."
                 )
 
                 try:
-                    email = get_email_by_from(db, envelope.mail_from)
+                    email = get_email_by_from(db, from_mail)
                 except NoResultFound:
+                    logger.info(f"User does not exist. Raising error.")
                     # Return "AliasNotYoursError" to avoid an alias being leaked
                     raise AliasNotYoursError()
 
+                logger.info(f"Checking if user owns the given alias.")
                 user = email.user
 
                 local, domain = alias_address.split("@")
 
                 if (alias := get_reserved_alias_by_address(db, local, domain)) is not None:
+                    logger.info("Alias is a reserved alias.")
+
                     # Reserved alias
                     if user not in alias.users:
+                        logger.info("User is not in reserved alias users. Raising error.")
                         raise AliasNotYoursError()
                 else:
                     # Local alias
                     try:
                         alias = get_alias_from_user(db, user, local=local, domain=domain)
                     except NoResultFound:
+                        logger.info("Alias does not exist. Raising error.")
                         raise AliasNotYoursError()
 
+                logger.info("User owns the alias. Checking if alias is valid.")
                 validate_alias(alias)
+                logger.info("Alias is valid.")
 
                 logger.info(
                     f"Local mail {alias.address} should be relayed to outside mail {target}. "
@@ -100,8 +111,10 @@ def handle(envelope: Envelope, message: Message) -> str:
                     from_mail=alias.address,
                     to_mail=target,
                 )
+                logger.info("Email sent.")
                 server_statistics.add_sent_email(db)
 
+                logger.info("Returning sucesss back.")
                 return status.E200
 
             logger.info(
@@ -109,10 +122,13 @@ def handle(envelope: Envelope, message: Message) -> str:
             )
 
             if alias := get_alias_by_email(db, email=envelope.rcpt_tos[0]):
+                logger.info("Mail is an alias mail (OUTSIDE wants to send to LOCAL).")
                 user = alias.user
 
+                logger.info("Checking if alias is valid.")
                 # OUTSIDE user wants to send a mail TO a locally saved user's private mail.
                 validate_alias(alias)
+                logger.info("Alias is valid.")
 
                 report = EmailReportData(
                     mail_from=envelope.mail_from,

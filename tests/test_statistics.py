@@ -1,14 +1,15 @@
 from email.message import EmailMessage
 
+import pytest
 from aiosmtpd.smtp import Envelope
 
 from app import constants
 from app.constants import ROOT_DIR
-from app.controllers.server_statistics import get_server_statistics
 from email_utils.handler import handle
 
 
-def test_can_create_statistics(
+@pytest.mark.asyncio
+async def test_can_create_statistics(
     create_user,
     create_random_alias,
     db,
@@ -25,7 +26,7 @@ def test_can_create_statistics(
     envelope.rcpt_tos = [alias.address]
     message.set_payload(html)
 
-    response = handle(
+    response = await handle(
         envelope=envelope,
         message=message,
     )

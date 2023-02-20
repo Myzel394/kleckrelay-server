@@ -16,8 +16,10 @@ from app.life_constants import MAIL_DOMAIN, DB_URI
 from app.main import app
 from app.models import Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserPreferences
 from app.models.enums.alias import AliasType
-from app.tests.helpers import create_item
+from tests.helpers import create_item
 from app.utils.hashes import hash_fast
+
+pytest_plugins = ('pytest_asyncio',)
 
 
 @pytest.fixture(scope="session", autouse=True)

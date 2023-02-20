@@ -11,7 +11,7 @@ postconf -e "mydomain = ${MAIL_DOMAIN}"
 postconf -e "mynetworks = 127.0.0.0/8, [::1]/128"
 postconf -e "myorigin = ${MAIL_DOMAIN}"
 postconf -e "myhostname = ${MAIL_DOMAIN}"
-postconf -e "mydestination = ${MAIL_DOMAIN}, localhost, localhost.localdomain"
+postconf -e "mydestination = ${MAIL_DOMAIN}, localhost.${MAIL_DOMAIN}, localhost"
 # Use Docker's built-in DNS server
 postconf -e "resolve_numeric_domain = yes"
 postconf -e "smtp_host_lookup = native,dns"
