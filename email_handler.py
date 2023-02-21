@@ -21,11 +21,9 @@ class ExampleHandler:
         logger.info("Validating data...")
         sanitize_envelope(envelope)
 
+        logger.info("Sanitizing message...")
         message = message_from_bytes(envelope.original_content)
         sanitize_message(message)
-
-        if not envelope.mail_from:
-            raise ValueError("No mail from address provided.")
 
         logger.info("Data validated successfully.")
 
@@ -54,17 +52,25 @@ class ExampleHandler:
             logger.info(f"Mail handled successfully. Returning status code: {status_code}.")
 
             return status_code
+
+        except EmailHandlerError as error:
+            logger.info("An EmailHandlerError occurred while handling the mail.")
+
+            if not error.avoid_error_email:
+                send_error_mail(
+                    from_mail=envelope.mail_from,
+                    targeted_mail=envelope.rcpt_tos[0],
+                    error=error,
+                )
+
+            return status.E200
+
         except Exception as error:
             logger.warning("An error occurred while handling the mail.")
             traceback.print_exception(error)
             logger.info(
                 f"Error occurred while handling mail from {envelope.mail_from} to "
                 f"{envelope.rcpt_tos}."
-            )
-
-            send_error_mail(
-                from_mail=envelope.mail_from,
-                targeted_mail=envelope.rcpt_tos[0],
             )
 
             return status.E501

@@ -8,7 +8,6 @@ from typing import Any, Optional
 from app import life_constants, logger
 from app.models import LanguageType
 from . import formatters, headers
-from .dkim_signature import add_dkim_signature
 from .errors import EmailHandlerError
 from .headers import delete_header, set_header
 from .template_renderer import render
@@ -19,6 +18,7 @@ __all__ = [
     "send_mail",
     "draft_message",
     "send_template_mail",
+    "send_bounce_mail",
 ]
 
 
@@ -76,6 +76,7 @@ def send_mail(
         headers.TO, to_mail
     )
 
+
     #add_dkim_signature(message)
 
     if life_constants.DEBUG_MAILS:
@@ -90,6 +91,25 @@ def send_mail(
             to_address=to_mail,
             from_address=from_mail,
         )
+
+
+def send_bounce_mail(
+    target: str,
+    to_mail: str,
+    language: LanguageType = LanguageType.EN_US,
+) -> None:
+    send_mail(
+        message=draft_message(
+            subject=f"Email could not be delivered to {target}.",
+            plaintext=render(
+                "general_error",
+                language,
+                targeted_mail=target,
+            ),
+        ),
+        from_mail=life_constants.FROM_MAIL,
+        to_mail=to_mail,
+    )
 
 
 def send_error_mail(

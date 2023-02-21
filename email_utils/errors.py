@@ -12,6 +12,7 @@ __all__ = [
 
 class EmailHandlerError(Exception):
     status_code: str
+    avoid_error_email: bool = False
 
 
 @dataclass

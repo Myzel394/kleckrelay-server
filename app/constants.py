@@ -1,5 +1,6 @@
 import os.path
 import string
+from datetime import timedelta
 
 from pathlib import Path
 
@@ -25,6 +26,8 @@ __all__ = [
     "ACCESS_TOKEN_COOKIE_NAME",
     "REFRESH_TOKEN_COOKIE_NAME",
     "ENCRYPTED_PASSWORD_MAX_LENGTH",
+    "VERP_PREFIX",
+    "MAX_VERP_TIME"
 ]
 
 
@@ -36,7 +39,7 @@ EMAIL_REGEX = f"^{LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 # (e.g. `outside_at_example.com_test.1234@mail.kleckrelay.com`)
 ALIAS_OUTSIDE_REGEX = \
     f"({LOCAL_REGEX[1:-1]})_at_({DOMAIN_REGEX[1:-1]})_({EMAIL_REGEX[1:-1]})$"
-RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,68}$"
+RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,127}$"
 RELAY_EMAIL_REGEX = f"^{RELAY_LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 MAX_EMAIL_LENGTH = 400
 MAX_LOCAL_LENGTH = 64
@@ -59,6 +62,8 @@ EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 SALT_MAX_LENGTH = 29
 APP_VERSION = "0.0.1"
+VERP_PREFIX = "ver+p+zyx"
+MAX_VERP_TIME = timedelta(days=5)
 
 
 TESTING_DB = None

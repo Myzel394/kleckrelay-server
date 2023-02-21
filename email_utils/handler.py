@@ -1,3 +1,5 @@
+import binascii
+import uuid
 from mailbox import Message
 from typing import Union
 
@@ -8,12 +10,15 @@ from sqlalchemy.sql import Alias
 
 from app import life_constants, logger
 from app.controllers import global_settings as settings
+from app.controllers.alias import get_alias_by_id, get_alias_by_local_and_domain
 from app.controllers.email_report import create_email_report
 from app.controllers import server_statistics
+from app.controllers.mail_bounce_status import update_bounce_status_to_bounce
 from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
 from app.email_report_data import EmailReportData
 from app.models import LanguageType, ReservedAlias, User
+from app.models.enums.mail_bounce_status import StatusType
 from app.utils.email import normalize_email
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
@@ -22,7 +27,7 @@ from email_utils.html_handler import (
     remove_single_pixel_image_trackers,
 )
 from email_utils.send_mail import (
-    send_error_mail, send_mail,
+    send_bounce_mail, send_error_mail, send_mail,
 )
 from email_utils.utils import (
     get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
@@ -31,6 +36,7 @@ from email_utils.utils import (
 )
 from email_utils.validators import validate_alias
 from . import headers
+from .bounce_messages import extract_verp, generate_verp, has_verp, is_bounce, VerpType
 from .headers import set_header
 
 __all__ = [
@@ -55,6 +61,40 @@ async def handle(envelope: Envelope, message: Message) -> str:
 
         try:
             set_header(message, headers.MESSAGE_ID, generate_message_id())
+
+            logger.info("Checking if mail is a bounce mail.")
+
+            if is_bounce(envelope):
+                logger.info("Mail has VERP. Checking if VERP is valid.")
+
+                try:
+                    local, _ = envelope.rcpt_tos[0].split("@")
+                    bounce_status = extract_verp(db, local=local)
+                except (NoResultFound, ValueError, binascii.Error):
+                    logger.info("VERP is invalid. No further action required.")
+                    return status.E200
+                else:
+                    logger.info(f"VERP is valid. Bounce Status is {bounce_status}.")
+
+                    if bounce_status.status == StatusType.FORWARDING:
+                        logger.info("Mail was forwarded. Sending bounce message to user.")
+
+                        update_bounce_status_to_bounce(db, bounce_status)
+
+                        logger.info("Notifying user about bounce mail.")
+                        # Send bounce mail to user
+                        send_bounce_mail(
+                            target=bounce_status.to_address,
+                            to_mail=bounce_status.from_address,
+                        )
+
+                        return status.E200
+                    elif bounce_status.status == StatusType.BOUNCING:
+                        logger.info("Mail was already bounced. No further action required.")
+                        return status.E200
+
+                logger.info("Done with bounce mail.")
+                return status.E200
 
             logger.info(
                 f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is a relay address."
@@ -106,6 +146,16 @@ async def handle(envelope: Envelope, message: Message) -> str:
                     f"Sending email now..."
                 )
 
+                set_header(
+                    message,
+                    headers.RETURN_PATH,
+                    generate_verp(
+                        db,
+                        from_address=alias.user.email.address,
+                        to_address=target,
+                    )
+                )
+
                 send_mail(
                     message,
                     from_mail=alias.address,
@@ -114,7 +164,7 @@ async def handle(envelope: Envelope, message: Message) -> str:
                 logger.info("Email sent.")
                 server_statistics.add_sent_email(db)
 
-                logger.info("Returning sucesss back.")
+                logger.info("Returning success back.")
                 return status.E200
 
             logger.info(
@@ -176,6 +226,16 @@ async def handle(envelope: Envelope, message: Message) -> str:
                     f"Email {envelope.mail_from} is from outside and wants to send to alias "
                     f"{alias.address}. "
                     f"Relaying email to locally saved user {alias.user.email.address}."
+                )
+
+                set_header(
+                    message,
+                    headers.RETURN_PATH,
+                    generate_verp(
+                        db,
+                        from_address=envelope.mail_from,
+                        to_address=alias.address,
+                    )
                 )
 
                 send_mail(

@@ -19,6 +19,7 @@ def validate_email(email: str) -> None:
 
 
 def validate_envelope(envelope: Envelope) -> None:
+    # "<>" is required for bounce emails
     validate_email(envelope.mail_from)
 
     for mail in envelope.rcpt_tos:
