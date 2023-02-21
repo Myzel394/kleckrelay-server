@@ -1,0 +1,64 @@
+name: Build and push Docker image
+
+on:
+  release:
+    types: [published]
+
+env:
+  SERVER_IMAGE_NAME: myzel394/kleckrelay-server
+  SERVER_MAID_NAME: myzel394/kleckrelay-maid
+
+jobs:
+  build-server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Log into the Container registry 🧑
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Extract metadata for the Docker image 🔍
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.SERVER_IMAGE_NAME }}
+
+    - name: Build and push Docker image 📦
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  build-maid:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Log into the Container registry 🧑
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Extract metadata for the Docker image 🔍
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.SERVER_MAID_NAME }}
+
+      - name: Build and push Docker image 📦
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
