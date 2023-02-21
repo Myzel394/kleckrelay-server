@@ -33,6 +33,9 @@ RUN poetry install --only main --no-interaction --no-ansi
 COPY . .
 COPY server-entrypoint.sh .
 COPY setup-postfix.sh .
+COPY maid.py .
+COPY maid-jobs.txt .
+COPY email_handler.py .
 
 # Force key generation on first run
 RUN rm /etc/ssl/certs/ssl-cert-snakeoil.pem
