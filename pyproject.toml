@@ -7,8 +7,8 @@ authors = ["Myzel394 <50424412+Myzel394@users.noreply.github.com>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 aiosmtpd = "^1.4.2"
-fastapi = "^0.85.0"
-uvicorn = "^0.18.3"
+fastapi = "^0.92.0"
+uvicorn = "^0.20.0"
 Jinja2 = "^3.1.2"
 pytesseract = "^0.3.10"
 SQLAlchemy = "^1.4.41"
@@ -22,7 +22,7 @@ requests = "^2.28.1"
 pyquery = "^1.4.3"
 pretty-bad-protocol = "^3.1.1"
 cssutils = "^2.6.0"
-fastapi-pagination = "^0.10.0"
+fastapi-pagination = "^0.11.4"
 SQLAlchemy-Utils = "^0.38.3"
 gunicorn = "^20.1.0"
 python-dotenv = "^0.21.0"
@@ -31,6 +31,7 @@ dkimpy = "^1.0.5"
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.3"
 pytest-asyncio = "^0.20.3"
+fastapi = {extras = ["all"], version = "^0.92.0"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
