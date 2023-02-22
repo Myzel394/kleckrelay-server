@@ -27,6 +27,7 @@ class MailBounceStatus(Base, CreationMixin):
         id = sa.Column(
             sa.Integer,
             primary_key=True,
+            autoincrement=True,
         )
         from_address = sa.Column(
             sa.String(255),
