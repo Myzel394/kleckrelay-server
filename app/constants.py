@@ -40,6 +40,7 @@ EMAIL_REGEX = f"^{LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 # (e.g. `outside_at_example.com_test.1234@mail.kleckrelay.com`)
 ALIAS_OUTSIDE_REGEX = \
     f"({LOCAL_REGEX[1:-1]})_at_({DOMAIN_REGEX[1:-1]})_({EMAIL_REGEX[1:-1]})$"
+# A length of "127" is required as VERP addresses are a bit longer than normal addresses
 RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,127}$"
 RELAY_EMAIL_REGEX = f"^{RELAY_LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 MAX_EMAIL_LENGTH = 400
