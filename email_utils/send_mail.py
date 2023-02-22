@@ -33,7 +33,8 @@ def _send_mail_to_smtp_server(
     )
     with smtplib.SMTP(host=life_constants.POSTFIX_HOST, port=life_constants.POSTFIX_PORT) as smtp:
         logger.info("Send mail -> Activating TLS.")
-        time.sleep(1)
+        if life_constants.IS_DEBUG:
+            time.sleep(1)
         smtp.starttls()
 
         logger.info("Send mail -> Sending mail now.")
@@ -75,7 +76,6 @@ def send_mail(
         message,
         headers.TO, to_mail
     )
-
 
     #add_dkim_signature(message)
 
