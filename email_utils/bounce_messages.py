@@ -18,8 +18,9 @@ __all__ = [
     "VerpType",
     "generate_verp",
     "extract_verp",
-    "is_bounce",
-    "has_verp"
+    "is_verp_bounce",
+    "has_verp",
+    "is_bounce"
 ]
 
 
@@ -117,10 +118,17 @@ def extract_verp(db: Session, /, local: str) -> MailBounceStatus:
     return bounce_status
 
 
-def is_bounce(envelope: Envelope) -> bool:
+def is_verp_bounce(envelope: Envelope) -> bool:
     """Detect whether an email is a Delivery Status Notification"""
     return envelope.rcpt_tos[0].startswith(constants.VERP_PREFIX)
 
 
 def has_verp(message: Message) -> bool:
     return message.get(headers.RETURN_PATH, "").startswith(constants.VERP_PREFIX)
+
+
+def is_bounce(envelope: Envelope) -> bool:
+    return not envelope.mail_from or any(
+        alias.match(envelope.mail_from)
+        for alias in constants.FORBIDDEN_ALIASES
+    )

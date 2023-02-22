@@ -36,7 +36,10 @@ from email_utils.utils import (
 )
 from email_utils.validators import validate_alias
 from . import headers
-from .bounce_messages import extract_verp, generate_verp, has_verp, is_bounce, VerpType
+from .bounce_messages import (
+    extract_verp, generate_verp, has_verp, is_bounce, is_verp_bounce,
+    VerpType,
+)
 from .headers import set_header
 
 __all__ = [
@@ -62,9 +65,9 @@ async def handle(envelope: Envelope, message: Message) -> str:
         try:
             set_header(message, headers.MESSAGE_ID, generate_message_id())
 
-            logger.info("Checking if mail is a bounce mail.")
+            logger.info("Checking if mail is a verp bounce mail.")
 
-            if is_bounce(envelope):
+            if is_verp_bounce(envelope):
                 logger.info("Mail has VERP. Checking if VERP is valid.")
 
                 try:
@@ -94,6 +97,12 @@ async def handle(envelope: Envelope, message: Message) -> str:
                         return status.E200
 
                 logger.info("Done with bounce mail.")
+                return status.E200
+
+            logger.info("Checking if mail is a normal bounce mail.")
+
+            if is_bounce(envelope):
+                logger.info("Mail is a bounce mail. No further action required.")
                 return status.E200
 
             logger.info(

@@ -1,4 +1,5 @@
 import os.path
+import re
 import string
 from datetime import timedelta
 
@@ -64,6 +65,13 @@ SALT_MAX_LENGTH = 29
 APP_VERSION = "0.0.1"
 VERP_PREFIX = "ver+p+zyx"
 MAX_VERP_TIME = timedelta(days=5)
+FORBIDDEN_ALIASES = [
+    re.compile(r"^bounce$", re.IGNORECASE),
+    re.compile(r"^double-bounce$", re.IGNORECASE),
+    re.compile(r"^mailer-daemon$", re.IGNORECASE),
+    re.compile(r"^postmaster$", re.IGNORECASE),
+    re.compile(r"^noreply$", re.IGNORECASE),
+]
 
 
 TESTING_DB = None
