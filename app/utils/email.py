@@ -14,7 +14,7 @@ async def normalize_email(email: str) -> str:
 
 
 def is_local_forbidden(local: str) -> bool:
-    return any(
+    return local.lower().startswith(constants.VERP_PREFIX) or any(
         alias.match(local)
         for alias in constants.FORBIDDEN_ALIASES
     )

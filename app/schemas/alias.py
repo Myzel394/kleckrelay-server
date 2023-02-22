@@ -17,6 +17,8 @@ __all__ = [
     "AliasDetail",
 ]
 
+from app.utils.email import is_local_forbidden
+
 
 class AliasBase(BaseModel):
     is_active: Optional[bool] = None
@@ -54,6 +56,9 @@ class AliasCreate(AliasBase):
             raise ValueError(
                 f"`local` is too long. It should be at most {max_length} characters long."
             )
+
+        if is_local_forbidden(value):
+            raise ValueError(f"This address cannot be used as it is required by the system.")
 
         return value
 
