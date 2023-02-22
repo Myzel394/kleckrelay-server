@@ -11,6 +11,9 @@ __all__ = [
     "ReservedAliasDetail",
 ]
 
+from app.utils.email import is_local_forbidden
+
+
 # Utils
 
 
@@ -59,6 +62,11 @@ class ReservedAliasCreate(ReservedAliasBase):
                     "suffix will be added to the end.",
     )
     users: list[ReservedAliasCreateUser]
+
+    @validator("local")
+    def check_local_is_not_a_forbidden_name(cls, value: str) -> str:
+        if is_local_forbidden(value):
+            raise ValueError(f"This address cannot be used as it is required by the system.")
 
     @validator("users")
     def check_users(cls, value: list[ReservedAliasCreateUser]) -> list[ReservedAliasCreateUser]:

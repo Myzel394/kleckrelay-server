@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app import life_constants, constant_keys, constants, logger
 from app.controllers.mail_bounce_status import create_bounce_status, get_bounce_status_by_id
 from app.models import EmailAlias, MailBounceStatus
+from app.utils.email import is_local_forbidden
 from email_utils import headers
 
 __all__ = [
@@ -128,7 +129,4 @@ def has_verp(message: Message) -> bool:
 
 
 def is_bounce(envelope: Envelope) -> bool:
-    return not envelope.mail_from or any(
-        alias.match(envelope.mail_from)
-        for alias in constants.FORBIDDEN_ALIASES
-    )
+    return not envelope.mail_from or is_local_forbidden(envelope.rcpt_tos[0])
