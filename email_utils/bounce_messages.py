@@ -67,7 +67,7 @@ def generate_verp(db: Session, /, from_address: str, to_address: str) -> str:
         to_address=to_address,
     )
     logger.info(f"Created bounce status with id {bounce_status.id}")
-    payload = str(bounce_status).encode("utf-8")
+    payload = str(bounce_status.id).encode("utf-8")
     signature = _create_signature(payload)
     # We only have a very limited number of characters available for the VERP address
     # We strip the padding and add it in the extraction process again
