@@ -130,6 +130,6 @@ def has_verp(message: Message) -> bool:
 
 def is_bounce(envelope: Envelope) -> bool:
     return\
-        not envelope.mail_from \
-        or envelope.rcpt_tos[0] == "<>" \
+        not envelope.mail_from\
+        or envelope.mail_from == "<>"\
         or is_local_forbidden(envelope.rcpt_tos[0].split("@")[0])

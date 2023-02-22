@@ -64,7 +64,7 @@ EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 SALT_MAX_LENGTH = 29
 APP_VERSION = "0.0.1"
-VERP_PREFIX = "ver+p+zyx"
+VERP_PREFIX = "verpzyabcx"
 MAX_VERP_TIME = timedelta(days=5)
 FORBIDDEN_ALIASES = [
     re.compile(r"^bounce$", re.IGNORECASE),
