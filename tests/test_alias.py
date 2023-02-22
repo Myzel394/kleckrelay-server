@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from app import life_constants
+from app import constants, life_constants
 from app.models.alias import DeletedEmailAlias
 from app.models.enums.alias import AliasType
 
@@ -177,3 +177,43 @@ def test_can_not_surpass_max_amount(
     )
 
     assert response.status_code == 403, f"Status code should be 403 but is {response.status_code}"
+
+
+def test_can_not_create_alias_that_starts_with_verp_constant(
+    client: TestClient,
+    create_user,
+    create_auth_tokens,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+
+    response = client.post(
+        "/v1/alias/",
+        json={
+            "type": AliasType.CUSTOM,
+            "local": constants.VERP_PREFIX + "test",
+        },
+        headers=auth["headers"]
+    )
+
+    assert response.status_code == 422, f"Status code should be 422 but is {response.status_code}"
+
+
+def test_can_not_create_alias_that_is_verp_constant(
+    client: TestClient,
+    create_user,
+    create_auth_tokens,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+
+    response = client.post(
+        "/v1/alias/",
+        json={
+            "type": AliasType.CUSTOM,
+            "local": constants.VERP_PREFIX,
+        },
+        headers=auth["headers"]
+    )
+
+    assert response.status_code == 422, f"Status code should be 422 but is {response.status_code}"
