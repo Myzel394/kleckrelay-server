@@ -14,6 +14,9 @@ __all__ = [
 
 
 def validate_email(email: str) -> None:
+    if email == "<>":
+        return
+
     if not re.match(constants.RELAY_EMAIL_REGEX, email):
         raise InvalidEmailError()
 
