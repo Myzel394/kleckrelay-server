@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
+from sqlalchemy import Sequence
 
 from app import constants
 from app.database.base import Base
@@ -11,6 +12,8 @@ from .enums.mail_bounce_status import StatusType
 __all__ = [
     "MailBounceStatus"
 ]
+
+TABLE_ID = Sequence('table_id_seq', start=1)
 
 
 class MailBounceStatus(Base, CreationMixin):
@@ -27,7 +30,8 @@ class MailBounceStatus(Base, CreationMixin):
         id = sa.Column(
             sa.Integer,
             primary_key=True,
-            autoincrement=True,
+            unique=True,
+            index=True,
         )
         from_address = sa.Column(
             sa.String(255),
