@@ -13,14 +13,21 @@ __all__ = [
 ]
 
 
-class MailBounceStatus(Base, IDMixin, CreationMixin):
+class MailBounceStatus(Base, CreationMixin):
     __tablename__ = "mail_bounce_status"
 
     if TYPE_CHECKING:
+        id: int
         from_address: str
         to_address: str
         status: StatusType
     else:
+        # We need to save as most space as possible for the VERP address,
+        # so we use an incrementing integer as primary key
+        id = sa.Column(
+            sa.Integer,
+            primary_key=True,
+        )
         from_address = sa.Column(
             sa.String(255),
         )

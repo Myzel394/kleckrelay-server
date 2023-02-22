@@ -67,20 +67,14 @@ def generate_verp(db: Session, /, from_address: str, to_address: str) -> str:
         to_address=to_address,
     )
     logger.info(f"Created bounce status with id {bounce_status.id}")
-    payload = json.dumps([
-        str(bounce_status.id),
-    ]).encode("utf-8")
+    payload = str(bounce_status).encode("utf-8")
     signature = _create_signature(payload)
     # We only have a very limited number of characters available for the VERP address
     # We strip the padding and add it in the extraction process again
-    encoded_payload = base64.b32encode(payload).rstrip(b"=").decode("utf-8")
-    encoded_signature = base64.b32encode(signature).rstrip(b"=").decode("utf-8")
+    encoded_payload = base64.b32encode(payload).rstrip(b"=").decode("utf-8").lower()
+    encoded_signature = base64.b32encode(signature).rstrip(b"=").decode("utf-8").lower()
 
-    address = (".".join([
-        constants.VERP_PREFIX,
-        encoded_payload,
-        encoded_signature,
-    ]) + "@" + life_constants.MAIL_DOMAIN).lower()
+    address = f"{constants.VERP_PREFIX}{encoded_payload}.{encoded_signature}@{life_constants.MAIL_DOMAIN}"
 
     logger.info(f"Generated VERP address {address}.")
 
@@ -88,25 +82,27 @@ def generate_verp(db: Session, /, from_address: str, to_address: str) -> str:
 
 
 def extract_verp(db: Session, /, local: str) -> MailBounceStatus:
-    fields = local.split(".")
-
-    if len(fields) != 3:
-        raise ValueError("Invalid VERP address.")
-
-    if fields[0] != constants.VERP_PREFIX:
+    if not local.startswith(constants.VERP_PREFIX):
         raise ValueError("No VERP prefix.")
 
-    payload_padding = (8 - (len(fields[1]) % 8)) % 8
-    payload = base64.b32decode(fields[1].encode("utf-8").upper() + b"=" * payload_padding)
-    signature_padding = (8 - (len(fields[2]) % 8)) % 8
-    signature = base64.b32decode(fields[2].encode("utf-8").upper() + b"=" * signature_padding)
+    full_payload = local[len(constants.VERP_PREFIX):]
+
+    if len(full_payload.split(".")) != 2:
+        raise ValueError("Invalid VERP payload.")
+
+    payload, signature = full_payload.split(".")
+
+    payload_padding = (8 - (len(payload) % 8)) % 8
+    bounce_status_id = int(base64\
+        .b32decode(payload.encode("utf-8").upper() + b"=" * payload_padding)\
+        .decode("utf-8"))
+    signature_padding = (8 - (len(signature) % 8)) % 8
+    signature = base64.b32decode(signature.encode("utf-8").upper() + b"=" * signature_padding)
 
     expected_signature = _create_signature(payload)
 
     if signature != expected_signature:
         raise ValueError("Invalid VERP signature.")
-
-    bounce_status_id = json.loads(payload)[0]
 
     try:
         bounce_status = get_bounce_status_by_id(db, bounce_status_id)

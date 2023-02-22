@@ -46,6 +46,6 @@ def update_bounce_status_to_bounce(
 def get_bounce_status_by_id(
     db: Session,
     /,
-    bounce_status_id: uuid.UUID,
+    bounce_status_id: int,
 ) -> MailBounceStatus:
-    return db.query(MailBounceStatus).filter(MailBounceStatus.id == bounce_status_id).one()
+    return db.query(MailBounceStatus).filter_by(id=bounce_status_id).one()
