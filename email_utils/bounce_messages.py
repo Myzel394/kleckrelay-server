@@ -104,7 +104,8 @@ def extract_forward_status(status: str) -> dict:
     if signature != expected_signature:
         raise ValueError("Invalid bounce status signature.")
 
-    status_type, outside_address, message_id, bounce_time = payload.decode("utf-8").split("=")
+    status_type, outside_address, message_id, bounce_time_raw = payload.decode("utf-8").split("=")
+    bounce_time = int(bounce_time_raw)
 
     if _is_status_time_expired(bounce_time):
         raise ValueError("Bounce status payload expired.")
@@ -118,8 +119,8 @@ def extract_forward_status(status: str) -> dict:
 
 
 def extract_forward_status_header(message: Message) -> Optional[str]:
-    if (report_message := get_report_from_message(message)) is None:
-        if (result := HEADER_REGEX.search(message.as_string())) is not None:
+    if (report_message := get_report_from_message(message)) is not None:
+        if (result := HEADER_REGEX.search(report_message.as_string())) is not None:
             return result.group(1)
 
 
@@ -133,7 +134,7 @@ def is_not_deliverable(envelope: Envelope, message: Message) -> bool:
         or is_local_a_bounce_address(message.get(headers.FROM).split("@")[0])
 
 
-def get_report_from_message(message: Message) -> Optional[str]:
+def get_report_from_message(message: Message) -> Optional[Message]:
     for part in message.walk():
         if part.get_content_type().lower() == "message/rfc822":
             return part.get_payload()[0]
