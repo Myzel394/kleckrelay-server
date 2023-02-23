@@ -3,7 +3,7 @@ from app import constants
 
 __all__ = [
     "normalize_email",
-    "is_local_forbidden",
+    "is_local_a_bounce_address",
 ]
 
 
@@ -13,8 +13,8 @@ async def normalize_email(email: str) -> str:
     return (await normalizer.normalize(email)).normalized_address
 
 
-def is_local_forbidden(local: str) -> bool:
-    return local.lower().startswith(constants.VERP_PREFIX) or any(
+def is_local_a_bounce_address(local: str) -> bool:
+    return local.lower().startswith(constants.FORWARD_STATUS_PREFIX) or any(
         alias.match(local)
         for alias in constants.FORBIDDEN_ALIASES
     )

@@ -191,7 +191,7 @@ def test_can_not_create_alias_that_starts_with_verp_constant(
         "/v1/alias/",
         json={
             "type": AliasType.CUSTOM,
-            "local": constants.VERP_PREFIX + "test",
+            "local": constants.FORWARD_STATUS_PREFIX + "test",
         },
         headers=auth["headers"]
     )
@@ -211,7 +211,7 @@ def test_can_not_create_alias_that_is_verp_constant(
         "/v1/alias/",
         json={
             "type": AliasType.CUSTOM,
-            "local": constants.VERP_PREFIX,
+            "local": constants.FORWARD_STATUS_PREFIX,
         },
         headers=auth["headers"]
     )

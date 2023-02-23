@@ -1,5 +1,6 @@
 import binascii
 import uuid
+from email.message import EmailMessage
 from mailbox import Message
 from typing import Union
 
@@ -37,7 +38,8 @@ from email_utils.utils import (
 from email_utils.validators import validate_alias
 from . import headers
 from .bounce_messages import (
-    extract_verp, generate_verp, has_verp, is_bounce, is_verp_bounce,
+    extract_verp, generate_forward_status, generate_verp, has_verp, is_not_deliverable,
+    is_verp_bounce,
     VerpType,
 )
 from .headers import set_header
@@ -63,45 +65,14 @@ async def handle(envelope: Envelope, message: Message) -> str:
         user = None
 
         try:
-            set_header(message, headers.MESSAGE_ID, generate_message_id())
+            message_id = generate_message_id()
+            set_header(message, headers.MESSAGE_ID, message_id)
 
             logger.info("Checking if mail is a verp bounce mail.")
 
-            if is_verp_bounce(envelope):
-                logger.info("Mail has VERP. Checking if VERP is valid.")
-
-                try:
-                    local, _ = envelope.rcpt_tos[0].split("@")
-                    bounce_status = extract_verp(db, local=local)
-                except (NoResultFound, ValueError, binascii.Error):
-                    logger.info("VERP is invalid. No further action required.")
-                    return status.E200
-                else:
-                    logger.info(f"VERP is valid. Bounce Status is {bounce_status}.")
-
-                    if bounce_status.status == StatusType.FORWARDING:
-                        logger.info("Mail was forwarded. Sending bounce message to user.")
-
-                        update_bounce_status_to_bounce(db, bounce_status)
-
-                        logger.info("Notifying user about bounce mail.")
-                        # Send bounce mail to user
-                        send_bounce_mail(
-                            target=bounce_status.to_address,
-                            to_mail=bounce_status.from_address,
-                        )
-
-                        return status.E200
-                    elif bounce_status.status == StatusType.BOUNCING:
-                        logger.info("Mail was already bounced. No further action required.")
-                        return status.E200
-
-                logger.info("Done with bounce mail.")
-                return status.E200
-
             logger.info("Checking if mail is a normal bounce mail.")
 
-            if is_bounce(envelope):
+            if is_not_deliverable(envelope, message):
                 logger.info("Mail is a bounce mail. No further action required.")
                 return status.E200
 
@@ -157,11 +128,11 @@ async def handle(envelope: Envelope, message: Message) -> str:
 
                 set_header(
                     message,
-                    headers.RETURN_PATH,
-                    generate_verp(
-                        db,
-                        from_address=alias.user.email.address,
-                        to_address=target,
+                    headers.KLECK_FORWARD_STATUS,
+                    generate_forward_status(
+                        VerpType.FORWARD_ALIAS_TO_OUTSIDE,
+                        outside_address=target,
+                        message_id=message_id,
                     )
                 )
 
@@ -170,7 +141,6 @@ async def handle(envelope: Envelope, message: Message) -> str:
                     from_mail=alias.address,
                     to_mail=target,
                 )
-                logger.info("Email sent.")
                 server_statistics.add_sent_email(db)
 
                 logger.info("Returning success back.")

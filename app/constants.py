@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 
 from pathlib import Path
 
+from email_utils import headers
+
 __all__ = [
     "LOCAL_REGEX",
     "DOMAIN_REGEX",
@@ -27,8 +29,8 @@ __all__ = [
     "ACCESS_TOKEN_COOKIE_NAME",
     "REFRESH_TOKEN_COOKIE_NAME",
     "ENCRYPTED_PASSWORD_MAX_LENGTH",
-    "VERP_PREFIX",
-    "MAX_VERP_TIME"
+    "FORWARD_STATUS_PREFIX",
+    "MAX_FORWARD_STATUS_TIME"
 ]
 
 
@@ -63,8 +65,11 @@ EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 SALT_MAX_LENGTH = 29
 APP_VERSION = "0.0.1"
-VERP_PREFIX = "verpqxc"
-MAX_VERP_TIME = timedelta(days=5)
+FORWARD_STATUS_PREFIX = "verpqxc"
+MAX_FORWARD_STATUS_TIME = timedelta(days=5)
+# To store data, we only store the minutes that have passed since the start of 2023-01-01 00:00:00.
+FORWARD_STATUS_TIME = datetime(2023, 1, 1)
+FORWARD_STATUS_HEADER_REGEX = re.compile(rf"")
 FORBIDDEN_ALIASES = [
     re.compile(r"^bounce$", re.IGNORECASE),
     re.compile(r"^double-bounce$", re.IGNORECASE),
@@ -72,6 +77,7 @@ FORBIDDEN_ALIASES = [
     re.compile(r"^postmaster$", re.IGNORECASE),
     re.compile(r"^noreply$", re.IGNORECASE),
 ]
+
 
 
 TESTING_DB = None

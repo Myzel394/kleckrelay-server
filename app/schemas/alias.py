@@ -17,7 +17,7 @@ __all__ = [
     "AliasDetail",
 ]
 
-from app.utils.email import is_local_forbidden
+from app.utils.email import is_local_a_bounce_address
 
 
 class AliasBase(BaseModel):
@@ -57,7 +57,7 @@ class AliasCreate(AliasBase):
                 f"`local` is too long. It should be at most {max_length} characters long."
             )
 
-        if is_local_forbidden(value):
+        if is_local_a_bounce_address(value):
             raise ValueError(f"This address cannot be used as it is required by the system.")
 
         return value

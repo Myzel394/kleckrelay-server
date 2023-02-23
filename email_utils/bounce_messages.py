@@ -1,28 +1,30 @@
 import base64
 import enum
 import hmac
-import json
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from email.message import Message
+from typing import Optional
 
 from aiosmtpd.smtp import Envelope
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
 
-from app import life_constants, constant_keys, constants, logger
-from app.controllers.mail_bounce_status import create_bounce_status, get_bounce_status_by_id
-from app.models import EmailAlias, MailBounceStatus
-from app.utils.email import is_local_forbidden
+from app import life_constants, constant_keys, constants
+from app.utils.email import is_local_a_bounce_address
 from email_utils import headers
 
 __all__ = [
     "VerpType",
-    "generate_verp",
-    "extract_verp",
-    "is_verp_bounce",
-    "has_verp",
-    "is_bounce"
+    "generate_forward_status",
+    "extract_forward_status",
+    "is_bounce",
+    "is_not_deliverable"
 ]
+
+
+HEADER_REGEX = re.compile(
+    rf"\n(?:{headers.KLECK_FORWARD_STATUS}: )<([a-z0-9]+\.[a-z0-9]+@"
+    rf"{re.escape(life_constants.MAIL_DOMAIN)})>\n"
+)
 
 
 class VerpType(enum.Enum):
@@ -53,49 +55,55 @@ def _create_signature(payload: bytes) -> bytes:
     ).digest()[:8]
 
 
-def generate_verp(db: Session, /, from_address: str, to_address: str) -> str:
-    """
-    Variable envelope return path is a technique used to enable automatic detection and removal 
-    of undeliverable e-mail addresses (Wikipedia).
-    We generate for each mail a unique VERP address to detect when there's a bounce.
-    :return: 
-    """
-    logger.info("Generating VERP address...")
-    bounce_status = create_bounce_status(
-        db,
-        from_address=from_address,
-        to_address=to_address,
-    )
-    logger.info(f"Created bounce status with id {bounce_status.id}")
-    payload = str(bounce_status.id).encode("utf-8")
+def _create_verp_time() -> int:
+    diff = datetime.now() - constants.FORWARD_STATUS_TIME
+
+    return int(diff.total_seconds() / 60)
+
+
+def _is_verp_time_expired(time_in_minutes: int) -> bool:
+    diff = timedelta(minutes=time_in_minutes)
+
+    return diff <= constants.MAX_FORWARD_STATUS_TIME
+
+
+# ´message_id` is required to prevent double (handcrafted) bounces
+def generate_forward_status(verp_type: VerpType, outside_address: str, message_id: str) -> str:
+    payload = ".".join([
+        verp_type.value,
+        outside_address,
+        message_id,
+        _create_verp_time(),
+    ]).encode("utf-8")
     signature = _create_signature(payload)
-    # We only have a very limited number of characters available for the VERP address
-    # We strip the padding and add it in the extraction process again
+
     encoded_payload = base64.b32encode(payload).rstrip(b"=").decode("utf-8").lower()
     encoded_signature = base64.b32encode(signature).rstrip(b"=").decode("utf-8").lower()
 
-    address = f"{constants.VERP_PREFIX}{encoded_payload}.{encoded_signature}@{life_constants.MAIL_DOMAIN}"
+    return (
+        constants.FORWARD_STATUS_PREFIX
+        + encoded_payload
+        + "."
+        + encoded_signature
+        + "@"
+        + life_constants.MAIL_DOMAIN
+    )
 
-    logger.info(f"Generated VERP address {address}.")
 
-    return address
-
-
-def extract_verp(db: Session, /, local: str) -> MailBounceStatus:
-    if not local.startswith(constants.VERP_PREFIX):
+def extract_forward_status(local: str) -> dict:
+    if not local.startswith(constants.FORWARD_STATUS_PREFIX):
         raise ValueError("No VERP prefix.")
 
-    full_payload = local[len(constants.VERP_PREFIX):]
+    full_payload = local[len(constants.FORWARD_STATUS_PREFIX):]
 
-    if len(full_payload.split(".")) != 2:
+    contents = full_payload.split(".")
+    if len(contents) != 2:
         raise ValueError("Invalid VERP payload.")
 
-    payload, signature = full_payload.split(".")
+    payload, signature = contents
 
     payload_padding = (8 - (len(payload) % 8)) % 8
-    bounce_status_id = int(base64\
-        .b32decode(payload.encode("utf-8").upper() + b"=" * payload_padding)\
-        .decode("utf-8"))
+    payload = base64.b32decode(payload.encode("utf-8").upper() + b"=" * payload_padding)
     signature_padding = (8 - (len(signature) % 8)) % 8
     signature = base64.b32decode(signature.encode("utf-8").upper() + b"=" * signature_padding)
 
@@ -104,28 +112,28 @@ def extract_verp(db: Session, /, local: str) -> MailBounceStatus:
     if signature != expected_signature:
         raise ValueError("Invalid VERP signature.")
 
-    try:
-        bounce_status = get_bounce_status_by_id(db, bounce_status_id)
-    except NoResultFound:
-        raise ValueError("Invalid VERP payload.")
+    verp_type, outside_address, message_id, verp_time = payload.decode("utf-8").split(".")
 
-    if bounce_status.is_expired:
+    if _is_verp_time_expired(verp_time):
         raise ValueError("VERP payload expired.")
 
-    return bounce_status
+    return {
+        "verp_type": VerpType(verp_type),
+        "outside_address": outside_address,
+        "message_id": message_id,
+        "verp_time": verp_time,
+    }
 
 
-def is_verp_bounce(envelope: Envelope) -> bool:
-    """Detect whether an email is a Delivery Status Notification"""
-    return envelope.rcpt_tos[0].startswith(constants.VERP_PREFIX)
+def extract_forward_status_header(message: Message) -> Optional[str]:
+    return HEADER_REGEX.search(message.as_string()).group(1)
 
 
-def has_verp(message: Message) -> bool:
-    return message.get(headers.RETURN_PATH, "").startswith(constants.VERP_PREFIX)
+def is_bounce(envelope: Envelope, message: Message) -> bool:
+    return envelope.mail_from == "<>" and message.get_content_type().lower() == "multipart/report"
 
 
-def is_bounce(envelope: Envelope) -> bool:
-    return\
-        not envelope.mail_from\
-        or envelope.mail_from == "<>"\
-        or is_local_forbidden(envelope.rcpt_tos[0].split("@")[0])
+def is_not_deliverable(envelope: Envelope, message: Message) -> bool:
+    return \
+        envelope.mail_from == "<>" \
+        or is_local_a_bounce_address(message.get(headers.FROM).split("@")[0])
