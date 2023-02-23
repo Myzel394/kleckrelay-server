@@ -119,9 +119,8 @@ def extract_forward_status(status: str) -> dict:
 
 
 def extract_forward_status_header(message: Message) -> Optional[str]:
-    if (report_message := get_report_from_message(message)) is not None:
-        if (result := HEADER_REGEX.search(report_message.as_string())) is not None:
-            return result.group(1)
+    if (result := HEADER_REGEX.search(message.as_string())) is not None:
+        return result.group(1)
 
 
 def is_bounce(envelope: Envelope, message: Message) -> bool:

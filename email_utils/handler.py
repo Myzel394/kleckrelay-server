@@ -34,7 +34,7 @@ from email_utils.validators import validate_alias
 from . import headers
 from .bounce_messages import (
     extract_forward_status, extract_forward_status_header, generate_forward_status,
-    is_not_deliverable, StatusType,
+    get_report_from_message, is_not_deliverable, StatusType,
 )
 from .headers import set_header
 
@@ -63,60 +63,65 @@ async def handle(envelope: Envelope, message: Message) -> str:
             set_header(message, headers.MESSAGE_ID, message_id)
 
             logger.info("Checking if mail is a bounce mail from us.")
-            if (forward_status := extract_forward_status_header(message)) is not None:
-                logger.info("Mail is a bounce mail from us. Extracting data.")
-
-                try:
-                    data = extract_forward_status(forward_status)
-                except (ValueError, binascii.Error):
-                    logger.info("Forward status is invalid. Ignoring mail.")
-                    return status.E200
-
-                if data["message_id"] != message.get(headers.MESSAGE_ID):
-                    logger.info("Message ID does not match. Ignoring mail.")
-                    return status.E200
-
-                logger.info(f"Data is {data=}.")
-
-                if data["status_type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE:
-                    logger.info(
-                        "Mail should originally be forwarded FROM a local alias TO the outside. "
-                        "Informing local user."
-                    )
+            if (report_message := get_report_from_message(message)) is not None:
+                if (forward_status := extract_forward_status_header(report_message)) is not None:
+                    logger.info("Mail is a bounce mail from us. Extracting data.")
 
                     try:
-                        alias = get_alias_by_email(db, envelope.rcpt_tos[0])
-                    except NoResultFound:
-                        logger.info("Alias does not exist. We can't inform the user.")
+                        data = extract_forward_status(forward_status)
+                    except (ValueError, binascii.Error):
+                        logger.info("Forward status is invalid. Ignoring mail.")
                         return status.E200
 
-                    logger.info("Alias exists. Informing user.")
-                    send_bounce_mail(
-                        data["outside_address"],
-                        alias.user.email.address,
-                        language=alias.user.language,
-                    )
+                    if data["message_id"] != message.get(headers.MESSAGE_ID):
+                        logger.info("Message ID does not match. Ignoring mail.")
+                        return status.E200
 
-                    return status.E200
-                elif data["status_type"] == StatusType.FORWARD_OUTSIDE_TO_ALIAS:
-                    logger.info(
-                        "Mail should originally be forwarded FROM the outside TO a local alias. "
-                        "Informing outside user."
-                    )
+                    if data["message_id"] != message.get(headers.MESSAGE_ID)[1:-1]:
+                        logger.info("Message ID does not match. Ignoring mail.")
+                        return status.E200
 
-                    send_bounce_mail(
-                        envelope.rcpt_tos[0],
-                        data["outside_address"],
-                    )
+                    logger.info(f"Data is {data=}.")
 
-                    return status.E200
-                elif data["status_type"] == StatusType.BOUNCE:
-                    logger.info("Mail is a bounce mail from us. Nothing to do.")
+                    if data["status_type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE:
+                        logger.info(
+                            "Mail should originally be forwarded FROM a local alias TO the outside. "
+                            "Informing local user."
+                        )
 
-                    return status.E200
-                elif data["status_type"] == StatusType.OFFICIAL:
-                    # Todo: Inform admins
-                    return status.E200
+                        try:
+                            alias = get_alias_by_email(db, envelope.rcpt_tos[0])
+                        except NoResultFound:
+                            logger.info("Alias does not exist. We can't inform the user.")
+                            return status.E200
+
+                        logger.info("Alias exists. Informing user.")
+                        send_bounce_mail(
+                            data["outside_address"],
+                            alias.user.email.address,
+                            language=alias.user.language,
+                        )
+
+                        return status.E200
+                    elif data["status_type"] == StatusType.FORWARD_OUTSIDE_TO_ALIAS:
+                        logger.info(
+                            "Mail should originally be forwarded FROM the outside TO a local alias. "
+                            "Informing outside user."
+                        )
+
+                        send_bounce_mail(
+                            envelope.rcpt_tos[0],
+                            data["outside_address"],
+                        )
+
+                        return status.E200
+                    elif data["status_type"] == StatusType.BOUNCE:
+                        logger.info("Mail is a bounce mail from us. Nothing to do.")
+
+                        return status.E200
+                    elif data["status_type"] == StatusType.OFFICIAL:
+                        # Todo: Inform admins
+                        return status.E200
 
             logger.info("Checking if mail is a normal bounce mail.")
 
