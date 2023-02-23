@@ -23,8 +23,7 @@ __all__ = [
 
 
 HEADER_REGEX = re.compile(
-    rf"\n(?:{headers.KLECK_FORWARD_STATUS}: )([a-z0-9]+\.[a-z0-9]+@"
-    rf"{re.escape(life_constants.MAIL_DOMAIN)})\n"
+    rf"\n{headers.KLECK_FORWARD_STATUS}:\s+([a-z0-9]+\.[a-z0-9]+)\n"
 )
 
 
@@ -70,10 +69,10 @@ def _is_status_time_expired(time_in_minutes: int) -> bool:
 
 # ´message_id` is required to prevent double (handcrafted) bounces
 def generate_forward_status(status_type: StatusType, outside_address: str, message_id: str) -> str:
-    payload = ".".join([
+    payload = "=".join([
         status_type.value,
         outside_address,
-        message_id,
+        message_id[1:-1],
         str(_create_status_time()),
     ]).encode("utf-8")
     signature = _create_signature(payload)
@@ -105,7 +104,7 @@ def extract_forward_status(status: str) -> dict:
     if signature != expected_signature:
         raise ValueError("Invalid bounce status signature.")
 
-    status_type, outside_address, message_id, bounce_time = payload.decode("utf-8").split(".")
+    status_type, outside_address, message_id, bounce_time = payload.decode("utf-8").split("=")
 
     if _is_status_time_expired(bounce_time):
         raise ValueError("Bounce status payload expired.")
@@ -119,7 +118,9 @@ def extract_forward_status(status: str) -> dict:
 
 
 def extract_forward_status_header(message: Message) -> Optional[str]:
-    return HEADER_REGEX.search(message.as_string()).group(1)
+    if (report_message := get_report_from_message(message)) is None:
+        if (result := HEADER_REGEX.search(message.as_string())) is not None:
+            return result.group(1)
 
 
 def is_bounce(envelope: Envelope, message: Message) -> bool:
