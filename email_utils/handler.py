@@ -73,14 +73,6 @@ async def handle(envelope: Envelope, message: Message) -> str:
                         logger.info("Forward status is invalid. Ignoring mail.")
                         return status.E200
 
-                    if data["message_id"] != message.get(headers.MESSAGE_ID):
-                        logger.info("Message ID does not match. Ignoring mail.")
-                        return status.E200
-
-                    if data["message_id"] != message.get(headers.MESSAGE_ID)[1:-1]:
-                        logger.info("Message ID does not match. Ignoring mail.")
-                        return status.E200
-
                     logger.info(f"Data is {data=}.")
 
                     if data["status_type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE:
