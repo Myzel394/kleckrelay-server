@@ -14,7 +14,7 @@ async def normalize_email(email: str) -> str:
 
 
 def is_local_a_bounce_address(local: str) -> bool:
-    return local.lower().startswith(constants.FORWARD_STATUS_PREFIX) or any(
+    return any(
         alias.match(local)
         for alias in constants.FORBIDDEN_ALIASES
     )
