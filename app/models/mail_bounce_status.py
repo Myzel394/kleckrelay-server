@@ -46,4 +46,4 @@ class MailBounceStatus(Base, CreationMixin):
 
     @property
     def is_expired(self) -> bool:
-        return self.created_at < datetime.now() - constants.MAX_FORWARD_STATUS_TIME
+        return self.created_at < datetime.now() - constants.BOUNCE_MAX_TIME

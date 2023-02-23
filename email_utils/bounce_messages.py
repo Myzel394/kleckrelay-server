@@ -13,21 +13,22 @@ from app.utils.email import is_local_a_bounce_address
 from email_utils import headers
 
 __all__ = [
-    "VerpType",
+    "StatusType",
     "generate_forward_status",
     "extract_forward_status",
     "is_bounce",
-    "is_not_deliverable"
+    "is_not_deliverable",
+    "get_report_from_message",
 ]
 
 
 HEADER_REGEX = re.compile(
-    rf"\n(?:{headers.KLECK_FORWARD_STATUS}: )<([a-z0-9]+\.[a-z0-9]+@"
-    rf"{re.escape(life_constants.MAIL_DOMAIN)})>\n"
+    rf"\n(?:{headers.KLECK_FORWARD_STATUS}: )([a-z0-9]+\.[a-z0-9]+@"
+    rf"{re.escape(life_constants.MAIL_DOMAIN)})\n"
 )
 
 
-class VerpType(enum.Enum):
+class StatusType(enum.Enum):
     # Used for official emails sent by the app
     # Example: password reset, email verification etc.
     # They don't need to be tracked
@@ -55,25 +56,25 @@ def _create_signature(payload: bytes) -> bytes:
     ).digest()[:8]
 
 
-def _create_verp_time() -> int:
-    diff = datetime.now() - constants.FORWARD_STATUS_TIME
+def _create_status_time() -> int:
+    diff = datetime.now() - constants.BOUNCE_START_TIME
 
     return int(diff.total_seconds() / 60)
 
 
-def _is_verp_time_expired(time_in_minutes: int) -> bool:
+def _is_status_time_expired(time_in_minutes: int) -> bool:
     diff = timedelta(minutes=time_in_minutes)
 
-    return diff <= constants.MAX_FORWARD_STATUS_TIME
+    return diff <= constants.BOUNCE_MAX_TIME
 
 
 # ´message_id` is required to prevent double (handcrafted) bounces
-def generate_forward_status(verp_type: VerpType, outside_address: str, message_id: str) -> str:
+def generate_forward_status(status_type: StatusType, outside_address: str, message_id: str) -> str:
     payload = ".".join([
-        verp_type.value,
+        status_type.value,
         outside_address,
         message_id,
-        _create_verp_time(),
+        str(_create_status_time()),
     ]).encode("utf-8")
     signature = _create_signature(payload)
 
@@ -81,24 +82,16 @@ def generate_forward_status(verp_type: VerpType, outside_address: str, message_i
     encoded_signature = base64.b32encode(signature).rstrip(b"=").decode("utf-8").lower()
 
     return (
-        constants.FORWARD_STATUS_PREFIX
-        + encoded_payload
+        encoded_payload
         + "."
         + encoded_signature
-        + "@"
-        + life_constants.MAIL_DOMAIN
     )
 
 
-def extract_forward_status(local: str) -> dict:
-    if not local.startswith(constants.FORWARD_STATUS_PREFIX):
-        raise ValueError("No VERP prefix.")
-
-    full_payload = local[len(constants.FORWARD_STATUS_PREFIX):]
-
-    contents = full_payload.split(".")
+def extract_forward_status(status: str) -> dict:
+    contents = status.split(".")
     if len(contents) != 2:
-        raise ValueError("Invalid VERP payload.")
+        raise ValueError("Invalid bounce status payload.")
 
     payload, signature = contents
 
@@ -110,18 +103,18 @@ def extract_forward_status(local: str) -> dict:
     expected_signature = _create_signature(payload)
 
     if signature != expected_signature:
-        raise ValueError("Invalid VERP signature.")
+        raise ValueError("Invalid bounce status signature.")
 
-    verp_type, outside_address, message_id, verp_time = payload.decode("utf-8").split(".")
+    status_type, outside_address, message_id, bounce_time = payload.decode("utf-8").split(".")
 
-    if _is_verp_time_expired(verp_time):
-        raise ValueError("VERP payload expired.")
+    if _is_status_time_expired(bounce_time):
+        raise ValueError("Bounce status payload expired.")
 
     return {
-        "verp_type": VerpType(verp_type),
+        "status_type": StatusType(status_type),
         "outside_address": outside_address,
         "message_id": message_id,
-        "verp_time": verp_time,
+        "bounce_time": bounce_time,
     }
 
 
@@ -137,3 +130,9 @@ def is_not_deliverable(envelope: Envelope, message: Message) -> bool:
     return \
         envelope.mail_from == "<>" \
         or is_local_a_bounce_address(message.get(headers.FROM).split("@")[0])
+
+
+def get_report_from_message(message: Message) -> Optional[str]:
+    for part in message.walk():
+        if part.get_content_type().lower() == "message/rfc822":
+            return part.get_payload()[0]
