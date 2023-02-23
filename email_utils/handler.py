@@ -28,19 +28,16 @@ from email_utils.html_handler import (
     remove_single_pixel_image_trackers,
 )
 from email_utils.send_mail import (
-    send_bounce_mail, send_error_mail, send_mail,
+    send_error_mail, send_mail,
 )
 from email_utils.utils import (
     get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
-    get_header_unicode,
-    get_email_by_from,
+    get_header_unicode, get_email_by_from,
 )
 from email_utils.validators import validate_alias
 from . import headers
 from .bounce_messages import (
-    extract_verp, generate_forward_status, generate_verp, has_verp, is_not_deliverable,
-    is_verp_bounce,
-    VerpType,
+    generate_forward_status, is_not_deliverable, VerpType,
 )
 from .headers import set_header
 
@@ -205,16 +202,6 @@ async def handle(envelope: Envelope, message: Message) -> str:
                     f"Email {envelope.mail_from} is from outside and wants to send to alias "
                     f"{alias.address}. "
                     f"Relaying email to locally saved user {alias.user.email.address}."
-                )
-
-                set_header(
-                    message,
-                    headers.RETURN_PATH,
-                    generate_verp(
-                        db,
-                        from_address=envelope.mail_from,
-                        to_address=alias.address,
-                    )
                 )
 
                 send_mail(
