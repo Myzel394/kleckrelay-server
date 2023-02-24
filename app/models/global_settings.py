@@ -46,6 +46,9 @@ class GlobalSettings(Base, IDMixin):
     enable_image_proxy = sa.Column(
         sa.Boolean(),
     )
+    enable_image_proxy_storage = sa.Column(
+        sa.Boolean(),
+    )
     user_email_enable_disposable_emails = sa.Column(
         sa.Boolean(),
     )
