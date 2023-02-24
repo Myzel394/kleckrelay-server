@@ -53,7 +53,7 @@ def _create_signature(payload: bytes) -> bytes:
         constant_keys.VERP_SECRET.encode("utf-8"),
         payload,
         life_constants.VERP_HMAC_ALGORITHM
-    ).digest()[:8]
+    ).digest()
 
 
 def _create_status_time() -> int:
@@ -96,17 +96,16 @@ def extract_forward_status(status: str) -> dict:
     if len(contents) != 2:
         raise ValueError("Invalid bounce status payload.")
 
-    payload, signature = contents
+    raw_payload, signature = contents
 
-    payload = base64.b32decode(payload.encode("utf-8"))
-    signature = base64.b32decode(signature.encode("utf-8"))
+    encoded_payload = raw_payload.encode("utf-8")
 
-    expected_signature = _create_signature(payload)
+    expected_signature = _create_signature(encoded_payload)
 
-    if signature != expected_signature:
+    if signature != expected_signature.hex():
         raise ValueError("Invalid bounce status signature.")
 
-    payload = json.loads(payload.decode("utf-8"))
+    payload = json.loads(base64.b64decode(encoded_payload.decode("utf-8")))
 
     if _is_status_time_expired(payload["time"]):
         raise ValueError("Bounce status payload expired.")
@@ -124,9 +123,13 @@ def is_bounce(envelope: Envelope, message: Message) -> bool:
 
 
 def is_not_deliverable(envelope: Envelope, message: Message) -> bool:
-    return \
-        envelope.mail_from == "<>" \
-        or is_local_a_bounce_address(message.get(headers.FROM).split("@")[0])
+    if envelope.mail_from == "<>":
+        return True
+
+    if (from_header := message.get(headers.FROM)) is not None:
+        return is_local_a_bounce_address(from_header.split("@")[0])
+
+    return False
 
 
 def get_report_from_message(message: Message) -> Optional[Message]:

@@ -116,7 +116,6 @@ async def handle(envelope: Envelope, message: Message) -> str:
                         return status.E200
 
             logger.info("Checking if mail is a normal bounce mail.")
-
             if is_not_deliverable(envelope, message):
                 logger.info("Mail is a bounce mail. No further action required.")
                 return status.E200
