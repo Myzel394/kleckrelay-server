@@ -4,7 +4,7 @@ from pyquery import PyQuery as pq
 from app import life_constants
 from app.constants import ROOT_DIR
 from app.email_report_data import EmailReportData
-from email_utils import html_handler
+from email_utils import content_handler
 
 
 def test_can_convert_images(
