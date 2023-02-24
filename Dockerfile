@@ -19,11 +19,10 @@ RUN mkdir ~/.gnupg
 RUN mkdir /app
 RUN mkdir /tutorial
 
-WORKDIR /app
-
 # Install poetry
 RUN pip3 install poetry
 
+WORKDIR /app
 COPY pyproject.toml /app
 
 # Install dependencies

@@ -1,11 +1,11 @@
 import lxml.html
 import requests
+import talon
 from lxml.etree import _Element, XMLSyntaxError
 from pyquery import PyQuery as pq
 from sqlalchemy.orm import Session
 
 from app.controllers.image_proxy import create_image_proxy
-from app.controllers.server_statistics import add_removed_trackers
 from app.email_report_data import (
     EmailReportData, EmailReportExpandedURLData, EmailReportProxyImageData,
     EmailReportSinglePixelImageTrackerData,
@@ -17,7 +17,8 @@ from email_utils.handlers import check_is_url_a_tracker
 __all__ = [
     "convert_images",
     "remove_single_pixel_image_trackers",
-    "expand_shortened_urls"
+    "expand_shortened_urls",
+    "remove_footer",
 ]
 
 
@@ -119,3 +120,12 @@ def expand_shortened_urls(
         )
 
     return d.outer_html()
+
+
+def remove_footer(
+    text: str,
+    content_type: str
+) -> str:
+    content, signature = talon.quotations.extract_from(text, content_type)
+
+    return content

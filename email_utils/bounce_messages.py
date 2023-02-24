@@ -20,6 +20,7 @@ __all__ = [
     "is_bounce",
     "is_not_deliverable",
     "get_report_from_message",
+    "extract_forward_status_header",
 ]
 
 

@@ -27,6 +27,8 @@ SQLAlchemy-Utils = "^0.38.3"
 gunicorn = "^20.1.0"
 python-dotenv = "^0.21.0"
 dkimpy = "^1.0.5"
+talon = "^1.4.4"
+talon-v2 = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.3"
