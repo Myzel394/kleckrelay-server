@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
 
 from app import logger
+from app.controllers import global_settings as settings
 from app.controllers.image_proxy import download_image_to_database, find_image_by_url
 from app.database.dependencies import get_db
 from app.utils.parse_proxied_image import convert_image_to_type
@@ -50,7 +51,7 @@ def proxy_image(
             f"Request: Proxy Image -> Url {url=} found in database."
         )
 
-        if proxy_instance.should_download():
+        if settings.get(db, "ENABLE_IMAGE_PROXY_STORAGE") and proxy_instance.should_download():
             logger.info(
                 f"Request: Proxy Image -> Url {url=} should be cached. Downloading image now..."
             )
