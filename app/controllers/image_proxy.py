@@ -6,6 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app import life_constants, logger
+from app.controllers import global_settings as settings
 from app.constants import ROOT_DIR
 from app.models import EmailAlias, ImageProxy
 from app.utils.hashes import hash_fast, verify_fast_hash
@@ -37,12 +38,13 @@ def create_image_proxy(
     db.commit()
     db.refresh(image)
 
-    download_image_to_database(
-        db,
-        instance=image,
-        url=url,
-        user_agent=alias.get_user_agent_string(),
-    )
+    if settings.get(db, "ENABLE_IMAGE_PROXY_STORAGE"):
+        download_image_to_database(
+            db,
+            instance=image,
+            url=url,
+            user_agent=alias.get_user_agent_string(),
+        )
 
     return image
 
