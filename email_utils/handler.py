@@ -7,12 +7,10 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Alias
 
-from app import life_constants, logger
+from app import logger
 from app.controllers import global_settings as settings
-from app.controllers.alias import get_alias_by_id, get_alias_by_local_and_domain
 from app.controllers.email_report import create_email_report
 from app.controllers import server_statistics
-from app.controllers.mail_bounce_status import update_bounce_status_to_bounce
 from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
 from app.email_report_data import EmailReportData
