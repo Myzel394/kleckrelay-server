@@ -130,6 +130,6 @@ def test_can_create_and_decrypt_forward_status_header():
 
     extracted = extract_forward_status(header)
 
-    assert extracted["type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE
+    assert extracted["type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE.value
     assert extracted["outside_address"] == outside_address
     assert extracted["message_id"] == message_id
