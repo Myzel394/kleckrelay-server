@@ -9,24 +9,18 @@ from sqlalchemy.sql import Alias
 
 from app import logger
 from app.controllers import global_settings as settings
-from app.controllers.email_report import create_email_report
 from app.controllers import server_statistics
+from app.controllers.alias import get_alias_by_local_and_domain
 from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
-from app.email_report_data import EmailReportData
 from app.models import LanguageType, ReservedAlias
-from app.utils.email import normalize_email
 from email_utils import status
-from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
-from email_utils.content_handler import (
-    convert_images, expand_shortened_urls, remove_single_pixel_image_trackers,
-)
+from email_utils.errors import AliasNotFoundError, EmailHandlerError
 from email_utils.send_mail import (
     send_bounce_mail, send_error_mail, send_mail,
 )
 from email_utils.utils import (
-    get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
-    get_header_unicode, get_email_by_from,
+    extract_alias_address, generate_message_id,
 )
 from email_utils.validators import validate_alias
 from . import headers
@@ -55,7 +49,6 @@ async def handle(envelope: Envelope, message: Message) -> str:
     logger.info("Retrieving mail from database.")
 
     with with_db() as db:
-        enable_image_proxy = settings.get(db, "ENABLE_IMAGE_PROXY")
         user = None
 
         try:
@@ -77,12 +70,13 @@ async def handle(envelope: Envelope, message: Message) -> str:
 
                     if data["status_type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE:
                         logger.info(
-                            "Mail should originally be forwarded FROM a local alias TO the outside. "
-                            "Informing local user."
+                            "Mail should originally be forwarded FROM a local alias TO the "
+                            "outside. Informing local user."
                         )
 
+                        local, domain = envelope.rcpt_tos[0].split("@")
                         try:
-                            alias = get_alias_by_email(db, envelope.rcpt_tos[0])
+                            alias = get_alias_by_local_and_domain(db, local=local, domain=domain)
                         except NoResultFound:
                             logger.info("Alias does not exist. We can't inform the user.")
                             return status.E200
@@ -127,7 +121,7 @@ async def handle(envelope: Envelope, message: Message) -> str:
             if (result := extract_alias_address(envelope.rcpt_tos[0])) is not None:
                 alias_address, target = result
 
-                handle_local_to_outside(
+                await handle_local_to_outside(
                     db,
                     alias_address=alias_address,
                     target=target,
@@ -142,7 +136,8 @@ async def handle(envelope: Envelope, message: Message) -> str:
                 f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is an alias mail."
             )
 
-            if alias := get_alias_by_email(db, email=envelope.rcpt_tos[0]):
+            local, domain = envelope.rcpt_tos[0].split("@")
+            if alias := get_alias_by_local_and_domain(db, local=local, domain=domain):
                 handle_outside_to_local(
                     db,
                     alias=alias,

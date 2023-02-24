@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app import logger
 from app.controllers import server_statistics
 from app.controllers.alias import get_alias_by_local_and_domain
+from app.controllers.email import get_email_by_address
 from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.utils.email import normalize_email
 from email_utils import headers
@@ -14,7 +15,6 @@ from email_utils.bounce_messages import generate_forward_status, StatusType
 from email_utils.errors import AliasNotYoursError
 from email_utils.headers import set_header
 from email_utils.send_mail import send_mail
-from email_utils.utils import get_email_by_from
 from email_utils.validators import validate_alias
 
 
@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 
-def handle_local_to_outside(
+async def handle_local_to_outside(
     db: Session,
     /,
     alias_address: str,
@@ -41,7 +41,7 @@ def handle_local_to_outside(
     )
 
     try:
-        email = get_email_by_from(db, from_mail)
+        email = get_email_by_address(db, from_mail)
     except NoResultFound:
         logger.info(f"User does not exist. Raising error.")
         # Return "AliasNotYoursError" to avoid an alias being leaked

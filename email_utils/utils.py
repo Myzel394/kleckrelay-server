@@ -111,10 +111,6 @@ async def sanitize_email(email: str) -> str:
     return (await normalizer.normalize(email)).normalized_address
 
 
-def get_email_by_from(db: Session, /, email: str) -> Optional[Email]:
-    return db.query(Email).filter_by(address=email).one()
-
-
 def determine_text_language(text: str) -> LanguageType:
     return LanguageType.EN_US
 
