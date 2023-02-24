@@ -1,7 +1,7 @@
 import base64
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from PIL import UnidentifiedImageError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -80,6 +80,9 @@ def proxy_image(
                 logger.info(
                     f"Request: Proxy Image -> There was an error while trying to return image "
                     f"{url=}. We will try to proxy it now."
+                )
+                raise HTTPException(
+                    status_code=502,
                 )
 
         logger.info(
