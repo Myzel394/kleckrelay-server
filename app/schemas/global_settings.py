@@ -15,6 +15,7 @@ class GlobalSettingsModel(BaseModel):
     custom_email_suffix_chars: str
     image_proxy_storage_life_time_in_hours: int
     enable_image_proxy: bool
+    enable_image_proxy_storage: bool
     user_email_enable_disposable_emails: bool
     user_email_enable_other_relays: bool
     allow_statistics: bool
