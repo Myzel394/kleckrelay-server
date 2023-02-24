@@ -74,6 +74,7 @@ FORBIDDEN_ALIASES = [
     re.compile(r"^postmaster$", re.IGNORECASE),
     re.compile(r"^noreply$", re.IGNORECASE),
 ]
+OTP_REGEX = r"^[0-9]{6}$"
 
 
 TESTING_DB = None

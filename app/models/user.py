@@ -16,8 +16,6 @@ __all__ = [
     "User",
 ]
 
-from ..logger import logger
-
 
 class LanguageType(str, enum.Enum):
     EN_US = "en_US"
@@ -33,6 +31,7 @@ class User(Base, IDMixin, CreationMixin):
         from .email_report import EmailReport
         from .user_preferences import UserPreferences
         from .reserved_alias import ReservedAlias
+        from .user_otp import UserOTP
         email: Email
         language: LanguageType
         public_key: Optional[str]
@@ -43,6 +42,7 @@ class User(Base, IDMixin, CreationMixin):
         email_login_token: EmailLoginToken
         preferences: UserPreferences
         reserved_aliases: list[ReservedAlias]
+        otp: UserOTP
     else:
         email = relationship(
             "Email",
@@ -100,6 +100,12 @@ class User(Base, IDMixin, CreationMixin):
             "ReservedAlias",
             secondary=ReservedAliasUser.__table__,
             back_populates="users",
+            cascade="all, delete",
+        )
+        otp = relationship(
+            "UserOTP",
+            backref="user",
+            uselist=False,
             cascade="all, delete",
         )
 
