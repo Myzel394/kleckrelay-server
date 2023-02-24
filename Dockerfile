@@ -27,7 +27,7 @@ COPY pyproject.toml /app
 
 # Install dependencies
 # Installind `cython` manually is required for talon
-RUN poetry install cython --no-interaction --no-ansi
+RUN poetry add cython --no-interaction --no-ansi
 RUN poetry install --only main --no-interaction --no-ansi
 
 # Copy code
