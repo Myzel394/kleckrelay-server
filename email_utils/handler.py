@@ -252,6 +252,16 @@ async def handle(envelope: Envelope, message: Message) -> str:
                     f"Relaying email to locally saved user {alias.user.email.address}."
                 )
 
+                set_header(
+                    message,
+                    headers.KLECK_FORWARD_STATUS,
+                    generate_forward_status(
+                        StatusType.FORWARD_OUTSIDE_TO_ALIAS,
+                        outside_address=envelope.mail_from,
+                        message_id=message_id,
+                    )
+                )
+
                 send_mail(
                     message,
                     from_mail=alias.create_outside_email(envelope.mail_from),
@@ -269,6 +279,16 @@ async def handle(envelope: Envelope, message: Message) -> str:
             if reserved_alias := get_reserved_alias_by_address(db, local=local, domain=domain):
                 # OUTSIDE user wants to send a mail TO a reserved alias.
                 validate_alias(reserved_alias)
+
+                set_header(
+                    message,
+                    headers.KLECK_FORWARD_STATUS,
+                    generate_forward_status(
+                        StatusType.OFFICIAL,
+                        outside_address=envelope.mail_from,
+                        message_id=message_id,
+                    )
+                )
 
                 for user in reserved_alias.users:
                     send_mail(

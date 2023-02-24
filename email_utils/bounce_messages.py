@@ -1,6 +1,7 @@
 import base64
 import enum
 import hmac
+import json
 import re
 from datetime import datetime, timedelta
 from email.message import Message
@@ -68,22 +69,25 @@ def _is_status_time_expired(time_in_minutes: int) -> bool:
 
 
 # ´message_id` is required to prevent double (handcrafted) bounces
-def generate_forward_status(status_type: StatusType, outside_address: str, message_id: str) -> str:
-    payload = "=".join([
-        status_type.value,
-        outside_address,
-        message_id[1:-1],
-        str(_create_status_time()),
-    ]).encode("utf-8")
+def generate_forward_status(
+    status_type: StatusType,
+    outside_address: Optional[str] = None,
+    message_id: Optional[str] = None,
+) -> str:
+    payload = base64.b64encode(
+        json.dumps({
+            "type": status_type.value,
+            "outside_address": outside_address,
+            "message_id": message_id,
+            "time": _create_status_time(),
+        }).encode("utf-8")
+    )
     signature = _create_signature(payload)
 
-    encoded_payload = base64.b32encode(payload).rstrip(b"=").decode("utf-8").lower()
-    encoded_signature = base64.b32encode(signature).rstrip(b"=").decode("utf-8").lower()
-
     return (
-        encoded_payload
+        payload.decode("utf-8")
         + "."
-        + encoded_signature
+        + signature.hex()
     )
 
 
@@ -94,28 +98,20 @@ def extract_forward_status(status: str) -> dict:
 
     payload, signature = contents
 
-    payload_padding = (8 - (len(payload) % 8)) % 8
-    payload = base64.b32decode(payload.encode("utf-8").upper() + b"=" * payload_padding)
-    signature_padding = (8 - (len(signature) % 8)) % 8
-    signature = base64.b32decode(signature.encode("utf-8").upper() + b"=" * signature_padding)
+    payload = base64.b32decode(payload.encode("utf-8"))
+    signature = base64.b32decode(signature.encode("utf-8"))
 
     expected_signature = _create_signature(payload)
 
     if signature != expected_signature:
         raise ValueError("Invalid bounce status signature.")
 
-    status_type, outside_address, message_id, bounce_time_raw = payload.decode("utf-8").split("=")
-    bounce_time = int(bounce_time_raw)
+    payload = json.loads(payload.decode("utf-8"))
 
-    if _is_status_time_expired(bounce_time):
+    if _is_status_time_expired(payload["time"]):
         raise ValueError("Bounce status payload expired.")
 
-    return {
-        "status_type": StatusType(status_type),
-        "outside_address": outside_address,
-        "message_id": message_id,
-        "bounce_time": bounce_time,
-    }
+    return payload
 
 
 def extract_forward_status_header(message: Message) -> Optional[str]:

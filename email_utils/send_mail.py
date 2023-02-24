@@ -8,6 +8,7 @@ from typing import Any, Optional
 from app import life_constants, logger
 from app.models import LanguageType
 from . import formatters, headers
+from .bounce_messages import generate_forward_status, StatusType
 from .errors import EmailHandlerError
 from .headers import delete_header, set_header
 from .template_renderer import render
@@ -178,6 +179,10 @@ def draft_message(
     message[headers.SUBJECT] = subject
     message[headers.DATE] = formatters.format_date()
     message[headers.MIME_VERSION] = "1.0"
+
+    message[headers.KLECK_FORWARD_STATUS] = generate_forward_status(
+        StatusType.OFFICIAL,
+    )
 
     return message
 
