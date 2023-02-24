@@ -42,7 +42,7 @@ jobs:
               run: sudo apt install gnupg2 -y && mkdir ~/.gnupg
             - uses: Gr1N/setup-poetry@v8
             - name: Install Cython
-              run: poetry add Cython --no-interaction
+              run: poetry add cython --no-interaction
             - name: Install packages
               run: poetry install --no-interaction
             - uses: Gr1N/setup-poetry@v8
