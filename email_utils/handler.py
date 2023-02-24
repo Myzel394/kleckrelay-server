@@ -34,6 +34,7 @@ from .bounce_messages import (
     extract_forward_status, extract_forward_status_header, generate_forward_status,
     get_report_from_message, is_not_deliverable, StatusType,
 )
+from .handle_local_to_outside import handle_local_to_outside
 from .handle_outside_to_local import handle_outside_to_local
 from .headers import set_header
 
@@ -124,69 +125,17 @@ async def handle(envelope: Envelope, message: Message) -> str:
             )
 
             if (result := extract_alias_address(envelope.rcpt_tos[0])) is not None:
-                # LOCALLY saved user wants to send a mail FROM alias TO the outside.
                 alias_address, target = result
-                from_mail = await normalize_email(envelope.mail_from)
-                logger.info(
-                    f"{envelope.rcpt_tos[0]} is an forward alias address (LOCAL wants to send to "
-                    f"OUTSIDE). It should be sent to {target} via alias {alias_address} "
-                    f"Checking if FROM {from_mail} user owns it."
+
+                handle_local_to_outside(
+                    db,
+                    alias_address=alias_address,
+                    target=target,
+                    message=message,
+                    envelope=envelope,
+                    message_id=message_id,
                 )
 
-                try:
-                    email = get_email_by_from(db, from_mail)
-                except NoResultFound:
-                    logger.info(f"User does not exist. Raising error.")
-                    # Return "AliasNotYoursError" to avoid an alias being leaked
-                    raise AliasNotYoursError()
-
-                logger.info(f"Checking if user owns the given alias.")
-                user = email.user
-
-                local, domain = alias_address.split("@")
-
-                if (alias := get_reserved_alias_by_address(db, local, domain)) is not None:
-                    logger.info("Alias is a reserved alias.")
-
-                    # Reserved alias
-                    if user not in alias.users:
-                        logger.info("User is not in reserved alias users. Raising error.")
-                        raise AliasNotYoursError()
-                else:
-                    # Local alias
-                    try:
-                        alias = get_alias_from_user(db, user, local=local, domain=domain)
-                    except NoResultFound:
-                        logger.info("Alias does not exist. Raising error.")
-                        raise AliasNotYoursError()
-
-                logger.info("User owns the alias. Checking if alias is valid.")
-                validate_alias(alias)
-                logger.info("Alias is valid.")
-
-                logger.info(
-                    f"Local mail {alias.address} should be relayed to outside mail {target}. "
-                    f"Sending email now..."
-                )
-
-                set_header(
-                    message,
-                    headers.KLECK_FORWARD_STATUS,
-                    generate_forward_status(
-                        StatusType.FORWARD_ALIAS_TO_OUTSIDE,
-                        outside_address=target,
-                        message_id=message_id,
-                    )
-                )
-
-                send_mail(
-                    message,
-                    from_mail=alias.address,
-                    to_mail=target,
-                )
-                server_statistics.add_sent_email(db)
-
-                logger.info("Returning success back.")
                 return status.E200
 
             logger.info(

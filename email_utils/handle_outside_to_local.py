@@ -21,6 +21,11 @@ from email_utils.utils import get_header_unicode
 from email_utils.validators import validate_alias
 
 
+__all__ = [
+    "handle_outside_to_local"
+]
+
+
 def handle_outside_to_local(
     db: Session,
     /,

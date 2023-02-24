@@ -21,12 +21,10 @@ from email_utils.errors import AliasNotFoundError, InvalidEmailError
 __all__ = [
     "generate_message_id",
     "message_to_bytes",
-    "get_alias_by_email",
     "determine_text_language",
     "get_header_unicode",
     "DataclassJSONEncoder",
     "extract_alias_address",
-    "get_alias_from_user",
 ]
 
 
@@ -115,25 +113,6 @@ async def sanitize_email(email: str) -> str:
 
 def get_email_by_from(db: Session, /, email: str) -> Optional[Email]:
     return db.query(Email).filter_by(address=email).one()
-
-
-def get_alias_by_email(db: Session, /, email: str) -> Optional[EmailAlias]:
-    local, domain = email.split("@")
-
-    return db\
-        .query(EmailAlias)\
-        .filter_by(local=local)\
-        .filter_by(domain=domain)\
-        .first()
-
-
-def get_alias_from_user(db: Session, /, user: User, local: str, domain: str) -> EmailAlias:
-    return db\
-        .query(EmailAlias)\
-        .filter_by(local=local)\
-        .filter_by(domain=domain)\
-        .filter_by(user_id=user.id)\
-        .one()
 
 
 def determine_text_language(text: str) -> LanguageType:
