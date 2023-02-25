@@ -127,6 +127,7 @@ def verify_otp_api(
 def delete_user_otp_api(
     user: User = Depends(get_user),
     db: Session = Depends(get_db),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     if not user.otp:
         return JSONResponse(
