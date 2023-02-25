@@ -112,3 +112,32 @@ def verify_otp_api(
     return {
         "detail": "OTP is verified.",
     }
+
+
+@router.delete(
+    "/",
+    response_model=SimpleDetailResponseModel,
+    responses={
+        "202": {
+            "model": SimpleDetailResponseModel,
+            "detail": "OTP was not enabled. No action taken."
+        }
+    }
+)
+def delete_user_otp_api(
+    user: User = Depends(get_user),
+    db: Session = Depends(get_db),
+):
+    if not user.otp:
+        return JSONResponse(
+            status_code=202,
+            content={
+                "detail": "OTP was not enabled. No action taken."
+            }
+        )
+
+    delete_otp(db, otp=user.otp)
+
+    return {
+        "detail": "OTP was deleted."
+    }
