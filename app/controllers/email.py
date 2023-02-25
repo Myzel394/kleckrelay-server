@@ -3,7 +3,7 @@ import secrets
 from sqlalchemy.orm import Session
 
 from app import logger
-from app.authentication.errors import EmailIncorrectTokenError
+from app.authentication.errors import IncorrectTokenError
 from app.constants import (
     EMAIL_VERIFICATION_TOKEN_CHARS, EMAIL_VERIFICATION_TOKEN_LENGTH,
 )
@@ -70,7 +70,7 @@ def verify_email(db: Session, /, email: Email, token: str):
 
     if not email.token == token:
         logger.info(f"Verify email: Token for {email.address} is incorrect.")
-        raise EmailIncorrectTokenError()
+        raise IncorrectTokenError()
 
     logger.info(f"Verify email: Token for {email.address} is correct.")
     email.is_verified = True

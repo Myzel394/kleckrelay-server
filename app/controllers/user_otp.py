@@ -7,7 +7,7 @@ from app.models.user_otp import OTPStatusType, UserOTP
 __all__ = [
     "get_otp_from_user",
     "create_otp",
-    "verify_otp",
+    "verify_otp_setup",
 ]
 
 
@@ -34,7 +34,7 @@ def delete_otp(db: Session, /, otp: UserOTP) -> None:
     db.commit()
 
 
-def verify_otp(db: Session, /, otp: UserOTP, code: str) -> bool:
+def verify_otp_setup(db: Session, /, otp: UserOTP, code: str) -> bool:
     if code != pyotp.TOTP(otp.secret).now():
         return False
 

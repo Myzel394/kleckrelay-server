@@ -9,7 +9,8 @@ from starlette.testclient import TestClient
 from app import constants, life_constants
 from app.authentication.handler import access_security, refresh_security
 from app.controllers.alias import generate_random_local_id
-from app.controllers.email_login import generate_same_request_token, generate_token
+from app.controllers.email_login import generate_token
+from app.controllers._cors import generate_cors_token
 from app.database.base import Base
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN, DB_URI
@@ -126,7 +127,7 @@ def create_user(db, create_email):
 def create_email_token(db):
     def _method(user: User) -> tuple[EmailLoginToken, str, str]:
         token = generate_token()
-        same_request_token = generate_same_request_token()
+        same_request_token = generate_cors_token()
         email_login = create_item(
             db,
             {

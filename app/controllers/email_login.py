@@ -7,13 +7,10 @@ from sqlalchemy.orm import Session
 
 from app import logger
 from app.authentication.errors import (
-    EmailLoginTokenExpiredError, EmailLoginTokenMaxTriesReachedError,
-    EmailLoginTokenSameRequestTokenInvalidError,
+    TokenExpiredError, MaxTriesReachedError,
+    TokenCorsInvalidError,
 )
-from app.constants import (
-    EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS,
-    EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH,
-)
+from app.controllers._cors import generate_cors_token
 from app.controllers.user import get_user_by_email
 from app.life_constants import (
     EMAIL_LOGIN_TOKEN_CHARS, EMAIL_LOGIN_TOKEN_EXPIRATION_IN_SECONDS,
@@ -42,18 +39,18 @@ def is_token_valid(
 
     if is_token_expired(instance):
         logger.info(f"Is token valid: Token for {instance.user.email.address} expired.")
-        raise EmailLoginTokenExpiredError()
+        raise TokenExpiredError()
 
     if not instance.bypass_same_request_token and not \
             verify_fast_hash(instance.hashed_same_request_token, same_request_token):
         logger.info(
             f"Is token valid: Same Request Token for {instance.user.email.address} is incorrect."
         )
-        raise EmailLoginTokenSameRequestTokenInvalidError()
+        raise TokenCorsInvalidError()
 
     if instance.tries > EMAIL_LOGIN_TOKEN_MAX_TRIES:
         logger.info(f"Is token valid: {instance.user.email.address} has exceeded it's max tries.")
-        raise EmailLoginTokenMaxTriesReachedError()
+        raise MaxTriesReachedError()
 
     logger.info(f"Is token valid: Token for {instance.user.email.address} is correct.")
 
@@ -85,7 +82,7 @@ def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToke
 
     logger.info(f"Create email login token: Generating tokens for {user.email.address}.")
     token = generate_token()
-    same_request_token = generate_same_request_token()
+    same_request_token = generate_cors_token()
     logger.info(f"Create email login token: Generating new email login token for {user.email.address}.")
     instance = EmailLoginToken(
         user=user,
@@ -149,11 +146,3 @@ def generate_token() -> str:
         secrets.choice(EMAIL_LOGIN_TOKEN_CHARS)
         for _ in range(EMAIL_LOGIN_TOKEN_LENGTH)
     )
-
-
-def generate_same_request_token() -> str:
-    return "".join(
-        secrets.choice(EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS)
-        for _ in range(EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH)
-    )
-

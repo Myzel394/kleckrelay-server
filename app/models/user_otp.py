@@ -8,6 +8,10 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.database.base import Base
 from ._mixins import IDMixin
 
+__all__ = [
+    "UserOTP"
+]
+
 
 class OTPStatusType(str, enum.Enum):
     AVAILABLE = "available"

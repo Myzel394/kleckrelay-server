@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from app import constants, logger
-from app.controllers.user_otp import create_otp, delete_otp, get_otp_from_user, verify_otp
+from app.controllers.user_otp import create_otp, delete_otp, get_otp_from_user, verify_otp_setup
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_user
 from app.models import User
@@ -90,7 +90,7 @@ def verify_otp_api(
             "detail": "OTP is already verified.",
         }, status_code=202)
 
-    if not verify_otp(db, otp=otp, code=data.code):
+    if not verify_otp_setup(db, otp=otp, code=data.code):
         logger.info(f"Request: Verify OTP -> Code invalid.")
         return JSONResponse({
             "detail": "Invalid OTP.",

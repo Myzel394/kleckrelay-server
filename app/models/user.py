@@ -108,10 +108,20 @@ class User(Base, IDMixin, CreationMixin):
             uselist=False,
             cascade="all, delete",
         )
+        otp_login = relationship(
+            "OTPAuthentication",
+            backref="user",
+            uselist=False,
+            cascade="all, delete",
+        )
 
     @property
     def is_admin(self) -> bool:
         return self.email.address.lower() in life_constants.ADMINS
+
+    @property
+    def has_otp_enabled(self) -> bool:
+        return self.otp is not None and self.otp.is_verified
 
     def to_jwt_object(self) -> dict[str, Any]:
         # Only save the absolute minimum information that is required to the retrieve the user;

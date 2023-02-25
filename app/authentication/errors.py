@@ -1,14 +1,15 @@
-class EmailLoginTokenExpiredError(Exception):
+class TokenExpiredError(Exception):
     pass
 
 
-class EmailLoginTokenMaxTriesReachedError(Exception):
+class MaxTriesReachedError(Exception):
     pass
 
 
-class EmailLoginTokenSameRequestTokenInvalidError(Exception):
+class TokenCorsInvalidError(Exception):
     pass
 
 
-class EmailIncorrectTokenError(Exception):
+class IncorrectTokenError(Exception):
     pass
+

@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, Response, Security
-from fastapi_jwt import JwtAuthorizationCredentials
+from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -11,20 +10,21 @@ from app.authentication.authentication_response import (
     set_authentication_cookies,
 )
 from app.authentication.errors import (
-    EmailIncorrectTokenError, EmailLoginTokenExpiredError,
-    EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
+    IncorrectTokenError, TokenExpiredError,
+    MaxTriesReachedError, TokenCorsInvalidError,
 )
-from app.authentication.handler import refresh_security
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
 from app.controllers.email_login import (
     change_allow_login_from_different_devices, create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, is_token_valid,
 )
-from app.controllers.global_settings import get_settings, get_settings_model
+from app.controllers.global_settings import get_settings_model
+from app.controllers.otp_authentication import create_otp_authentication, verify_otp_authentication
 from app.controllers.user import (
     check_if_email_exists, create_user,
-    get_user_by_email, get_user_by_id,
+    get_user_by_email
 )
+from app.controllers.user_otp import verify_otp_setup
 from app.database.dependencies import get_db
 from app.dependencies.email_login import get_email_login_token
 from app.dependencies.get_user import get_user
@@ -38,10 +38,11 @@ from app.schemas._basic import (
 from app.schemas.authentication import (
     EmailLoginTokenResponseModel,
     EmailLoginTokenVerifyModel,
-    LoginWithEmailTokenModel,
+    LoginWithEmailOTPRequiredResponseModel, LoginWithEmailTokenModel,
     ResendEmailAlreadyVerifiedResponseModel, ResendEmailModel, SignupResponseModel,
     VerifyEmailModel,
 )
+from app.schemas.otp_authentication import VerifyOTPAuthenticationModel
 from app.schemas.user import UserCreate, UserDetail
 
 router = APIRouter()
@@ -205,7 +206,7 @@ def signup_verify_email(
                 detail=default_error_message,
             )
 
-    except EmailIncorrectTokenError:
+    except IncorrectTokenError:
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
             raise HTTPException(
                 status_code=400,
@@ -267,6 +268,9 @@ async def login_with_email_token(
     "/login/email-token/verify",
     response_model=UserDetail,
     responses={
+        202: {
+            "model": LoginWithEmailOTPRequiredResponseModel,
+        },
         404: {
             "model": HTTPNotFoundExceptionModel,
         },
@@ -291,7 +295,7 @@ async def verify_email_token(
                 token=input_data.token,
                 same_request_token=input_data.same_request_token
             )
-        except EmailLoginTokenExpiredError:
+        except TokenExpiredError:
             logger.info(
                 f"Request: Verify Email Token -> Token for {input_data.email} expired."
             )
@@ -306,7 +310,7 @@ async def verify_email_token(
                     status_code=400,
                     detail=default_error_message,
                 )
-        except EmailLoginTokenMaxTriesReachedError:
+        except MaxTriesReachedError:
             logger.info(
                 f"Request: Verify Email Token -> Token for {input_data.email} has exceeded its "
                 f"tries."
@@ -322,7 +326,7 @@ async def verify_email_token(
                     status_code=400,
                     detail=default_error_message,
                 )
-        except EmailLoginTokenSameRequestTokenInvalidError:
+        except TokenCorsInvalidError:
             logger.info(
                 f"Request: Verify Email Token -> Same request token for {input_data.email} is "
                 f"invalid."
@@ -370,9 +374,23 @@ async def verify_email_token(
                 f"Request: Verify Email Token -> Returning credentials for {input_data.email}"
             )
 
-            set_authentication_cookies(response, user)
+            if user.has_otp_enabled:
+                logger.info("Request: Verify Email Token -> User has OTP enabled. Creating OTP...")
 
-            return user
+                cors_token, otp = create_otp_authentication(
+                    db,
+                    user=user,
+                )
+
+                logger.info("Request: Verify Email Token -> OTP created. Returning OTP.")
+
+                return JSONResponse({
+                    "cors_token": cors_token,
+                }, status_code=202)
+            else:
+                set_authentication_cookies(response, user)
+
+                return user
     else:
         logger.info(
             f"Request: Verify Email Token -> No Login Token for {input_data.email} found."
@@ -441,6 +459,86 @@ async def email_login_allow_login_from_different_devices(
     return {
         "detail": "Login from different devices updated."
     }
+
+
+@router.post(
+    "/login/verify-otp",
+    response_model=UserDetail,
+    responses={
+        404: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "No current email login token or OTP found. Please request one."
+        }
+    }
+)
+async def verify_otp_api(
+    data: VerifyOTPAuthenticationModel,
+    response: Response,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_user),
+):
+    logger.info(
+        f"Request: Verify OTP -> New request from {user=}."
+    )
+
+    if not user.otp_login:
+        logger.info(
+            f"Request: Verify OTP -> User {user=} does not have an OTP token."
+        )
+
+        raise HTTPException(
+            status_code=404,
+            detail="No OTP found. Please request one.",
+        )
+
+    try:
+        verify_otp_authentication(
+            db,
+            otp=user.otp_login,
+            code=data.code,
+            cors_token=data.cors_token,
+        )
+    except TokenExpiredError:
+        logger.info(
+            f"Request: Verify OTP -> Token for {user=} expired."
+        )
+
+        raise HTTPException(
+            status_code=410,
+            detail="Token expired. Please request a new one.",
+        )
+    except MaxTriesReachedError:
+        logger.info(
+            f"Request: Verify OTP -> Token for {user=} reached max tries."
+        )
+
+        raise HTTPException(
+            status_code=410,
+            detail="Max tries reached for your token. Please request a new one.",
+        )
+    except TokenCorsInvalidError:
+        logger.info(
+            f"Request: Verify OTP -> Token for {user=} is invalid."
+        )
+
+        raise HTTPException(
+            status_code=400,
+            detail="Token invalid.",
+        )
+    except IncorrectTokenError:
+        logger.info(
+            f"Request: Verify OTP -> Token for {user=} is incorrect."
+        )
+
+        raise HTTPException(
+            status_code=400,
+            detail="Token invalid.",
+        )
+
+    logger.info(f"Request: Verify OTP -> Token for {user=} correct. Returning credentials.")
+    set_authentication_cookies(response, user)
+
+    return user
 
 
 @router.post(
