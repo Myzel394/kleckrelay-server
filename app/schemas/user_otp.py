@@ -1,8 +1,11 @@
+import uuid
+
 from pydantic import BaseModel
 
 __all__ = [
     "HasUserOTPEnabledResponseModel",
-    "UserOTPResponseModel"
+    "UserOTPResponseModel",
+    "VerifyOTPModel",
 ]
 
 
@@ -11,6 +14,10 @@ class HasUserOTPEnabledResponseModel(BaseModel):
 
 
 class UserOTPResponseModel(BaseModel):
-    id: str
+    id: uuid.UUID
     secret: str
     uri: str
+
+
+class VerifyOTPModel(BaseModel):
+    code: str

@@ -2,7 +2,7 @@ import pyotp
 from sqlalchemy.orm import Session
 
 from app.models import User
-from app.models.user_otp import StatusType, UserOTP
+from app.models.user_otp import OTPStatusType, UserOTP
 
 __all__ = [
     "get_otp_from_user",
@@ -18,7 +18,7 @@ def get_otp_from_user(db: Session, /, user: User) -> UserOTP:
 def create_otp(db: Session, /, user: User) -> UserOTP:
     secret = pyotp.random_base32()
     otp = UserOTP(
-        user=user.id,
+        user=user,
         secret=secret,
     )
 
@@ -38,7 +38,7 @@ def verify_otp(db: Session, /, otp: UserOTP, code: str) -> bool:
     if code != pyotp.TOTP(otp.secret).now():
         return False
 
-    otp.status = StatusType.AVAILABLE
+    otp.status = OTPStatusType.AVAILABLE
 
     db.add(otp)
     db.commit()

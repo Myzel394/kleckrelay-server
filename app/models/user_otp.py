@@ -9,18 +9,20 @@ from app.database.base import Base
 from ._mixins import IDMixin
 
 
-class StatusType(str, enum.Enum):
+class OTPStatusType(str, enum.Enum):
     AVAILABLE = "available"
     AWAITING_VERIFICATION = "awaiting-verification"
 
 
 class UserOTP(Base, IDMixin):
+    __tablename__ = "user_otp"
+
     if TYPE_CHECKING:
         from app.models.user import User
         user_id: uuid.UUID
         user: User
         secret: str
-        status: "awaiting-verification" | "available"
+        status: OTPStatusType
     else:
         user_id = sa.Column(
             UUID(as_uuid=True),
@@ -32,11 +34,10 @@ class UserOTP(Base, IDMixin):
             nullable=False
         )
         status = sa.Column(
-            sa.Enum(StatusType),
-            default=StatusType.AWAITING_VERIFICATION,
-            nullable=False
+            sa.Enum(OTPStatusType),
+            default=OTPStatusType.AWAITING_VERIFICATION,
         )
 
     @property
     def is_verified(self) -> bool:
-        return self.status == StatusType.AVAILABLE
+        return self.status == OTPStatusType.AVAILABLE
