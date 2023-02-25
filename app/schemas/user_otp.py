@@ -14,9 +14,7 @@ class HasUserOTPEnabledResponseModel(BaseModel):
 
 
 class UserOTPResponseModel(BaseModel):
-    id: uuid.UUID
     secret: str
-    uri: str
 
 
 class VerifyOTPModel(BaseModel):

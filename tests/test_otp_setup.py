@@ -135,3 +135,47 @@ def test_require_otp_dependency(
 
     assert response.status_code == 200, \
         f"Status code should be 200 but is {response.status_code}; Deleting OTP failed"
+
+
+def test_can_recreate_otp_when_not_verified(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user=user)
+
+    response = client.post(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Creating OTP failed"
+
+    response = client.post(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Recreating OTP failed"
+
+
+def test_can_not_recreate_otp_when_already_verified(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+    setup_otp,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user=user)
+    setup_otp(user=user)
+
+    response = client.post(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 424, \
+        f"Status code should be 424 but is {response.status_code}; Recreating OTP failed"

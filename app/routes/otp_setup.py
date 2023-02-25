@@ -27,24 +27,16 @@ def has_user_otp_enabled_api(
 ):
     logger.info(f"Request: Get OTP -> Checking if {user=} has OTP enabled.")
 
-    try:
-        get_otp_from_user(db, user=user)
-    except NoResultFound:
-        logger.info("Request: Get OTP -> No OTP found.")
-        return {
-            "enabled": False,
-        }
-    else:
-        logger.info("Request: Get OTP -> OTP found.")
-        return {
-            "enabled": True,
-        }
+    return {
+        "enabled": user.otp.is_verified if user.otp else False,
+    }
 
 
 @router.post("/", response_model=UserOTPResponseModel)
 def create_user_otp_api(
     user: User = Depends(get_user),
     db: Session = Depends(get_db),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info(f"Request: Create OTP -> Create new OTP for {user=}.")
 
@@ -57,12 +49,7 @@ def create_user_otp_api(
     logger.info(f"Request: Create OTP -> OTP created successfully.")
 
     return {
-        "id": otp.id,
         "secret": otp.secret,
-        "uri": pyotp.TOTP(otp.secret).provisioning_uri(
-            name=user.email.address,
-            issuer_name="KleckRelay",
-        )
     }
 
 
