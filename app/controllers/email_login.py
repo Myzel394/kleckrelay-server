@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app import logger
 from app.authentication.errors import (
-    TokenExpiredError, MaxTriesReachedError,
+    TokenExpiredError, TokenIncorrectError, TokenMaxTriesReachedError,
     TokenCorsInvalidError,
 )
 from app.controllers._cors import generate_cors_token
@@ -28,13 +28,13 @@ def is_token_expired(instance: EmailLoginToken) -> bool:
     return expires_at < datetime.utcnow()
 
 
-def is_token_valid(
+def validate_token(
     db: Session,
     /,
     instance: EmailLoginToken,
     token: str,
     same_request_token: str
-) -> bool:
+) -> None:
     logger.info(f"Is token valid: Checking if token is valid for {instance.user.email.address}.")
 
     if is_token_expired(instance):
@@ -50,7 +50,7 @@ def is_token_valid(
 
     if instance.tries > EMAIL_LOGIN_TOKEN_MAX_TRIES:
         logger.info(f"Is token valid: {instance.user.email.address} has exceeded it's max tries.")
-        raise MaxTriesReachedError()
+        raise TokenMaxTriesReachedError()
 
     logger.info(f"Is token valid: Token for {instance.user.email.address} is correct.")
 
@@ -63,7 +63,8 @@ def is_token_valid(
 
     logger.info(f"Is token valid: {instance.user.email.address} saved successfully.")
 
-    return instance.token == token
+    if instance.token != token:
+        raise TokenIncorrectError()
 
 
 def create_email_login_token(db: Session, /, user: User) -> Tuple[EmailLoginToken, str]:

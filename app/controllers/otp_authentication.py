@@ -2,7 +2,7 @@ import pyotp
 from sqlalchemy.orm import Session
 
 from app import constants, life_constants, logger
-from app.authentication.errors import MaxTriesReachedError, TokenCorsInvalidError, TokenExpiredError
+from app.authentication.errors import TokenMaxTriesReachedError, TokenCorsInvalidError, TokenExpiredError
 from app.controllers._cors import generate_cors_token
 from app.models import User
 from app.models.otp_authentication import OTPAuthentication
@@ -47,7 +47,7 @@ def verify_otp_authentication(
 
     if otp.tries > life_constants.OTP_MAX_TRIES:
         logger.info("OTP Authentication has exceeded max tries.")
-        raise MaxTriesReachedError()
+        raise TokenMaxTriesReachedError()
 
     if not verify_fast_hash(otp.hashed_cors_token, cors_token):
         logger.info("OTP Authentication CORS Token is invalid.")

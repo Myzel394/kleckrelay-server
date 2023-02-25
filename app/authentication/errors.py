@@ -2,7 +2,7 @@ class TokenExpiredError(Exception):
     pass
 
 
-class MaxTriesReachedError(Exception):
+class TokenMaxTriesReachedError(Exception):
     pass
 
 
@@ -10,6 +10,6 @@ class TokenCorsInvalidError(Exception):
     pass
 
 
-class IncorrectTokenError(Exception):
+class TokenIncorrectError(Exception):
     pass
 
