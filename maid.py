@@ -64,7 +64,7 @@ def main() -> None:
     with with_db() as db:
         logger.info("Maid: Got database.")
         report_builder = CronReportBuilder(
-            started_at=datetime.now(),
+            started_at=datetime.utcnow(),
         )
 
         try:
@@ -78,7 +78,7 @@ def main() -> None:
         else:
             report_builder.status = "success"
         finally:
-            report_builder.finished_at = datetime.now()
+            report_builder.finished_at = datetime.utcnow()
 
         logger.info("Maid: Creating report.")
         try:

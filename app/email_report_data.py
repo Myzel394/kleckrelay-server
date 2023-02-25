@@ -83,7 +83,7 @@ class EmailReportData:
                     "message_id": self.message_id,
                     "from": self.mail_from,
                     "to": self.mail_to,
-                    "created_at": datetime.datetime.now().isoformat(),
+                    "created_at": datetime.datetime.utcnow().isoformat(),
                 },
                 "content": {
                     "subject": self.subject,

@@ -8,6 +8,7 @@ __all__ = [
     "get_otp_from_user",
     "create_otp",
     "verify_otp_setup",
+    "delete_otp",
 ]
 
 

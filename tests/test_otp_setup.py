@@ -2,7 +2,7 @@ import pyotp
 from starlette.testclient import TestClient
 
 
-def test_can_do_otp_flow(
+def test_can_do_otp_setup_flow(
     client: TestClient,
     create_user,
     create_auth_tokens

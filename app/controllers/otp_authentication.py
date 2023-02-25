@@ -11,6 +11,7 @@ from app.utils.hashes import hash_fast, verify_fast_hash
 __all__ = [
     "create_otp_authentication",
     "verify_otp_authentication",
+    "delete_otp_authentication",
 ]
 
 
@@ -60,3 +61,12 @@ def verify_otp_authentication(
     db.refresh(otp)
 
     return pyotp.TOTP(otp.user.otp.secret).verify(code)
+
+
+def delete_otp_authentication(
+    db: Session,
+    /,
+    otp: OTPAuthentication,
+) -> None:
+    db.delete(otp)
+    db.commit()

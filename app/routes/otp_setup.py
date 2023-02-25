@@ -1,18 +1,20 @@
+from datetime import datetime
+
 import pyotp
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from app import constants, logger
-from app.controllers.user_otp import create_otp, delete_otp, get_otp_from_user, verify_otp_setup
+from app.controllers.user_otp import create_otp, delete_otp, get_otp_from_user
 from app.database.dependencies import get_db
+from app.dependencies.require_otp import require_otp_if_enabled
 from app.dependencies.get_user import get_user
 from app.models import User
-from app.schemas._basic import SimpleDetailResponseModel
+from app.schemas._basic import HTTPBadRequestExceptionModel, SimpleDetailResponseModel
 from app.schemas.user_otp import (
-    HasUserOTPEnabledResponseModel, UserOTPResponseModel,
-    VerifyOTPModel,
+    HasUserOTPEnabledResponseModel, UserOTPResponseModel, VerifyOTPModel,
 )
 
 router = APIRouter()
@@ -46,13 +48,9 @@ def create_user_otp_api(
 ):
     logger.info(f"Request: Create OTP -> Create new OTP for {user=}.")
 
-    try:
-        otp = get_otp_from_user(db, user=user)
-    except NoResultFound:
-        pass
-    else:
+    if user.otp:
         logger.info(f"Request: Create OTP -> Deleting old OTP.")
-        delete_otp(db, otp=otp)
+        delete_otp(db, otp=user.otp)
 
     logger.info(f"Request: Create OTP -> Creating OTP...")
     otp = create_otp(db, user=user)
@@ -68,35 +66,49 @@ def create_user_otp_api(
     }
 
 
-@router.post("/verify", response_model=SimpleDetailResponseModel)
+@router.post(
+    "/verify",
+    response_model=SimpleDetailResponseModel,
+    responses={
+        "409": {
+            "model": HTTPBadRequestExceptionModel,
+            "detail": "OTP has not been set up."
+        },
+        "410": {
+            "model": HTTPBadRequestExceptionModel,
+            "detail": "OTP has expired."
+        },
+        "400": {
+            "model": HTTPBadRequestExceptionModel,
+            "detail": "OTP code invalid."
+        }
+    }
+)
 def verify_otp_api(
     data: VerifyOTPModel,
     user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
-    logger.info(f"Request: Verify OTP -> Verifying OTP for {user=}.")
-    try:
-        otp = get_otp_from_user(db, user=user)
-    except NoResultFound:
-        logger.info(f"Request: Verify OTP -> No OTP found.")
+    if not user.otp:
         raise HTTPException(
-            status_code=400,
-            detail="You have not enabled OTP. Please enable it first.",
+            status_code=409,
+            detail="OTP has not been set up.",
         )
 
-    if otp.is_verified:
-        logger.info(f"Request: Verify OTP -> OTP already verified.")
-        return JSONResponse({
-            "detail": "OTP is already verified.",
-        }, status_code=202)
+    if user.otp.created_at < datetime.utcnow() - constants.OTP_TIMEOUT:
+        delete_otp(db, otp=user.otp)
 
-    if not verify_otp_setup(db, otp=otp, code=data.code):
-        logger.info(f"Request: Verify OTP -> Code invalid.")
-        return JSONResponse({
-            "detail": "Invalid OTP.",
-        }, status_code=400)
+        raise HTTPException(
+            status_code=410,
+            detail="OTP has expired.",
+        )
 
-    logger.info(f"Request: Verify OTP -> OTP verified successfully.")
+    if not pyotp.TOTP(user.otp.secret).verify(data.code):
+        raise HTTPException(
+            status_code=400,
+            detail="OTP code invalid."
+        )
+
     return {
         "detail": "OTP is verified.",
     }

@@ -64,7 +64,7 @@ def test_can_verify_otp(
     )
 
     assert response.status_code == 200, \
-        "Status code should be 200; Verifying OTP failed"
+        f"Status code should be 200 but is {response.status_code}; Verifying OTP failed"
     assert is_a_jwt_token(response.cookies[constants.ACCESS_TOKEN_COOKIE_NAME]), \
         "Access token should be a JWT token"
     assert is_a_jwt_token(response.cookies[constants.REFRESH_TOKEN_COOKIE_NAME]), \

@@ -42,4 +42,4 @@ class OTPAuthentication(Base, IDMixin, CreationMixin):
 
     @property
     def is_expired(self) -> bool:
-        return self.created_at >= datetime.now() - constants.OTP_TIMEOUT
+        return self.created_at < datetime.utcnow() - constants.OTP_TIMEOUT

@@ -65,7 +65,7 @@ def get_latest_cron_report(db: Session, /) -> CronReport:
 def get_expired_cron_reports(db: Session, /) -> list[CronReport]:
     return db \
         .query(CronReport) \
-        .filter(CronReport.created_at < datetime.now() - timedelta(days=life_constants.KEEP_CRON_JOBS_AMOUNT))\
+        .filter(CronReport.created_at < datetime.utcnow() - timedelta(days=life_constants.KEEP_CRON_JOBS_AMOUNT))\
         .all()
 
 

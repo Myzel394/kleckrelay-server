@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database.base import Base
-from ._mixins import IDMixin
+from ._mixins import CreationMixin, IDMixin
 
 __all__ = [
     "UserOTP"
@@ -18,7 +18,7 @@ class OTPStatusType(str, enum.Enum):
     AWAITING_VERIFICATION = "awaiting-verification"
 
 
-class UserOTP(Base, IDMixin):
+class UserOTP(Base, IDMixin, CreationMixin):
     __tablename__ = "user_otp"
 
     if TYPE_CHECKING:
