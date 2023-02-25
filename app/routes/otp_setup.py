@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from app import constants, logger
-from app.controllers.user_otp import create_otp, delete_otp, get_otp_from_user
+from app.controllers.user_otp import create_otp, delete_otp, get_otp_from_user, verify_otp_setup
 from app.database.dependencies import get_db
 from app.dependencies.require_otp import require_otp_if_enabled
 from app.dependencies.get_user import get_user
@@ -57,6 +57,10 @@ def create_user_otp_api(
     "/verify",
     response_model=SimpleDetailResponseModel,
     responses={
+        "202": {
+            "model": SimpleDetailResponseModel,
+            "detail": "OTP is already verified."
+        },
         "409": {
             "model": HTTPBadRequestExceptionModel,
             "detail": "OTP has not been set up."
@@ -82,6 +86,11 @@ def verify_otp_api(
             detail="OTP has not been set up.",
         )
 
+    if user.otp.is_verified:
+        return JSONResponse({
+            "detail": "OTP is already verified."
+        }, status_code=202)
+
     if user.otp.created_at < datetime.utcnow() - constants.OTP_TIMEOUT:
         delete_otp(db, otp=user.otp)
 
@@ -90,7 +99,7 @@ def verify_otp_api(
             detail="OTP has expired.",
         )
 
-    if not pyotp.TOTP(user.otp.secret).verify(data.code):
+    if not verify_otp_setup(db, otp=user.otp, code=data.code):
         raise HTTPException(
             status_code=400,
             detail="OTP code invalid."

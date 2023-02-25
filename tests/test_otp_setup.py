@@ -33,6 +33,16 @@ def test_can_do_otp_setup_flow(
     assert response.status_code == 200, \
         f"Status code should be 200 but is {response.status_code}; Verifying OTP failed"
 
+    response = client.get(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Getting OTP failed"
+    assert response.json()["enabled"] is True, \
+        "OTP should be enabled"
+
 
 def test_can_verify_otp_with_old_code_after_recreating(
     client: TestClient,
@@ -131,7 +141,6 @@ def test_require_otp_dependency(
         },
         headers=auth["headers"],
     )
-    print(response.json())
 
     assert response.status_code == 200, \
         f"Status code should be 200 but is {response.status_code}; Deleting OTP failed"
