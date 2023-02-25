@@ -1,5 +1,6 @@
 import random
 
+import pyotp
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -15,8 +16,12 @@ from app.database.base import Base
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN, DB_URI
 from app.main import app
-from app.models import Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserPreferences
+from app.models import (
+    Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserOTP,
+    UserPreferences,
+)
 from app.models.enums.alias import AliasType
+from app.models.user_otp import OTPStatusType
 from tests.helpers import create_item
 from app.utils.hashes import hash_fast
 
@@ -193,5 +198,24 @@ def create_reserved_alias(db: Session):
         alias.users.extend(users)
 
         return alias
+
+    return _method
+
+
+@pytest.fixture
+def setup_otp(db: Session) -> callable:
+    def _method(user: User) -> UserOTP:
+        secret = pyotp.random_base32()
+        otp = create_item(
+            db,
+            {
+                "user": user,
+                "secret": secret,
+                "status": OTPStatusType.AVAILABLE,
+            },
+            UserOTP
+        )
+
+        return otp
 
     return _method
