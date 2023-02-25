@@ -103,3 +103,35 @@ def test_can_not_verify_otp_with_incorrect_code(
 
     assert response.status_code == 400, \
         f"Status code should be 400 but is {response.status_code}; Verifying OTP failed"
+
+
+def test_require_otp_dependency(
+    client: TestClient,
+    create_user,
+    create_auth_tokens,
+    setup_otp,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user=user)
+    otp = setup_otp(user=user)
+
+    response = client.delete(
+        "/v1/setup-otp/",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 424, \
+        f"Status code should be 424 but is {response.status_code}; Deleting OTP without code failed"
+
+    response = client.request(
+        "DELETE",
+        "/v1/setup-otp/",
+        json={
+            "code": str(pyotp.TOTP(otp.secret).now()),
+        },
+        headers=auth["headers"],
+    )
+    print(response.json())
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Deleting OTP failed"
