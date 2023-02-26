@@ -23,7 +23,6 @@ router = APIRouter()
 @router.get("/", response_model=HasUserOTPEnabledResponseModel)
 def has_user_otp_enabled_api(
     user: User = Depends(get_user),
-    db: Session = Depends(get_db),
 ):
     logger.info(f"Request: Get OTP -> Checking if {user=} has OTP enabled.")
 
