@@ -9,6 +9,7 @@ from app.controllers.cron_report import get_latest_cron_report
 from app.controllers.global_settings import get_settings, update_settings
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_admin_user
+from app.dependencies.require_otp import require_otp_if_enabled
 from app.models import User
 from app.schemas.admin import (
     AdminGlobalSettingsDisabledResponseModel,
@@ -27,6 +28,7 @@ router = APIRouter()
 def get_admin_users_api(
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
+    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get Admins -> New Request.")
 
@@ -48,6 +50,7 @@ def get_admin_users_api(
 def get_settings_api(
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
+    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get Admin Settings -> New Request.")
 
@@ -79,6 +82,7 @@ def update_settings_api(
     update_data: AdminUpdateGlobalSettingsModel,
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
+    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Update Admin Settings -> New Request.")
 
@@ -104,6 +108,7 @@ def update_settings_api(
 def get_cron_jobs(
     user: User = Depends(get_admin_user),
     db: Session = Depends(get_db),
+    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get Cron Jobs -> New Request.")
 

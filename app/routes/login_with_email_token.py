@@ -86,8 +86,11 @@ async def create_login_with_email_token(
 
 @router.post(
     "/verify",
-    response_model=UserDetail,
     responses={
+        200: {
+            "model": UserDetail,
+            "description": "User was successfully logged in (No OTP active).",
+        },
         202: {
             "model": LoginWithEmailOTPRequiredResponseModel,
         },
@@ -210,6 +213,8 @@ async def verify_email_token(
         f"Request: Verify Email Token -> Returning credentials for {input_data.email}"
     )
 
+    set_authentication_cookies(response, user, has_otp_verified=False)
+
     if user.has_otp_enabled:
         logger.info("Request: Verify Email Token -> User has OTP enabled. Creating OTP...")
 
@@ -220,12 +225,12 @@ async def verify_email_token(
 
         logger.info("Request: Verify Email Token -> OTP created. Returning OTP.")
 
-        return JSONResponse({
-            "cors_token": cors_token,
-        }, status_code=202)
-    else:
-        set_authentication_cookies(response, user)
+        response.status_code = 202
 
+        return {
+            "cors_token": cors_token,
+        }
+    else:
         return user
 
 

@@ -125,14 +125,5 @@ class User(Base, IDMixin, CreationMixin):
     def has_otp_enabled(self) -> bool:
         return self.otp is not None and self.otp.is_verified
 
-    def to_jwt_object(self) -> dict[str, Any]:
-        # Only save the absolute minimum information that is required to the retrieve the user;
-        # in this case only their ID.
-        # We want all other information to be retrieved from the database freshly, so that there
-        # is no permission leakage.
-        return {
-            "id": str(self.id),
-        }
-
     def encrypt(self, message: str) -> str:
         return str(gpg_handler.encrypt_message(message, self.public_key))

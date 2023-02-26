@@ -151,11 +151,17 @@ def create_email_token(db):
 @pytest.fixture
 def create_auth_tokens(db):
     def _method(user: User) -> dict:
-        access_token = access_security.create_access_token(subject=user.to_jwt_object()),
+        access_token = access_security.create_access_token(subject={
+            "id": str(user.id),
+            "has_otp_verified": False,
+        }),
 
         return {
             "access_token": access_token,
-            "refresh_token": refresh_security.create_refresh_token(subject=user.to_jwt_object()),
+            "refresh_token": refresh_security.create_refresh_token(subject={
+                "id": str(user.id),
+                "has_otp_verified": False,
+            }),
             "headers": {
                 "Authorization": f"Bearer {access_token[0]}"
             }

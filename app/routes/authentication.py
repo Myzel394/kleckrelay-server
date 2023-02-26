@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Security
+from fastapi_jwt import JwtAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -13,11 +14,12 @@ from app.authentication.errors import (
     TokenIncorrectError, TokenExpiredError,
     TokenMaxTriesReachedError, TokenCorsInvalidError,
 )
+from app.authentication.handler import refresh_security
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
 from app.controllers.global_settings import get_settings_model
 from app.controllers.otp_authentication import verify_otp_authentication
 from app.controllers.user import (
-    check_if_email_exists, create_user,
+    check_if_email_exists, create_user, get_user_by_id,
 )
 from app.database.dependencies import get_db
 from app.dependencies.get_user import get_user
@@ -178,7 +180,7 @@ def signup_verify_email(
             f"Request: Verify Email -> Done verifying {email.address}. Returning credentials."
         )
 
-        set_authentication_cookies(response, email.user)
+        set_authentication_cookies(response, email.user, has_otp_verified=False)
 
         return email.user
     except NoResultFound:
@@ -290,7 +292,7 @@ async def verify_otp_api(
         )
 
     logger.info(f"Request: Verify OTP -> Token for {user=} correct. Returning credentials.")
-    set_authentication_cookies(response, user)
+    set_authentication_cookies(response, user, has_otp_verified=True)
 
     return user
 
@@ -298,16 +300,31 @@ async def verify_otp_api(
 @router.post(
     "/refresh",
     response_model=UserDetail,
+    responses={
+        "404": {
+            "model": HTTPNotFoundExceptionModel,
+            "description": "User account not found."
+        }
+    }
 )
 async def refresh_token(
     response: Response,
-    user: User = Depends(get_user),
+    credentials: JwtAuthorizationCredentials = Security(refresh_security),
+    db: Session = Depends(get_db),
 ):
     logger.info("Request: Refresh -> New Request to refresh JWT token.")
 
+    try:
+        user = get_user_by_id(db, credentials["id"])
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="User account not found.",
+        )
+
     logger.info("Request: Refresh -> Returning new credentials.")
 
-    set_authentication_cookies(response, user)
+    set_authentication_cookies(response, user, has_otp_verified=credentials["has_otp_verified"])
 
     return user
 

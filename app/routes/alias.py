@@ -13,6 +13,7 @@ from app.controllers.global_settings import get_settings, get_settings_model
 from app.database.dependencies import get_db
 from app.dependencies.get_instance_from_user import get_instance_from_user
 from app.dependencies.get_user import get_user
+from app.dependencies.require_otp import require_otp_if_enabled
 from app.models import User
 from app.models.alias import AliasType, EmailAlias
 from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
@@ -33,6 +34,7 @@ def get_all_aliases(
     query: str = Query(""),
     active: bool = Query(None),
     alias_type: AliasType = Query(None),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get all aliases -> New Request.")
 
@@ -56,6 +58,7 @@ async def create_alias_api(
     request: Request,
     db: Session = Depends(get_db),
     user: User = Depends(get_user),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Create Alias -> New request. Validating data.")
 
@@ -86,6 +89,7 @@ def update_alias_api(
     update: AliasUpdate,
     alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
     db: Session = Depends(get_db),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info(f"Request: Update Alias -> Updating {alias=}.")
     update_alias(db, alias, update)
@@ -106,6 +110,7 @@ def update_alias_api(
 )
 def get_alias(
     alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     return alias
 
@@ -127,6 +132,7 @@ def get_alias(
 def delete_alias_api(
     alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
     db: Session = Depends(get_db),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info(f"Request: Delete Alias -> New request to delete {alias=}.")
 

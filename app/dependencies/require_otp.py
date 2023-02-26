@@ -1,12 +1,9 @@
-from typing import Optional
-
-import pyotp
-from fastapi import Body, Depends, HTTPException
+from fastapi import Depends, HTTPException, Security
+from fastapi_jwt import JwtAuthorizationCredentials
 
 from .get_user import get_user
 from app.models import User
-from .. import constants
-from ..schemas.user_otp import VerifyOTPModel
+from ..authentication.handler import access_security
 
 __all__ = [
     "require_otp_if_enabled",
@@ -14,22 +11,16 @@ __all__ = [
 
 
 def require_otp_if_enabled(
-    data: Optional[VerifyOTPModel] = Body(None),
     user: User = Depends(get_user),
+    credentials: JwtAuthorizationCredentials = Security(access_security),
 ) -> bool:
     if not user.has_otp_enabled:
         return False
 
-    if data is None or not data.code:
-        raise HTTPException(
-            status_code=424,
-            detail="OTP required.",
-        )
+    if credentials["has_otp_verified"]:
+        return True
 
-    if not pyotp.TOTP(user.otp.secret).verify(data.code):
-        raise HTTPException(
-            status_code=424,
-            detail="OTP code invalid."
-        )
-
-    return True
+    raise HTTPException(
+        status_code=424,
+        detail="OTP required.",
+    )
