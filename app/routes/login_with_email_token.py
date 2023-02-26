@@ -15,7 +15,7 @@ from app.controllers.email_login import (
     change_allow_login_from_different_devices, create_email_login_token,
     delete_email_login_token, get_email_login_token_from_email, validate_token,
 )
-from app.controllers.otp_authentication import create_otp_authentication
+from app.controllers.otp_authentication import create_otp_authentication, delete_otp_authentication
 from app.controllers.user import (
     check_if_email_exists,
     get_user_by_email
@@ -218,6 +218,9 @@ async def verify_email_token(
 
     if user.has_otp_enabled:
         logger.info("Request: Verify Email Token -> User has OTP enabled. Creating OTP...")
+
+        if user.otp_login:
+            delete_otp_authentication(db, otp=user.otp_login)
 
         cors_token, otp = create_otp_authentication(
             db,

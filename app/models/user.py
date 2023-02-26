@@ -44,7 +44,7 @@ class User(Base, IDMixin, CreationMixin):
         preferences: UserPreferences
         reserved_aliases: list[ReservedAlias]
         otp: UserOTP
-        otp_authentication: Optional[OTPAuthentication]
+        otp_login: Optional[OTPAuthentication]
     else:
         email = relationship(
             "Email",

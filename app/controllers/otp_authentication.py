@@ -2,7 +2,10 @@ import pyotp
 from sqlalchemy.orm import Session
 
 from app import constants, life_constants, logger
-from app.authentication.errors import TokenMaxTriesReachedError, TokenCorsInvalidError, TokenExpiredError
+from app.authentication.errors import (
+    TokenIncorrectError, TokenMaxTriesReachedError,
+    TokenCorsInvalidError, TokenExpiredError,
+)
 from app.controllers._cors import generate_cors_token
 from app.models import User
 from app.models.otp_authentication import OTPAuthentication
@@ -39,7 +42,7 @@ def verify_otp_authentication(
     otp: OTPAuthentication,
     cors_token: str,
     code: str,
-) -> bool:
+) -> None:
     logger.info("Verifying OTP Authentication.")
 
     if otp.is_expired:
@@ -60,7 +63,8 @@ def verify_otp_authentication(
     db.commit()
     db.refresh(otp)
 
-    return pyotp.TOTP(otp.user.otp.secret).verify(code)
+    if not pyotp.TOTP(otp.user.otp.secret).verify(code):
+        raise TokenIncorrectError()
 
 
 def delete_otp_authentication(

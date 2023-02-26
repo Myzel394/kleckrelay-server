@@ -1,3 +1,4 @@
+import uuid
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -23,7 +24,7 @@ class EmailLoginToken(Base, IDMixin, CreationMixin):
         hashed_same_request_token: str
         tries: int
         user: User
-        user_id: str
+        user_id: uuid.UUID
     else:
         token = sa.Column(
             sa.String(life_constants.EMAIL_LOGIN_TOKEN_LENGTH),
