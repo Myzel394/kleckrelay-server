@@ -48,7 +48,7 @@ def create_otp(db: Session, /, user: User) -> tuple[list[str], UserOTP]:
         secret=secret,
         hashed_recovery_codes=[
             hash_slowly(
-                code,
+                code.replace("-", ""),
             )
             for code in recovery_codes
         ]

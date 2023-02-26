@@ -2,12 +2,11 @@ from datetime import datetime
 
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from app import constants, logger
-from app.controllers.user_otp import create_otp, delete_otp, get_otp_from_user, verify_otp_setup
+from app.controllers.user_otp import create_otp, delete_otp, verify_otp_setup
 from app.database.dependencies import get_db
 from app.dependencies.require_otp import require_otp_if_enabled
 from app.dependencies.get_user import get_user
