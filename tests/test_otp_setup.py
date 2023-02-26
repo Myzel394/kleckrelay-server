@@ -157,3 +157,137 @@ def test_can_not_recreate_otp_when_already_verified(
 
     assert response.status_code == 424, \
         f"Status code should be 424 but is {response.status_code}; Recreating OTP failed"
+
+
+def test_can_delete_otp_with_otp_code(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+    setup_otp,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user=user)
+    otp = setup_otp(user=user)
+
+    response = client.request(
+        "DELETE",
+        "/v1/setup-otp",
+        headers=auth["headers"],
+        json={
+            "code": pyotp.TOTP(otp.secret).now(),
+        }
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Deleting OTP failed"
+
+    response = client.get(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Getting OTP failed"
+    assert response.json()["enabled"] is False, \
+        "OTP should be disabled"
+
+
+def test_can_delete_otp_with_recovery_code(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user=user)
+
+    response = client.post(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Creating OTP failed"
+
+    recovery_code = response.json()["recovery_codes"][0]
+
+    response = client.request(
+        "DELETE",
+        "/v1/setup-otp",
+        json={
+            "recovery_code": recovery_code,
+        },
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Deleting OTP failed"
+
+    response = client.get(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Getting OTP failed"
+    assert response.json()["enabled"] is False, \
+        "OTP should be disabled"
+
+
+def test_can_not_delete_otp_with_invalid_otp_code(
+        create_user,
+        create_auth_tokens,
+        client: TestClient,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user=user)
+
+    response = client.post(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Creating OTP failed"
+
+    response = client.request(
+        "DELETE",
+        "/v1/setup-otp",
+        json={
+            "code": pyotp.TOTP("invalid").now(),
+        },
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 400, \
+        f"Status code should be 400 but is {response.status_code}; Deleting OTP failed"
+
+
+def test_can_not_delete_otp_with_invalid_recover_code(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user=user)
+
+    response = client.post(
+        "/v1/setup-otp",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200, \
+        f"Status code should be 200 but is {response.status_code}; Creating OTP failed"
+
+    recovery_code = response.json()["recovery_codes"][0]
+
+    response = client.request(
+        "DELETE",
+        "/v1/setup-otp",
+        json={
+            "recovery_code": recovery_code + "A",
+        },
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 400, \
+        f"Status code should be 400 but is {response.status_code}; Deleting OTP failed"

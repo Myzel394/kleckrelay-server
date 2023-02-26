@@ -218,6 +218,7 @@ def setup_otp(db: Session) -> callable:
                 "user": user,
                 "secret": secret,
                 "status": OTPStatusType.AVAILABLE,
+                "hashed_recovery_codes": [],
             },
             UserOTP
         )

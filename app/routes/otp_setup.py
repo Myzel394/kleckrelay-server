@@ -14,8 +14,9 @@ from app.dependencies.get_user import get_user
 from app.models import User
 from app.schemas._basic import HTTPBadRequestExceptionModel, SimpleDetailResponseModel
 from app.schemas.user_otp import (
-    HasUserOTPEnabledResponseModel, UserOTPResponseModel, VerifyOTPModel,
+    DeleteOTPModel, HasUserOTPEnabledResponseModel, UserOTPResponseModel, VerifyOTPModel,
 )
+from app.utils.hashes import verify_slow_hash
 
 router = APIRouter()
 
@@ -44,11 +45,12 @@ def create_user_otp_api(
         delete_otp(db, otp=user.otp)
 
     logger.info(f"Request: Create OTP -> Creating OTP...")
-    otp = create_otp(db, user=user)
+    recovery_codes, otp = create_otp(db, user=user)
     logger.info(f"Request: Create OTP -> OTP created successfully.")
 
     return {
         "secret": otp.secret,
+        "recovery_codes": recovery_codes,
     }
 
 
@@ -116,14 +118,22 @@ def verify_otp_api(
         "202": {
             "model": SimpleDetailResponseModel,
             "detail": "OTP was not enabled. No action taken."
+        },
+        "400": {
+            "model": HTTPBadRequestExceptionModel,
+            "detail": "Recovery code or OTP code is invalid."
         }
     }
 )
 def delete_user_otp_api(
+    data: DeleteOTPModel,
     user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
+    logger.info(f"Request: Delete OTP -> Deleting OTP for {user=}.")
+
     if not user.otp:
+        logger.info(f"Request: Delete OTP -> OTP was not enabled. No action taken.")
         return JSONResponse(
             status_code=202,
             content={
@@ -131,8 +141,25 @@ def delete_user_otp_api(
             }
         )
 
-    delete_otp(db, otp=user.otp)
+    if (
+        (data.code and pyotp.TOTP(user.otp.secret).verify(data.code))
+        or (
+            data.recovery_code and any(
+                verify_slow_hash(recovery_code, data.recovery_code)
+                for recovery_code in user.otp.hashed_recovery_codes
+            )
+        )
+    ):
+        logger.info(
+            f"Request: Delete OTP -> Valid code or recovery code provided. Deleting OTP now."
+        )
+        delete_otp(db, otp=user.otp)
 
-    return {
-        "detail": "OTP was deleted."
-    }
+        return {
+            "detail": "OTP was deleted."
+        }
+
+    logger.info(f"Request: Delete OTP -> Recovery code or OTP code is invalid.")
+    return JSONResponse({
+        "detail": "Recovery code or OTP code is invalid."
+    }, status_code=400)

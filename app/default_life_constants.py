@@ -111,3 +111,7 @@ KDF_ITERATIONS = 101_394
 KLECK_SECRET = "change_me"
 VERP_HMAC_ALGORITHM = "sha3-224"
 OTP_MAX_TRIES = 5
+# Entropy of about 180 bits
+RECOVERY_CODE_CHARS = string.ascii_uppercase + string.digits
+RECOVERY_CODE_LENGTH = 35
+RECOVERY_CODES_AMOUNT = 5

@@ -27,7 +27,7 @@ class UserOTP(Base, IDMixin, CreationMixin):
         user: User
         secret: str
         status: OTPStatusType
-        hashed_recovery_tokens: list[str]
+        hashed_recovery_codes: list[str]
     else:
         user_id = sa.Column(
             UUID(as_uuid=True),
@@ -42,10 +42,9 @@ class UserOTP(Base, IDMixin, CreationMixin):
             sa.Enum(OTPStatusType),
             default=OTPStatusType.AWAITING_VERIFICATION,
         )
-        hashed_recovery_tokens = sa.Column(
+        hashed_recovery_codes = sa.Column(
             sa.ARRAY(sa.String),
             nullable=False,
-            default=[]
         )
 
     @property
