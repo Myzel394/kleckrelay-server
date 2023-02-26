@@ -93,6 +93,7 @@ async def create_login_with_email_token(
         },
         202: {
             "model": LoginWithEmailOTPRequiredResponseModel,
+            "description": "User was successfully logged in, but OTP is required.",
         },
         404: {
             "model": HTTPNotFoundExceptionModel,
