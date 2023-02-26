@@ -214,7 +214,7 @@ def test_can_delete_otp_with_recovery_code(
         "DELETE",
         "/v1/setup-otp",
         json={
-            "recovery_code": recovery_code,
+            "recovery_code": recovery_code.replace("-", ""),
         },
         headers=auth["headers"],
     )
