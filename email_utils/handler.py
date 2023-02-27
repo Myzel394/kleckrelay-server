@@ -7,7 +7,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Alias
 
-from app import logger
+from app import life_constants, logger
 from app.controllers import global_settings as settings
 from app.controllers.email_report import create_email_report
 from app.controllers import server_statistics
@@ -22,7 +22,7 @@ from email_utils.html_handler import (
     convert_images, expand_shortened_urls, remove_single_pixel_image_trackers,
 )
 from email_utils.send_mail import (
-    send_bounce_mail, send_error_mail, send_mail,
+    draft_message, send_bounce_mail, send_error_mail, send_mail,
 )
 from email_utils.utils import (
     get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
@@ -35,6 +35,7 @@ from .bounce_messages import (
     get_report_from_message, is_not_deliverable, StatusType,
 )
 from .headers import set_header
+from .template_renderer import render
 
 __all__ = [
     "handle",
@@ -86,10 +87,25 @@ async def handle(envelope: Envelope, message: Message) -> str:
                             return status.E200
 
                         logger.info("Alias exists. Informing user.")
-                        send_bounce_mail(
-                            data["outside_address"],
-                            alias.user.email.address,
-                            language=alias.user.language,
+
+                        send_mail(
+                            message=draft_message(
+                                subject="Your mail could not be delivered",
+                                html=render(
+                                    "not-deliverable-to-web",
+                                    title="Your mail could not be delivered",
+                                    preview_text="Your mail could not be delivered",
+                                    body=
+                                        f"We are sorry, but we couldn't deliver your email to "
+                                        f"{data['outside_address']}. We tried to send it, "
+                                        f"but the user's server couldn't receive it.",
+                                    explanation=
+                                        "We recommend you to try it again later. "
+                                        "This is probably a temporary issue only.",
+                                    server_url=life_constants.APP_DOMAIN,
+                                )
+                            ),
+                            to_mail=alias.user.email.address,
                         )
 
                         return status.E200
@@ -99,9 +115,24 @@ async def handle(envelope: Envelope, message: Message) -> str:
                             "Informing outside user."
                         )
 
-                        send_bounce_mail(
-                            envelope.rcpt_tos[0],
-                            data["outside_address"],
+                        send_mail(
+                            message=draft_message(
+                                subject="Your mail could not be delivered",
+                                html=render(
+                                    "not-deliverable-to-web",
+                                    title="Your mail could not be delivered",
+                                    preview_text="Your mail could not be delivered",
+                                    body=
+                                        f"We are sorry, but we couldn't deliver your email to "
+                                        f"{data['outside_address']}. We tried to send it, "
+                                        f"but the user's server couldn't receive it.",
+                                    explanation=
+                                        "We recommend you to try it again later. "
+                                        "This is probably a temporary issue only.",
+                                    server_url=life_constants.APP_DOMAIN,
+                                )
+                            ),
+                            to_mail=envelope.rcpt_tos[0],
                         )
 
                         return status.E200
@@ -304,11 +335,22 @@ async def handle(envelope: Envelope, message: Message) -> str:
             )
             raise AliasNotFoundError(status_code=status.E515)
         except EmailHandlerError as error:
-            send_error_mail(
-                from_mail=envelope.mail_from,
-                targeted_mail=envelope.rcpt_tos[0],
-                error=error,
-                language=user.language if user is not None else LanguageType.EN_US,
+            send_mail(
+                message=draft_message(
+                    subject="Your email could not be delivered",
+                    html=render(
+                        "not-deliverable-to-server",
+                        title="We didn't know what to do with your email",
+                        preview_text="We could not deliver your email.",
+                        body=
+                            f"We are sorry, but we couldn't deliver your email to "
+                            f"{envelope.rcpt_tos[0]}. We received it, "
+                            f"but we couldn't process it.",
+                        explanation=error.reason,
+                        server_url=life_constants.APP_DOMAIN
+                    ),
+                ),
+                to_mail=envelope.mail_from,
             )
 
             return error.status_code

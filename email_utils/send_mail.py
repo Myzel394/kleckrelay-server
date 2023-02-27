@@ -96,49 +96,10 @@ def send_mail(
         )
 
 
-def send_bounce_mail(
-    target: str,
-    to_mail: str,
-    language: LanguageType = LanguageType.EN_US,
-) -> None:
-    send_mail(
-        message=draft_message(
-            subject=f"Email could not be delivered to {target}.",
-            plaintext=render(
-                "general_error",
-                language,
-                targeted_mail=target,
-            ),
-        ),
-        from_mail=life_constants.FROM_MAIL,
-        to_mail=to_mail,
-    )
-
-
-def send_error_mail(
-    from_mail: str,
-    targeted_mail: str,
-    error: Optional[EmailHandlerError] = None,
-    language: LanguageType = LanguageType.EN_US,
-) -> None:
-    send_mail(
-        message=draft_message(
-            subject=f"Email could not be delivered to {targeted_mail}.",
-            plaintext=render(
-                "general_error",
-                language,
-                error=error,
-                targeted_mail=targeted_mail,
-            ),
-        ),
-        from_mail=life_constants.FROM_MAIL,
-        to_mail=from_mail,
-    )
-
-
 def draft_message(
     subject: str,
     html: str = None,
+    bounce_status: StatusType = StatusType.OFFICIAL,
 ) -> Message:
     d = pq(lxml.html.fromstring(html))
     plaintext = d.text()
@@ -158,9 +119,7 @@ def draft_message(
     message[headers.DATE] = formatters.format_date()
     message[headers.MIME_VERSION] = "1.0"
 
-    message[headers.KLECK_FORWARD_STATUS] = generate_forward_status(
-        StatusType.OFFICIAL,
-    )
+    message[headers.KLECK_FORWARD_STATUS] = generate_forward_status(bounce_status)
 
     return message
 

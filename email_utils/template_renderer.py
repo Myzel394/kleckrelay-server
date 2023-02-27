@@ -16,8 +16,8 @@ env = Environment(
 )
 
 
-def render(name: str, language: LanguageType, /, **kwargs) -> str:
-    template_name = f"{name}.{str(language).split('.')[1]}.jinja2"
+def render(name: str, /, **kwargs) -> str:
+    template_name = f"{name}.html"
 
     template = env.get_template(template_name)
 
