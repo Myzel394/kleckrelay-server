@@ -96,6 +96,6 @@ services:
       - api.app.krl_REVERSE_PROXY_INTERCEPT_ERRORS=no
 
       - app.krl_REVERSE_PROXY_URL=/
-      - app.krl_REVERSE_PROXY_HOST=http://192.168.178.129:5173
+      - app.krl_REVERSE_PROXY_HOST=http://172.22.247.149:5173
       - app.krl_USE_LIMIT_CONN=no
       - app.krl_REVERSE_PROXY_WS=yes

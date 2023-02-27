@@ -1,16 +1,18 @@
 import smtplib
 import time
-from email.message import EmailMessage, Message
+from email.message import Message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any, Optional
+import lxml.html
+from pyquery import PyQuery as pq
 
 from app import life_constants, logger
 from app.models import LanguageType
 from . import formatters, headers
 from .bounce_messages import generate_forward_status, StatusType
 from .errors import EmailHandlerError
-from .headers import delete_header, set_header
+from .headers import set_header
 from .template_renderer import render
 from .utils import message_to_bytes
 
@@ -146,10 +148,10 @@ def send_template_mail(
     send_mail(
         message=draft_message(
             subject=subject,
-            plaintext=render(
+            html=render(
                 template,
                 language,
-                **(context or {})
+                **context,
             ),
         ),
         from_name=from_name,
@@ -160,17 +162,17 @@ def send_template_mail(
 
 def draft_message(
     subject: str,
-    plaintext: str,
-    html: Optional[str] = None,
+    html: str = None,
 ) -> Message:
-    if html:
-        message = MIMEMultipart("alternative")
-        message.attach(MIMEText(plaintext))
-        message.attach(MIMEText(html, "html"))
-    else:
-        message = EmailMessage()
-        message.set_payload(plaintext)
-        message[headers.CONTENT_TYPE] = "text/plain"
+    d = pq(lxml.html.fromstring(html))
+    plaintext = d.text()
+
+    message = MIMEMultipart("alternative")
+    message.attach(MIMEText(html))
+    message.attach(MIMEText(html, "html"))
+
+    message.set_payload(plaintext)
+    message[headers.CONTENT_TYPE] = "text/plain"
 
     # Those headers will be replaced by `send_mail`
     message[headers.FROM] = "ReplaceMe"
