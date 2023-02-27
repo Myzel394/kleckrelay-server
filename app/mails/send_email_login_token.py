@@ -1,8 +1,7 @@
 from app import life_constants
-from app.life_constants import IS_DEBUG
 from app.logger import logger
 from app.models.user import User
-from email_utils.send_mail import draft_message, send_mail, send_template_mail
+from email_utils.send_mail import draft_message, send_mail
 from email_utils.template_renderer import render
 
 
