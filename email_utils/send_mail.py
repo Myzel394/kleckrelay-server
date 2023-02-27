@@ -38,7 +38,9 @@ def _send_mail_to_smtp_server(
         logger.info("Send mail -> Activating TLS.")
         if life_constants.IS_DEBUG:
             time.sleep(1)
-        smtp.starttls()
+
+        if not life_constants.IS_DEBUG:
+            smtp.starttls()
 
         logger.info("Send mail -> Sending mail now.")
         smtp.sendmail(
@@ -98,18 +100,22 @@ def send_mail(
 
 def draft_message(
     subject: str,
-    html: str = None,
+    template: str,
     bounce_status: StatusType = StatusType.OFFICIAL,
+    context: dict[str, Any] = None,
 ) -> Message:
-    d = pq(lxml.html.fromstring(html))
-    plaintext = d.text()
+    html = render(
+        f"{template}.html",
+        **context,
+    )
+    plaintext = render(
+        f"{template}.jinja2",
+        **context,
+    )
 
     message = MIMEMultipart("alternative")
-    message.attach(MIMEText(html))
     message.attach(MIMEText(html, "html"))
-
-    message.set_payload(plaintext)
-    message[headers.CONTENT_TYPE] = "text/plain"
+    message.attach(MIMEText(plaintext, "plain"))
 
     # Those headers will be replaced by `send_mail`
     message[headers.FROM] = "ReplaceMe"

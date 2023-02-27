@@ -11,14 +11,14 @@ def send_email_login_token(user: User, token: str) -> None:
     send_mail(
         message=draft_message(
             subject="Log in to KleckRelay",
-            html=render(
-                "login",
-                title="Log in to KleckRelay",
-                preview_text="Here's your login code for KleckRelay",
-                body="Here's your login code for KleckRelay:",
-                code=token,
-                server_url=life_constants.APP_DOMAIN,
-            ),
+            template="login",
+            context={
+                "title": "Log in to KleckRelay",
+                "preview_text": "Here's your login code for KleckRelay",
+                "body": "Here's your login code for KleckRelay:",
+                "code": token,
+                "server_url": life_constants.APP_DOMAIN,
+            },
         ),
         to_mail=user.email.address,
     )

@@ -6,13 +6,13 @@ from mailbox import Message
 from aiosmtpd.controller import Controller
 from aiosmtpd.smtp import Envelope
 
-from app import logger
+from app import life_constants, logger
 from email_utils import status
 from email_utils.errors import EmailHandlerError
 from email_utils.handler import handle
 from email_utils.sanitizers import sanitize_envelope, sanitize_message
 from email_utils.send_mail import (
-    send_error_mail,
+    draft_message, send_mail,
 )
 
 
@@ -38,12 +38,26 @@ class ExampleHandler:
             logger.info(f"New mail received from {envelope.mail_from} to {envelope.rcpt_tos[0]}")
 
             if len(envelope.rcpt_tos) != 1:
-                send_error_mail(
-                    from_mail=envelope.mail_from,
-                    targeted_mail=envelope.rcpt_tos[0],
-                    error=EmailHandlerError(
-                        "We currently only support sending to one recipient at a time."
-                    ),
+                send_mail(
+                    message=draft_message(
+                        template="not-deliverable-to-server",
+                        subject="Your email could not be delivered",
+                        context={
+                            "title": "Your email is not compatible with our server.",
+                            "preview_text": "We could not deliver your email.",
+                            "body":
+                                f"We are sorry, but we couldn't deliver your email to your "
+                                f"destination. You tried sending an email to "
+                                f"{len(envelope.rcpt_tos)} recipients, but we currently only "
+                                f"support sending it to one recipient at a time."
+                            ,
+                            "explanation":
+                                "We can't deliver your email to multiple recipients at the same "
+                                "time, but you can send the same email multiple times to one "
+                                "recipient at a time. ",
+                            "server_url": life_constants.APP_DOMAIN,
+                        }
+                    )
                 )
                 return status.E501
 
@@ -57,10 +71,22 @@ class ExampleHandler:
             logger.info("An EmailHandlerError occurred while handling the mail.")
 
             if not error.avoid_error_email:
-                send_error_mail(
-                    from_mail=envelope.mail_from,
-                    targeted_mail=envelope.rcpt_tos[0],
-                    error=error,
+                send_mail(
+                    message=draft_message(
+                        template="not-deliverable-to-server",
+                        subject="Your email could not be delivered",
+                        context={
+                            "title": "We could not deliver your email.",
+                            "preview_text": "We could not deliver your email.",
+                            "body":
+                                f"We are sorry, but we couldn't deliver your email to "
+                                f"{envelope.rcpt_tos[0]}. An error occurred while processing your "
+                                f"email. The given error was: {error}"
+                            ,
+                            "explanation": "We recommend you to try again later.",
+                            "server_url": life_constants.APP_DOMAIN,
+                        }
+                    )
                 )
 
             return status.E200

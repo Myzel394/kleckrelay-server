@@ -17,9 +17,7 @@ env = Environment(
 
 
 def render(name: str, /, **kwargs) -> str:
-    template_name = f"{name}.html"
-
-    template = env.get_template(template_name)
+    template = env.get_template(name)
 
     return template.render(
         APP_DOMAIN=life_constants.API_DOMAIN,

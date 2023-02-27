@@ -1,3 +1,5 @@
+import logging
+
 import binascii
 from mailbox import Message
 from typing import Union
@@ -22,7 +24,7 @@ from email_utils.html_handler import (
     convert_images, expand_shortened_urls, remove_single_pixel_image_trackers,
 )
 from email_utils.send_mail import (
-    draft_message, send_bounce_mail, send_error_mail, send_mail,
+    draft_message, send_mail,
 )
 from email_utils.utils import (
     get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
@@ -55,7 +57,6 @@ async def handle(envelope: Envelope, message: Message) -> str:
 
     with with_db() as db:
         enable_image_proxy = settings.get(db, "ENABLE_IMAGE_PROXY")
-        user = None
 
         try:
             message_id = generate_message_id()
@@ -91,19 +92,19 @@ async def handle(envelope: Envelope, message: Message) -> str:
                         send_mail(
                             message=draft_message(
                                 subject="Your mail could not be delivered",
-                                html=render(
-                                    "not-deliverable-to-web",
-                                    title="Your mail could not be delivered",
-                                    preview_text="Your mail could not be delivered",
-                                    body=
+                                template="not-deliverable-to-web",
+                                context={
+                                    "title": "Your mail could not be delivered",
+                                    "preview_text": "Your mail could not be delivered",
+                                    "body":
                                         f"We are sorry, but we couldn't deliver your email to "
                                         f"{data['outside_address']}. We tried to send it, "
                                         f"but the user's server couldn't receive it.",
-                                    explanation=
+                                    "explanation":
                                         "We recommend you to try it again later. "
                                         "This is probably a temporary issue only.",
-                                    server_url=life_constants.APP_DOMAIN,
-                                )
+                                    "server_url": life_constants.APP_DOMAIN,
+                                }
                             ),
                             to_mail=alias.user.email.address,
                         )
@@ -118,19 +119,19 @@ async def handle(envelope: Envelope, message: Message) -> str:
                         send_mail(
                             message=draft_message(
                                 subject="Your mail could not be delivered",
-                                html=render(
-                                    "not-deliverable-to-web",
-                                    title="Your mail could not be delivered",
-                                    preview_text="Your mail could not be delivered",
-                                    body=
+                                template="not-deliverable-to-web",
+                                context={
+                                    "title": "Your mail could not be delivered",
+                                    "preview_text": "Your mail could not be delivered",
+                                    "body":
                                         f"We are sorry, but we couldn't deliver your email to "
                                         f"{data['outside_address']}. We tried to send it, "
                                         f"but the user's server couldn't receive it.",
-                                    explanation=
+                                    "explanation":
                                         "We recommend you to try it again later. "
                                         "This is probably a temporary issue only.",
-                                    server_url=life_constants.APP_DOMAIN,
-                                )
+                                    "server_url": life_constants.APP_DOMAIN,
+                                }
                             ),
                             to_mail=envelope.rcpt_tos[0],
                         )
@@ -335,22 +336,30 @@ async def handle(envelope: Envelope, message: Message) -> str:
             )
             raise AliasNotFoundError(status_code=status.E515)
         except EmailHandlerError as error:
+            logger.info(f"Error occurred: {error.reason}")
+
             send_mail(
                 message=draft_message(
                     subject="Your email could not be delivered",
-                    html=render(
-                        "not-deliverable-to-server",
-                        title="We didn't know what to do with your email",
-                        preview_text="We could not deliver your email.",
-                        body=
+                    template="not-deliverable-to-server",
+                    context={
+                        "title": "We didn't know what to do with your email",
+                        "preview_text": "We could not deliver your email.",
+                        "body":
                             f"We are sorry, but we couldn't deliver your email to "
                             f"{envelope.rcpt_tos[0]}. We received it, "
-                            f"but we couldn't process it.",
-                        explanation=error.reason,
-                        server_url=life_constants.APP_DOMAIN
-                    ),
+                            f"but we couldn't process it."
+                        ,
+                        "explanation": error.reason,
+                        "server_url": life_constants.APP_DOMAIN,
+                    },
                 ),
                 to_mail=envelope.mail_from,
             )
 
-            return error.status_code
+            return error.status_code or status.E501
+        except Exception as error:
+            logging.error(error, exc_info=True)
+            logger.info("Exception occurred.")
+
+            return status.E501

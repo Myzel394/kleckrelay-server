@@ -11,7 +11,7 @@ from email_utils.template_renderer import render
 
 Components = namedtuple(
     typename='Components',
-    field_names=['scheme', 'netloc', 'url', 'path', 'query', 'fragment']
+    field_names=['scheme', 'netloc', 'url', 'path', 'query', 'fragment'],
 )
 
 
@@ -29,6 +29,7 @@ def _generate_url(email: str, token: str) -> str:
             url="/auth/verify-email",
             path="",
             query=urlencode(query_parameters),
+            fragment="",
         )
     )
 
@@ -41,15 +42,16 @@ def send_email_verification(address: str, token: str, language: LanguageType) ->
     send_mail(
         message=draft_message(
             subject="Log in to KleckRelay",
-            html=render(
-                "signup",
-                title="Sign up to KleckRelay",
-                preview_text="Confirm your email address to use KleckRelay",
-                body="Welcome to KleckRelay! Please click the button below to verify your email address.",
-                verify_url=verification_url,
-                body_not_requested="If you did not request this email, please ignore it.",
-                server_url=life_constants.APP_DOMAIN,
-            ),
+            template="signup",
+            context={
+                "title": "Sign up to KleckRelay",
+                "preview_text": "Confirm your email address to use KleckRelay",
+                "body": "Welcome to KleckRelay! Please click the button below to verify your email address.",
+                "verify_text": "Verify",
+                "verify_url": verification_url,
+                "body_not_requested": "If you did not request this email, please ignore it.",
+                "server_url": life_constants.APP_DOMAIN,
+            },
         ),
         to_mail=address,
     )
