@@ -4,9 +4,10 @@ from urllib.parse import urlencode, urlunparse
 from app.life_constants import IS_DEBUG
 from app.logger import logger
 from app.models import LanguageType
-from email_utils.send_mail import send_template_mail
+from email_utils.send_mail import draft_message, send_mail, send_template_mail
 
 from app import life_constants
+from email_utils.template_renderer import render
 
 Components = namedtuple(
     typename='Components',
@@ -37,18 +38,18 @@ def send_email_verification(address: str, token: str, language: LanguageType) ->
 
     verification_url = _generate_url(email=address, token=token)
 
-    send_template_mail(
-        template="signup",
-        to=address,
-        subject="Sign up to KleckRelay",
-        language=language,
-        context={
-            "title": "Sign up to KleckRelay",
-            "preview_text": "Confirm your email address to use KleckRelay",
-            "body":
-                "Welcome to KleckRelay! Please click the button below to verify your email address.",
-            "verify_url": verification_url,
-            "body_not_requested": "If you did not request this email, please ignore it.",
-            "server_url": life_constants.APP_DOMAIN,
-        }
+    send_mail(
+        message=draft_message(
+            subject="Log in to KleckRelay",
+            html=render(
+                "signup",
+                title="Sign up to KleckRelay",
+                preview_text="Confirm your email address to use KleckRelay",
+                body="Welcome to KleckRelay! Please click the button below to verify your email address.",
+                verify_url=verification_url,
+                body_not_requested="If you did not request this email, please ignore it.",
+                server_url=life_constants.APP_DOMAIN,
+            ),
+        ),
+        to_mail=address,
     )

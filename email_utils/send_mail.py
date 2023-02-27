@@ -136,30 +136,6 @@ def send_error_mail(
     )
 
 
-def send_template_mail(
-    template: str,
-    subject: str,
-    to: str,
-    language: LanguageType = LanguageType.EN_US,
-    from_address: str = life_constants.FROM_MAIL,
-    from_name: str = life_constants.SUPPORT_MAIL_FROM_NAME,
-    context: dict[str, Any] = None,
-) -> None:
-    send_mail(
-        message=draft_message(
-            subject=subject,
-            html=render(
-                template,
-                language,
-                **context,
-            ),
-        ),
-        from_name=from_name,
-        from_mail=from_address,
-        to_mail=to,
-    )
-
-
 def draft_message(
     subject: str,
     html: str = None,
