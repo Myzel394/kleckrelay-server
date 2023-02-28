@@ -57,7 +57,7 @@ def _create_signature(payload: bytes) -> bytes:
 
 
 def _create_status_time() -> int:
-    diff = datetime.now() - constants.BOUNCE_START_TIME
+    diff = datetime.utcnow() - constants.BOUNCE_START_TIME
 
     return int(diff.total_seconds() / 60)
 

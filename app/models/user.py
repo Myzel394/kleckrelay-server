@@ -16,8 +16,6 @@ __all__ = [
     "User",
 ]
 
-from ..logger import logger
-
 
 class LanguageType(str, enum.Enum):
     EN_US = "en_US"
@@ -33,6 +31,8 @@ class User(Base, IDMixin, CreationMixin):
         from .email_report import EmailReport
         from .user_preferences import UserPreferences
         from .reserved_alias import ReservedAlias
+        from .user_otp import UserOTP
+        from .otp_authentication import OTPAuthentication
         email: Email
         language: LanguageType
         public_key: Optional[str]
@@ -43,6 +43,8 @@ class User(Base, IDMixin, CreationMixin):
         email_login_token: EmailLoginToken
         preferences: UserPreferences
         reserved_aliases: list[ReservedAlias]
+        otp: UserOTP
+        otp_login: Optional[OTPAuthentication]
     else:
         email = relationship(
             "Email",
@@ -102,19 +104,26 @@ class User(Base, IDMixin, CreationMixin):
             back_populates="users",
             cascade="all, delete",
         )
+        otp = relationship(
+            "UserOTP",
+            backref="user",
+            uselist=False,
+            cascade="all, delete",
+        )
+        otp_login = relationship(
+            "OTPAuthentication",
+            backref="user",
+            uselist=False,
+            cascade="all, delete",
+        )
 
     @property
     def is_admin(self) -> bool:
         return self.email.address.lower() in life_constants.ADMINS
 
-    def to_jwt_object(self) -> dict[str, Any]:
-        # Only save the absolute minimum information that is required to the retrieve the user;
-        # in this case only their ID.
-        # We want all other information to be retrieved from the database freshly, so that there
-        # is no permission leakage.
-        return {
-            "id": str(self.id),
-        }
+    @property
+    def has_otp_enabled(self) -> bool:
+        return self.otp is not None and self.otp.is_verified
 
     def encrypt(self, message: str) -> str:
         return str(gpg_handler.encrypt_message(message, self.public_key))

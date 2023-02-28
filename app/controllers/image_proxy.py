@@ -102,5 +102,5 @@ def get_expired_images(db: Session, /) -> list[ImageProxy]:
 
     return db\
         .query(ImageProxy)\
-        .filter(ImageProxy.created_at > datetime.now() - timedelta(hours=lifetime_in_hours))\
+        .filter(ImageProxy.created_at + lifetime_in_hours < datetime.utcnow())\
         .all()

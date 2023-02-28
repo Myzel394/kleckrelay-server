@@ -9,6 +9,8 @@ from .server import router as server_router
 from .user_preference import router as user_preferences_router
 from .reserved_alias import router as reserved_alias_router
 from .admin import router as admin_router
+from .otp_setup import router as user_otp_router
+from .login_with_email_token import router as login_with_email_token_router
 
 __all__ = [
     "routers",
@@ -26,3 +28,5 @@ routers.include_router(server_router, prefix="/v1/server")
 routers.include_router(report_router, prefix="/v1/report")
 routers.include_router(reserved_alias_router, prefix="/v1/reserved-alias")
 routers.include_router(admin_router, prefix="/v1/admin")
+routers.include_router(user_otp_router, prefix="/v1/setup-otp")
+routers.include_router(login_with_email_token_router, prefix="/v1/auth/login/email-token")

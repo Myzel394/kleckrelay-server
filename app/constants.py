@@ -15,8 +15,8 @@ __all__ = [
     "RELAY_EMAIL_REGEX",
     "MAX_EMAIL_LENGTH",
     "MAX_LOCAL_LENGTH",
-    "EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH",
-    "EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS",
+    "CORS_TOKEN_LENGTH",
+    "CORS_TOKEN_CHARS",
     "EMAIL_VERIFICATION_TOKEN_CHARS",
     "EMAIL_VERIFICATION_TOKEN_LENGTH",
     "MAX_RANDOM_ALIAS_ID_GENERATION",
@@ -29,9 +29,11 @@ __all__ = [
     "ACCESS_TOKEN_COOKIE_NAME",
     "REFRESH_TOKEN_COOKIE_NAME",
     "ENCRYPTED_PASSWORD_MAX_LENGTH",
-    "BOUNCE_MAX_TIME"
+    "BOUNCE_MAX_TIME",
+    "OTP_TIMEOUT",
+    "OTP_REGEX",
+    "FORBIDDEN_ALIASES"
 ]
-
 
 # According to https://www.mailboxvalidator.com/resources/articles/acceptable-email-address-syntax-rfc/
 LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~-]{1,64}$"
@@ -45,8 +47,8 @@ RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{
 RELAY_EMAIL_REGEX = f"^{RELAY_LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 MAX_EMAIL_LENGTH = 400
 MAX_LOCAL_LENGTH = 64
-EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH = 80
-EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS = string.ascii_letters + string.digits
+CORS_TOKEN_LENGTH = 80
+CORS_TOKEN_CHARS = string.ascii_letters + string.digits
 EMAIL_VERIFICATION_TOKEN_CHARS = string.ascii_letters + string.digits
 EMAIL_VERIFICATION_TOKEN_LENGTH = 80
 # How often should be tried to generate a new alias id. After this amount, the length of the
@@ -74,6 +76,8 @@ FORBIDDEN_ALIASES = [
     re.compile(r"^postmaster$", re.IGNORECASE),
     re.compile(r"^noreply$", re.IGNORECASE),
 ]
+OTP_REGEX = r"^[0-9]{6}$"
+OTP_TIMEOUT = timedelta(minutes=5)
 
 
 TESTING_DB = None

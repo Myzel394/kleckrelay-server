@@ -2,7 +2,7 @@ from fastapi import Body, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import logger
-from app.constants import EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH, EMAIL_REGEX, MAX_EMAIL_LENGTH
+from app.constants import CORS_TOKEN_LENGTH, EMAIL_REGEX, MAX_EMAIL_LENGTH
 from app.controllers.email_login import get_email_login_token_from_email
 from app.database.dependencies import get_db
 from app.models import EmailLoginToken
@@ -19,7 +19,7 @@ async def get_email_login_token(
         max_length=MAX_EMAIL_LENGTH,
     ),
     same_request_token: str = Body(
-        max_length=EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH,
+        max_length=CORS_TOKEN_LENGTH,
     ),
     db: Session = Depends(get_db),
 ) -> EmailLoginToken:

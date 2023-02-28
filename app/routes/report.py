@@ -10,6 +10,7 @@ from app.controllers.email_report import (
 from app.database.dependencies import get_db
 from app.dependencies.get_instance_from_user import get_instance_from_user
 from app.dependencies.get_user import get_user
+from app.dependencies.require_otp import require_otp_if_enabled
 from app.models import EmailReport, User
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.report import Report
@@ -21,6 +22,7 @@ router = APIRouter()
 def get_reports(
     user: User = Depends(get_user),
     params: Params = Depends(),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get all Reports -> New Request.")
 
@@ -30,6 +32,7 @@ def get_reports(
 @router.get("/{id}", response_model=Report)
 def get_report(
     report: EmailReport = Depends(get_instance_from_user(get_report_from_user_by_id)),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get Report -> New Request.")
     return report
@@ -39,6 +42,7 @@ def get_report(
 def delete_report_api(
     report: EmailReport = Depends(get_instance_from_user(get_report_from_user_by_id)),
     db: Session = Depends(get_db),
+    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info(f"Request: Delete Report -> Delete report with {id=}.")
 

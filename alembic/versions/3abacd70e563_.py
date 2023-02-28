@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b2766c26d837
+Revision ID: 3abacd70e563
 Revises: 
-Create Date: 2023-02-22 21:10:49.390076
+Create Date: 2023-02-25 21:13:11.670518
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'b2766c26d837'
+revision = '3abacd70e563'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,15 +49,6 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_global_settings_id'), 'global_settings', ['id'], unique=True)
-    op.create_table('mail_bounce_status',
-    sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('from_address', sa.String(length=255), nullable=True),
-    sa.Column('to_address', sa.String(length=255), nullable=True),
-    sa.Column('status', sa.Enum('FORWARDING', 'BOUNCING', name='statustype'), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_mail_bounce_status_id'), 'mail_bounce_status', ['id'], unique=True)
     op.create_table('reserved_alias',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('local', sa.String(length=64), nullable=False),
@@ -159,6 +150,16 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_m2m_reserved_alias_user_id'), 'm2m_reserved_alias_user', ['id'], unique=True)
+    op.create_table('user_otp',
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('secret', sa.String(), nullable=False),
+    sa.Column('status', sa.Enum('AVAILABLE', 'AWAITING_VERIFICATION', name='otpstatustype'), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_otp_id'), 'user_otp', ['id'], unique=True)
     op.create_table('user_preferences',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=True),
@@ -191,6 +192,8 @@ def downgrade() -> None:
     op.drop_table('image_proxy')
     op.drop_index(op.f('ix_user_preferences_id'), table_name='user_preferences')
     op.drop_table('user_preferences')
+    op.drop_index(op.f('ix_user_otp_id'), table_name='user_otp')
+    op.drop_table('user_otp')
     op.drop_index(op.f('ix_m2m_reserved_alias_user_id'), table_name='m2m_reserved_alias_user')
     op.drop_table('m2m_reserved_alias_user')
     op.drop_index(op.f('ix_email_report_id'), table_name='email_report')
@@ -214,8 +217,6 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_reserved_alias_id'), table_name='reserved_alias')
     op.drop_index(op.f('ix_reserved_alias_domain'), table_name='reserved_alias')
     op.drop_table('reserved_alias')
-    op.drop_index(op.f('ix_mail_bounce_status_id'), table_name='mail_bounce_status')
-    op.drop_table('mail_bounce_status')
     op.drop_index(op.f('ix_global_settings_id'), table_name='global_settings')
     op.drop_table('global_settings')
     op.drop_index(op.f('ix_deleted_email_alias_id'), table_name='deleted_email_alias')
