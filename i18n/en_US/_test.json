@@ -1,0 +1,6 @@
+{
+    "welcome": "Welcome message",
+    "nested": {
+        "deep": "Nested message"
+    }
+}
