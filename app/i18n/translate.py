@@ -14,7 +14,7 @@ ALLOWED_CHARACTERS = string.ascii_lowercase + "-_"
 
 @cache
 def _get_file(namespace: str, language: LanguageType) -> dict[str, Any]:
-    content = constants.ROOT_DIR / "i18n" / language / f"{namespace}.json"
+    content = constants.ROOT_DIR / "i18n" / language.value / f"{namespace}.json"
 
     return json.loads(content.read_text())
 
@@ -39,5 +39,7 @@ def translate(
 
         for key in key.split("."):
             value = value[key]
+
+        return value
     else:
         return content[key]
