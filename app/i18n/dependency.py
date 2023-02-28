@@ -6,7 +6,6 @@ from .default_locale import DEFAULT_LOCALE
 
 __all__ = [
     "get_language",
-    "get_language_from_user",
 ]
 
 
@@ -23,8 +22,3 @@ def get_language(request: Request) -> LanguageType:
             return LanguageType.EN_US
         case _:
             return DEFAULT_LOCALE
-
-
-def get_language_from_user(user: User) -> LanguageType:
-    """Return the language of the current user."""
-    return user.language
