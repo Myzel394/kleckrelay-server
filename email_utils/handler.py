@@ -10,26 +10,18 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import Alias
 
 from app import life_constants, logger
-from app.controllers import global_settings as settings
 from app.controllers.alias import get_alias_by_local_and_domain
-from app.controllers.email_report import create_email_report
 from app.controllers import server_statistics
 from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
-from app.email_report_data import EmailReportData
-from app.models import LanguageType, ReservedAlias
-from app.utils.email import normalize_email
+from app.models import ReservedAlias
 from email_utils import status
-from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
-from email_utils.content_handler import (
-    convert_images, expand_shortened_urls, remove_image_trackers,
-)
+from email_utils.errors import AliasNotFoundError, EmailHandlerError
 from email_utils.send_mail import (
     draft_message, send_mail,
 )
 from email_utils.utils import (
-    get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
-    get_header_unicode, get_email_by_from,
+    extract_alias_address, generate_message_id
 )
 from email_utils.validators import validate_alias
 from . import headers
@@ -40,7 +32,6 @@ from .bounce_messages import (
 from .handle_local_to_outside import handle_local_to_outside
 from .handle_outside_to_local import handle_outside_to_local
 from .headers import set_header
-from .template_renderer import render
 
 __all__ = [
     "handle",
