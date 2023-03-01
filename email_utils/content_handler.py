@@ -4,7 +4,6 @@ from lxml.etree import _Element, XMLSyntaxError
 from pyquery import PyQuery as pq
 from sqlalchemy.orm import Session
 
-from app.controllers.image_proxy import create_image_proxy
 from app.email_report_data import (
     EmailReportData, EmailReportExpandedURLData, EmailReportProxyImageData,
     EmailReportSinglePixelImageTrackerData,
@@ -35,18 +34,6 @@ def convert_images(
     for image in d("img"):  # type: _Element
         source = image.attrib["src"]
         image.attrib["data-kleckrelay-original-src"] = source
-        image_proxy = create_image_proxy(db, alias=alias, url=source)
-
-        image.attrib["src"] = image_proxy.generate_url(source)
-
-        report.proxied_images.append(
-            EmailReportProxyImageData(
-                url=source,
-                image_proxy_id=image_proxy.id,
-                created_at=image_proxy.created_at,
-                server_url=image_proxy.generate_url(source),
-            )
-        )
 
     return d.outer_html()
 

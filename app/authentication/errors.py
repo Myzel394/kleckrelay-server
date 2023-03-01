@@ -12,4 +12,3 @@ class TokenCorsInvalidError(Exception):
 
 class TokenIncorrectError(Exception):
     pass
-

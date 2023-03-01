@@ -4,7 +4,7 @@ from pyquery import PyQuery as pq
 from app import life_constants
 from app.constants import ROOT_DIR
 from app.email_report_data import EmailReportData
-from email_utils import html_handler
+from email_utils import content_handler
 
 
 def test_can_convert_images(
@@ -24,7 +24,7 @@ def test_can_convert_images(
         message_id="",
         report_id="",
     )
-    new_html = html_handler.convert_images(db, report, alias=alias, html=html)
+    new_html = content_handler.convert_images(db, report, alias=alias, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
@@ -46,7 +46,7 @@ def test_can_remove_single_pixel_tracker_images_by_url():
         message_id="",
         report_id="",
     )
-    new_html = html_handler.remove_single_pixel_image_trackers(report, html=html)
+    new_html = content_handler.remove_single_pixel_image_trackers(report, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
@@ -64,7 +64,7 @@ def test_can_remove_single_pixel_tracker_image_by_size():
         message_id="",
         report_id="",
     )
-    new_html = html_handler.remove_single_pixel_image_trackers(report, html=html)
+    new_html = content_handler.remove_single_pixel_image_trackers(report, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
@@ -85,7 +85,7 @@ def test_can_expand_shortened_url(create_random_alias, create_user):
         message_id="",
         report_id="",
     )
-    new_html = html_handler.expand_shortened_urls(report, alias=alias, html=html)
+    new_html = content_handler.expand_shortened_urls(report, alias=alias, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
@@ -106,7 +106,7 @@ def test_can_expand_recursive_shortened_url(create_random_alias, create_user):
         message_id="",
         report_id="",
     )
-    new_html = html_handler.expand_shortened_urls(report, alias=alias, html=html)
+    new_html = content_handler.expand_shortened_urls(report, alias=alias, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
