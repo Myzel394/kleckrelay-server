@@ -3,6 +3,7 @@ from fastapi_jwt import JwtAuthorizationCredentials
 
 from .get_user import get_user
 from app.models import User
+from ..authentication.authentication_response import OTPVerificationStatus
 from ..authentication.handler import access_security
 
 __all__ = [
@@ -17,7 +18,7 @@ def require_otp_if_enabled(
     if not user.has_otp_enabled:
         return False
 
-    if credentials["has_otp_verified"]:
+    if OTPVerificationStatus(credentials["otp_status"]) is OTPVerificationStatus.VERIFIED:
         return True
 
     raise HTTPException(

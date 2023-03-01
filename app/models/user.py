@@ -32,7 +32,6 @@ class User(Base, IDMixin, CreationMixin):
         from .user_preferences import UserPreferences
         from .reserved_alias import ReservedAlias
         from .user_otp import UserOTP
-        from .otp_authentication import OTPAuthentication
         email: Email
         language: LanguageType
         public_key: Optional[str]
@@ -44,7 +43,6 @@ class User(Base, IDMixin, CreationMixin):
         preferences: UserPreferences
         reserved_aliases: list[ReservedAlias]
         otp: UserOTP
-        otp_login: Optional[OTPAuthentication]
     else:
         email = relationship(
             "Email",
@@ -106,12 +104,6 @@ class User(Base, IDMixin, CreationMixin):
         )
         otp = relationship(
             "UserOTP",
-            backref="user",
-            uselist=False,
-            cascade="all, delete",
-        )
-        otp_login = relationship(
-            "OTPAuthentication",
             backref="user",
             uselist=False,
             cascade="all, delete",

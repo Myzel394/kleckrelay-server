@@ -52,7 +52,7 @@ def create_image_proxy_url(alias: EmailAlias, original_url: str) -> str:
 
 
     raw_content = original_url + "." + str(file.relative_to(STORAGE_PATH))
-    proxy_url_content = base64.b64encode(raw_content.encode"utf-8"))
+    proxy_url_content = base64.b64encode(raw_content.encode("utf-8"))
     proxy_url_signature = _create_signature(proxy_url_content)
 
     scheme = "https" if not IS_DEBUG else "http"

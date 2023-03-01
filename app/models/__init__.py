@@ -14,4 +14,3 @@ from .server_statistics import *
 from .global_settings import *
 from .cron_report import *
 from .user_otp import *
-from .otp_authentication import *

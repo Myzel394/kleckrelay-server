@@ -78,4 +78,4 @@ class ResendEmailAlreadyVerifiedResponseModel(BaseModel):
 
 
 class LoginWithEmailOTPRequiredResponseModel(BaseModel):
-    cors_token: str
+    code: str = "otp_challenge_created"
