@@ -29,7 +29,7 @@ def proxy_image(
     data: str = Query(..., description="The data of the request."),
     signature: str = Query(..., description="The signature of the request."),
 ):
-    original_url, alias_id, image = extract_image_data(
+    original_url, alias_id, image_path = extract_image_data(
         content=data,
         signature=signature,
     )
@@ -45,11 +45,11 @@ def proxy_image(
     except NoResultFound:
         pass
 
-    if image.exists():
+    if image_path and image_path.exists():
         try:
             return StreamingResponse(
                 convert_image_to_type(
-                    image.read_bytes(),
+                    image_path.read_bytes(),
                     preferred_type=preferred_format,
                 ),
                 media_type=f"image/{preferred_format.value.lower()}",

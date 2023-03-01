@@ -1,10 +1,11 @@
 from datetime import datetime
 
 import lxml.html
+import PIL
 import requests
+from fastapi import HTTPException
 from lxml.etree import _Element, XMLSyntaxError
 from pyquery import PyQuery as pq
-from sqlalchemy.orm import Session
 
 from app.email_report_data import (
     EmailReportData, EmailReportExpandedURLData, EmailReportProxyImageData,
@@ -12,8 +13,8 @@ from app.email_report_data import (
 )
 from app.models import EmailAlias
 from app.models.constants.alias import PROXY_USER_AGENT_STRING_MAP
+from app.utils.image import create_image_url, download_image, save_image
 from email_utils.handlers import check_is_url_a_tracker
-from email_utils.image_proxy import create_image_proxy_url
 
 __all__ = [
     "convert_images",
@@ -37,9 +38,20 @@ def convert_images(
         source = image.attrib["src"]
         image.attrib["data-kleckrelay-original-src"] = source
 
-        url = create_image_proxy_url(
-            alias=alias,
+        file = None
+
+        try:
+            file = save_image(
+                url=source,
+                alias=alias,
+            )
+        except (HTTPException, PIL.UnidentifiedImageError, ValueError):
+            pass
+
+        url = create_image_url(
             original_url=source,
+            alias_id=alias.id,
+            file=file,
         )
         image.attrib["src"] = url
 

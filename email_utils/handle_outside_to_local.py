@@ -143,7 +143,7 @@ def parse_html(
         content = remove_single_pixel_image_trackers(report, html=content)
 
     if enable_image_proxy and alias.proxy_images:
-        content = convert_images(db, report, alias=alias, html=content)
+        content = convert_images(report, alias=alias, html=content)
 
     if alias.expand_url_shorteners:
         content = expand_shortened_urls(report, alias=alias, html=content)

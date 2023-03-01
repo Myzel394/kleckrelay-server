@@ -24,12 +24,14 @@ def test_can_convert_images(
         message_id="",
         report_id="",
     )
-    new_html = content_handler.convert_images(db, report, alias=alias, html=html)
+    new_html = content_handler.convert_images(report, alias=alias, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
     img = d.find("img")[0]
-    assert img.get("src").startswith(f"https://{life_constants.API_DOMAIN}/image-proxy"), \
+    print("################")
+    print(img.get("src"))
+    assert img.get("src").startswith(f"https://{life_constants.API_DOMAIN}/v1/proxy/image"), \
         "Image's `src` should have changed."
     assert len(report.proxied_images) == 1, "There should be one proxied images."
     # Check if call doesn't throw an error

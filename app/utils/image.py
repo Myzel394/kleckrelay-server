@@ -5,24 +5,29 @@ import uuid
 from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
+from typing import Optional
 from urllib.parse import urlencode, urlunparse
 
 import requests
 from fastapi import HTTPException
+from PIL import Image
 from requests import HTTPError
 from urllib3.exceptions import ConnectTimeoutError
 
 from app import constant_keys, life_constants, logger
 from app.constants import ROOT_DIR
 from app.life_constants import IS_DEBUG
+from app.models import EmailAlias
+from app.models.constants.alias import PROXY_USER_AGENT_STRING_MAP
 from app.utils.parse_proxied_image import convert_image_to_type
-from app.models.enums.alias import ImageProxyFormatType
+from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 from app.utils.url import Components
 
 __all__ = [
     "create_image_url",
     "extract_image_data",
     "download_image",
+    "save_image",
 ]
 
 STORAGE_PATH = ROOT_DIR / "storage" / "proxy" / "images"
@@ -39,13 +44,13 @@ def _create_signature(payload: bytes) -> bytes:
 def create_image_url(
     original_url: str,
     alias_id: uuid.UUID,
-    file: Path,
+    file: Optional[Path],
 ) -> str:
-    raw_content = "=".join(
+    raw_content = "_".join(
         (
-            original_url,
-            str(file.relative_to(STORAGE_PATH)),
+            base64.b64encode(original_url.encode("utf-8")).decode("utf-8"),
             str(alias_id),
+            str(file.relative_to(STORAGE_PATH)) if file else "",
             datetime.utcnow().isoformat(),
         )
     )
@@ -87,11 +92,12 @@ def extract_image_data(
             detail="Invalid Signature.",
         )
 
-    original_url, alias_id, relative_path, timestamp = base64\
+    original_url_in_base64, alias_id, relative_path, timestamp = base64\
         .b64decode(content)\
         .decode("utf-8")\
-        .split("=")
+        .split("_")
 
+    original_url = base64.b64decode(original_url_in_base64.encode("utf-8")).decode("utf-8")
     path = STORAGE_PATH / relative_path
 
     return original_url, uuid.UUID(alias_id), path
@@ -100,7 +106,7 @@ def extract_image_data(
 def download_image(
     url: str,
     preferred_type: ImageProxyFormatType,
-    user_agent: str,
+    user_agent: ProxyUserAgentType,
 ) -> BytesIO:
     try:
         proxied_response = requests.request(
@@ -109,7 +115,7 @@ def download_image(
             allow_redirects=True,
             timeout=life_constants.IMAGE_PROXY_TIMEOUT_IN_SECONDS,
             headers={
-                "User-Agent": user_agent,
+                "User-Agent": PROXY_USER_AGENT_STRING_MAP[user_agent],
             }
         )
     except ConnectTimeoutError:
@@ -156,13 +162,28 @@ def download_image(
     )
 
 
-def extract_encoded_image(data: str) -> tuple[str, Path]:
-    encoded_image = data.split(".")
+def save_image(
+    url: str,
+    alias: EmailAlias,
+) -> Path:
+    content = download_image(
+        url=url,
+        user_agent=alias.proxy_user_agent,
+        preferred_type=alias.proxy_image_format,
+    )
 
-    if len(encoded_image) != 2:
-        raise HTTPException(
-            status_code=403,
-            detail="Invalid signature.",
+    with Image.open(content) as image:
+        file = (
+            STORAGE_PATH /
+            datetime.utcnow().strftime("%Y-%m-%d") /
+            f"{uuid.uuid4()}.{image.format.lower()}"
         )
 
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.touch(exist_ok=True)
 
+        logger.info(f"Download Image -> Saving image url={url} to {file=}.")
+
+        image.save(str(file))
+
+    return file
