@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import Alias
 
 from app import life_constants, logger
+from app.i18n import enter_translation, translate as t
 from app.controllers import global_settings as settings
 from app.controllers.email_report import create_email_report
 from app.controllers import server_statistics
@@ -89,25 +90,26 @@ async def handle(envelope: Envelope, message: Message) -> str:
 
                         logger.info("Alias exists. Informing user.")
 
-                        send_mail(
-                            message=draft_message(
-                                subject="Your mail could not be delivered",
-                                template="not-deliverable-to-web",
-                                context={
-                                    "title": "Your mail could not be delivered",
-                                    "preview_text": "Your mail could not be delivered",
-                                    "body":
-                                        f"We are sorry, but we couldn't deliver your email to "
-                                        f"{data['outside_address']}. We tried to send it, "
-                                        f"but the user's server couldn't receive it.",
-                                    "explanation":
-                                        "We recommend you to try it again later. "
-                                        "This is probably a temporary issue only.",
-                                    "server_url": life_constants.APP_DOMAIN,
-                                }
-                            ),
-                            to_mail=alias.user.email.address,
-                        )
+                        with enter_translation("email-delivery", language=alias.user.language) as t:
+                            send_mail(
+                                message=draft_message(
+                                    subject=t("subject"),
+                                    template="not-deliverable-to-web",
+                                    context={
+                                        "title": t("notDeliverableToWeb.title"),
+                                        "preview_text": t("preview_text"),
+                                        "body":
+                                            f"We are sorry, but we couldn't deliver your email to "
+                                            f"{data['outside_address']}. We tried to send it, "
+                                            f"but the user's server couldn't receive it.",
+                                        "explanation":
+                                            "We recommend you to try it again later. "
+                                            "This is probably a temporary issue only.",
+                                        "server_url": life_constants.APP_DOMAIN,
+                                    }
+                                ),
+                                to_mail=alias.user.email.address,
+                            )
 
                         return status.E200
                     elif data["status_type"] == StatusType.FORWARD_OUTSIDE_TO_ALIAS:

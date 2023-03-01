@@ -1,3 +1,3 @@
-from .translate import translate
+from .translate import *
 from .dependency import *
-from .default_locale import DEFAULT_LOCALE
+from .default_locale import *

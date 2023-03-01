@@ -1,0 +1,7 @@
+{
+    "subject": "Your mail could not be delivered",
+    "preview_text": "Your mail could not be delivered",
+    "notDeliverableToWeb": {
+        "title": "We could not deliver your mail to the web",
+    }
+}

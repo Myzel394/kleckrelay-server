@@ -1,45 +1,49 @@
-import json
+from contextlib import contextmanager
+from typing import Callable
+
+import i18n
 import string
-from functools import cache
-from typing import Any
-from app import constants
+
+from app.constants import ROOT_DIR
 from app.models import LanguageType
 
 __all__ = [
     "translate",
+    "enter_translation",
 ]
 
-ALLOWED_CHARACTERS = string.ascii_lowercase + "-_"
+ALLOWED_CHARACTERS = string.ascii_lowercase + "-_."
 
 
-@cache
-def _get_file(namespace: str, language: LanguageType) -> dict[str, Any]:
-    content = constants.ROOT_DIR / "i18n" / language.value / f"{namespace}.json"
+def _init_i18n() -> None:
+    i18n.set("file_format", "json")
+    i18n.set("enable_memoization", True)
 
-    return json.loads(content.read_text())
+    i18n.load_path.append(ROOT_DIR / "i18n" / "locales")
+
+    locales = [
+        language
+        for language in LanguageType
+    ]
+
+    i18n.set("available_locales", locales)
+    i18n.set("fallback", LanguageType.EN_US.value)
 
 
-def translate(
-    namespace: str,
-    key: str,
-    /,
-    language: LanguageType
-) -> str:
-    """Return the translation for a given `key` in a given `namespace` for a given `language`.
+_init_i18n()
 
-    Supports keys like `foo.bar` to access nested keys.
-    """
-    if not all(char in ALLOWED_CHARACTERS for char in namespace):
-        raise ValueError("Invalid namespace")
 
-    content = _get_file(namespace, language)
+def translate(namespace: str, key: str, language: LanguageType) -> str:
+    # Avoid hacking attacks like directory traversal.
+    if not all(c in ALLOWED_CHARACTERS for c in key):
+        raise ValueError(f"Invalid characters in key: {key}")
 
-    if "." in key:
-        value = content
+    return i18n.t(f"{namespace}.{key}", locale=language.value)
 
-        for key in key.split("."):
-            value = value[key]
 
-        return value
-    else:
-        return content[key]
+@contextmanager
+def enter_translation(namespace: str, language: LanguageType) -> Callable:
+    try:
+        yield lambda key: translate(namespace, key, language)
+    finally:
+        pass
