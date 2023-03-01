@@ -66,7 +66,6 @@ def test_can_access_resource_when_otp_verified(
         "/v1/auth/login/verify-otp",
         json={
             "code": pyotp.TOTP(otp.secret).now(),
-            "cors_token": response.json()["cors_token"],
         },
         headers={
             "Authorization": f"Bearer {response.cookies[constants.ACCESS_TOKEN_COOKIE_NAME]}",
@@ -115,9 +114,10 @@ def test_can_verify_otp(
         "/v1/auth/login/verify-otp",
         json={
             "code": pyotp.TOTP(otp.secret).now(),
-            "cors_token": response.json()["cors_token"],
         },
-        headers=auth["headers"],
+        headers={
+            "Authorization": f"Bearer {response.cookies[constants.ACCESS_TOKEN_COOKIE_NAME]}",
+        }
     )
 
     assert response.status_code == 200, \
@@ -155,7 +155,6 @@ def test_can_not_verify_otp_with_incorrect_code(
         "/v1/auth/login/verify-otp",
         json={
             "code": str(int(pyotp.TOTP(otp.secret).now()) + 1),
-            "cors_token": response.json()["cors_token"],
         },
         headers=auth["headers"],
     )

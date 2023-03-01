@@ -7,4 +7,3 @@ __all__ = [
 
 class VerifyOTPAuthenticationModel(BaseModel):
     code: str
-    cors_token: str

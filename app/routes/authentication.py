@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+
+import pyotp
 from fastapi import APIRouter, Depends, HTTPException, Response, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from pydantic import ValidationError
@@ -8,16 +11,15 @@ from starlette.responses import JSONResponse
 
 from app import constants, life_constants, logger
 from app.authentication.authentication_response import (
-    set_authentication_cookies,
+    OTPVerificationStatus, set_authentication_cookies,
 )
 from app.authentication.errors import (
     TokenIncorrectError, TokenExpiredError,
     TokenMaxTriesReachedError, TokenCorsInvalidError,
 )
-from app.authentication.handler import refresh_security
+from app.authentication.handler import access_security, refresh_security
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
 from app.controllers.global_settings import get_settings_model
-from app.controllers.otp_authentication import verify_otp_authentication
 from app.controllers.user import (
     check_if_email_exists, create_user, get_user_by_id,
 )
@@ -180,7 +182,11 @@ def signup_verify_email(
             f"Request: Verify Email -> Done verifying {email.address}. Returning credentials."
         )
 
-        set_authentication_cookies(response, email.user, has_otp_verified=False)
+        set_authentication_cookies(
+            response,
+            email.user,
+            otp_status=OTPVerificationStatus.NOT_VERIFIED
+        )
 
         return email.user
     except NoResultFound:
@@ -215,84 +221,62 @@ def signup_verify_email(
     responses={
         400: {
             "model": HTTPBadRequestExceptionModel,
-            "description": "OTP code or CORS token is invalid."
+            "description": "No OTP challenge found. Please request one."
         },
         410: {
             "model": HTTPBadRequestExceptionModel,
-            "description": "OTP code expired or max tries exhausted."
+            "description": "OTP code expired."
         },
-        404: {
-            "model": HTTPBadRequestExceptionModel,
-            "description": "No current OTP found. Please request one."
-        }
     }
 )
 async def verify_otp_api(
     data: VerifyOTPAuthenticationModel,
     response: Response,
-    db: Session = Depends(get_db),
     user: User = Depends(get_user),
+    credentials: JwtAuthorizationCredentials = Security(access_security),
 ):
     logger.info(
-        f"Request: Verify OTP -> New request from {user=}."
+        f"Request: Verify OTP -> New request from {user=} with {credentials=}."
     )
 
-    if not user.otp_login:
-        logger.info(
-            f"Request: Verify OTP -> User {user=} does not have an OTP token."
-        )
+    otp_status = OTPVerificationStatus(credentials["otp_status"])
 
-        raise HTTPException(
-            status_code=404,
-            detail="No OTP found. Please request one.",
-        )
-
-    try:
-        verify_otp_authentication(
-            db,
-            otp=user.otp_login,
-            code=data.code,
-            cors_token=data.cors_token,
-        )
-    except TokenExpiredError:
+    if otp_status is not OTPVerificationStatus.CHALLENGED:
         logger.info(
-            f"Request: Verify OTP -> Token for {user=} expired."
-        )
-
-        raise HTTPException(
-            status_code=410,
-            detail="Token expired. Please request a new one.",
-        )
-    except TokenMaxTriesReachedError:
-        logger.info(
-            f"Request: Verify OTP -> Token for {user=} reached max tries."
-        )
-
-        raise HTTPException(
-            status_code=410,
-            detail="Max tries reached for your token. Please request a new one.",
-        )
-    except TokenCorsInvalidError:
-        logger.info(
-            f"Request: Verify OTP -> Token for {user=} is invalid."
+            f"Request: Verify OTP -> {user=} has not challenged an OTP."
         )
 
         raise HTTPException(
             status_code=400,
-            detail="Token invalid.",
+            detail="No OTP challenge found. Please request one.",
         )
-    except TokenIncorrectError:
+
+    challenged_at = datetime.fromisoformat(credentials["otp_challenged_at"])
+
+    if challenged_at < datetime.utcnow() - constants.OTP_TIMEOUT:
         logger.info(
-            f"Request: Verify OTP -> Token for {user=} is incorrect."
+            f"Request: Verify OTP -> {user=} has challenged an OTP but it has expired."
+        )
+
+        raise HTTPException(
+            status_code=410,
+            detail="OTP challenge expired. Please request a new one.",
+        )
+
+    expected_code = pyotp.TOTP(user.otp.secret).now()
+
+    if data.code != expected_code:
+        logger.info(
+            f"Request: Verify OTP -> {user=} has challenged an OTP but the code is incorrect."
         )
 
         raise HTTPException(
             status_code=400,
-            detail="Token invalid.",
+            detail="OTP code is incorrect.",
         )
 
     logger.info(f"Request: Verify OTP -> Token for {user=} correct. Returning credentials.")
-    set_authentication_cookies(response, user, has_otp_verified=True)
+    set_authentication_cookies(response, user, otp_status=OTPVerificationStatus.VERIFIED)
 
     return user
 
@@ -324,7 +308,11 @@ async def refresh_token(
 
     logger.info("Request: Refresh -> Returning new credentials.")
 
-    set_authentication_cookies(response, user, has_otp_verified=credentials["has_otp_verified"])
+    set_authentication_cookies(
+        response,
+        user,
+        otp_status=OTPVerificationStatus(credentials["otp_status"])
+    )
 
     return user
 
