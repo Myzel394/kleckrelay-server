@@ -48,7 +48,7 @@ def test_can_remove_single_pixel_tracker_images_by_url():
         message_id="",
         report_id="",
     )
-    new_html = content_handler.remove_single_pixel_image_trackers(report, html=html)
+    new_html = content_handler.remove_image_trackers(report, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
@@ -66,7 +66,7 @@ def test_can_remove_single_pixel_tracker_image_by_size():
         message_id="",
         report_id="",
     )
-    new_html = content_handler.remove_single_pixel_image_trackers(report, html=html)
+    new_html = content_handler.remove_image_trackers(report, html=html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))

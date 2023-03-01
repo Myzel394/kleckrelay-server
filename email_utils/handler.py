@@ -22,7 +22,7 @@ from app.utils.email import normalize_email
 from email_utils import status
 from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
 from email_utils.content_handler import (
-    convert_images, expand_shortened_urls, remove_single_pixel_image_trackers,
+    convert_images, expand_shortened_urls, remove_image_trackers,
 )
 from email_utils.send_mail import (
     draft_message, send_mail,
@@ -59,8 +59,6 @@ async def handle(envelope: Envelope, message: Message) -> str:
     logger.info("Retrieving mail from database.")
 
     with with_db() as db:
-        enable_image_proxy = settings.get(db, "ENABLE_IMAGE_PROXY")
-
         try:
             message_id = generate_message_id()
             set_header(message, headers.MESSAGE_ID, message_id)

@@ -13,7 +13,7 @@ from email_utils import headers
 from email_utils.bounce_messages import generate_forward_status, StatusType
 from email_utils.content_handler import (
     convert_images, expand_shortened_urls,
-    remove_single_pixel_image_trackers,
+    remove_image_trackers,
 )
 from email_utils.headers import set_header
 from email_utils.send_mail import send_mail
@@ -140,12 +140,15 @@ def parse_html(
     enable_image_proxy = settings.get(db, "ENABLE_IMAGE_PROXY")
 
     if alias.remove_trackers:
-        content = remove_single_pixel_image_trackers(report, html=content)
+        logger.info("Removing single pixel image trackers.")
+        content = remove_image_trackers(report, html=content)
 
     if enable_image_proxy and alias.proxy_images:
+        logger.info("Converting images to proxy links.")
         content = convert_images(report, alias=alias, html=content)
 
     if alias.expand_url_shorteners:
+        logger.info("Expanding shortened URLs.")
         content = expand_shortened_urls(report, alias=alias, html=content)
 
     server_statistics.add_removed_trackers(db, len(report.single_pixel_images))

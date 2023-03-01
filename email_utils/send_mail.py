@@ -17,11 +17,8 @@ from .template_renderer import render
 from .utils import message_to_bytes
 
 __all__ = [
-    "send_error_mail",
     "send_mail",
     "draft_message",
-    "send_template_mail",
-    "send_bounce_mail",
 ]
 
 
@@ -59,7 +56,7 @@ def _debug_email(
     logger.info("<===============> SEND email <===============>")
     logger.info(f"FROM {from_address} ----> TO ----> {to_address}")
     logger.info("Content:")
-    logger.info(message)
+    logger.info(message.as_string())
     logger.info("<===============> SEND email --- END --- <===============>")
 
 

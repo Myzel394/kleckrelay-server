@@ -18,7 +18,7 @@ from email_utils.handlers import check_is_url_a_tracker
 
 __all__ = [
     "convert_images",
-    "remove_single_pixel_image_trackers",
+    "remove_image_trackers",
     "expand_shortened_urls"
 ]
 
@@ -72,7 +72,7 @@ def check_is_single_pixel_image(image: _Element) -> bool:
            or (str(image.attrib.get("width")) == "1" and str(image.attrib.get("height") == "1"))
 
 
-def remove_single_pixel_image_trackers(report: EmailReportData, /, html: str) -> str:
+def remove_image_trackers(report: EmailReportData, /, html: str) -> str:
     try:
         d = pq(lxml.html.fromstring(html))
     except XMLSyntaxError:
