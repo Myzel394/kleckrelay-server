@@ -10,7 +10,7 @@ from app import constant_keys, life_constants, logger
 from app.constants import ROOT_DIR
 from app.life_constants import IS_DEBUG
 from app.models import EmailAlias
-from app.utils.download_image import download_image
+from app.utils.image import download_image
 from app.utils.url import Components
 
 __all__ = [
@@ -50,7 +50,8 @@ def create_image_proxy_url(alias: EmailAlias, original_url: str) -> str:
 
         image.save(str(file))
 
-    proxy_url_content = base64.b64encode((original_url + "." + str(alias.id)).encode("utf-8"))
+    raw_content = original_url + "." + str(file.relative_to(STORAGE_PATH))
+    proxy_url_content = base64.b64encode(raw_content.encode("utf-8"))
     proxy_url_signature = _create_signature(proxy_url_content)
 
     scheme = "https" if not IS_DEBUG else "http"
@@ -61,8 +62,8 @@ def create_image_proxy_url(alias: EmailAlias, original_url: str) -> str:
             url="/v1/proxy/image",
             path="",
             query=urlencode({
-                "url": proxy_url_content,
-                "signature": proxy_url_signature,
+                "data": proxy_url_content.decode("utf-8"),
+                "signature": proxy_url_signature.hex(),
             }),
             fragment="",
         )

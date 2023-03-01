@@ -10,6 +10,7 @@ from .reserved_alias import router as reserved_alias_router
 from .admin import router as admin_router
 from .otp_setup import router as user_otp_router
 from .login_with_email_token import router as login_with_email_token_router
+from .proxy import router as proxy_router
 
 __all__ = [
     "routers",
@@ -28,3 +29,4 @@ routers.include_router(reserved_alias_router, prefix="/v1/reserved-alias")
 routers.include_router(admin_router, prefix="/v1/admin")
 routers.include_router(user_otp_router, prefix="/v1/setup-otp")
 routers.include_router(login_with_email_token_router, prefix="/v1/auth/login/email-token")
+routers.include_router(proxy_router, prefix="/v1/proxy")
