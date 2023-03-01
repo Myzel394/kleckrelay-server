@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import lxml.html
 import requests
 from lxml.etree import _Element, XMLSyntaxError
@@ -11,6 +13,7 @@ from app.email_report_data import (
 from app.models import EmailAlias
 from app.models.constants.alias import PROXY_USER_AGENT_STRING_MAP
 from email_utils.handlers import check_is_url_a_tracker
+from email_utils.image_proxy import create_image_proxy_url
 
 __all__ = [
     "convert_images",
@@ -20,7 +23,6 @@ __all__ = [
 
 
 def convert_images(
-    db: Session,
     report: EmailReportData,
     /,
     alias: EmailAlias,
@@ -34,6 +36,20 @@ def convert_images(
     for image in d("img"):  # type: _Element
         source = image.attrib["src"]
         image.attrib["data-kleckrelay-original-src"] = source
+
+        url = create_image_proxy_url(
+            alias=alias,
+            original_url=source,
+        )
+        image.attrib["src"] = url
+
+        report.proxied_images.append(
+            EmailReportProxyImageData(
+                url=source,
+                created_at=datetime.utcnow(),
+                server_url=url,
+            )
+        )
 
     return d.outer_html()
 

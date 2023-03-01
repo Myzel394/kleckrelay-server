@@ -4,15 +4,11 @@ from urllib.parse import urlencode, urlunparse
 from app.life_constants import IS_DEBUG
 from app.logger import logger
 from app.models import LanguageType
+from app.utils.url import Components
 from email_utils.send_mail import draft_message, send_mail
 
 from app import life_constants
 from email_utils.template_renderer import render
-
-Components = namedtuple(
-    typename='Components',
-    field_names=['scheme', 'netloc', 'url', 'path', 'query', 'fragment'],
-)
 
 
 def _generate_url(email: str, token: str) -> str:
