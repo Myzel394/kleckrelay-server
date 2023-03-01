@@ -107,7 +107,7 @@ def test_can_not_verify_otp_with_incorrect_code(
         "/v1/setup-otp/verify",
         headers=auth["headers"],
         json={
-            "code": int(code) + 1,
+            "code": "123456" if code != "123456" else "654321",
         },
     )
 
