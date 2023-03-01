@@ -23,7 +23,6 @@ class EmailAlias(Base, IDMixin, ModelPreference):
 
     if TYPE_CHECKING:
         from .user import User
-        from .image_proxy import ImageProxy
 
         local: str
         domain: str
@@ -32,7 +31,6 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         encrypted_notes: str
         user_id: str
         user: User
-        image_proxies: list[ImageProxy]
 
         pref_remove_trackers: bool
         pref_create_mail_report: bool
@@ -68,11 +66,6 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         user_id = sa.Column(
             UUID(as_uuid=True),
             ForeignKey("user.id"),
-        )
-        image_proxies = relationship(
-            "ImageProxy",
-            backref="email_alias",
-            cascade="all, delete",
         )
 
         pref_remove_trackers = sa.Column(

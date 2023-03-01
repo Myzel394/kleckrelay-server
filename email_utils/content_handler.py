@@ -1,27 +1,29 @@
+from datetime import datetime
+
 import lxml.html
+import PIL
 import requests
+from fastapi import HTTPException
 from lxml.etree import _Element, XMLSyntaxError
 from pyquery import PyQuery as pq
-from sqlalchemy.orm import Session
 
-from app.controllers.image_proxy import create_image_proxy
 from app.email_report_data import (
     EmailReportData, EmailReportExpandedURLData, EmailReportProxyImageData,
     EmailReportSinglePixelImageTrackerData,
 )
 from app.models import EmailAlias
 from app.models.constants.alias import PROXY_USER_AGENT_STRING_MAP
+from app.utils.image import create_image_url, download_image, save_image
 from email_utils.handlers import check_is_url_a_tracker
 
 __all__ = [
     "convert_images",
-    "remove_single_pixel_image_trackers",
+    "remove_image_trackers",
     "expand_shortened_urls"
 ]
 
 
 def convert_images(
-    db: Session,
     report: EmailReportData,
     /,
     alias: EmailAlias,
@@ -35,16 +37,29 @@ def convert_images(
     for image in d("img"):  # type: _Element
         source = image.attrib["src"]
         image.attrib["data-kleckrelay-original-src"] = source
-        image_proxy = create_image_proxy(db, alias=alias, url=source)
 
-        image.attrib["src"] = image_proxy.generate_url(source)
+        file = None
+
+        try:
+            file = save_image(
+                url=source,
+                alias=alias,
+            )
+        except (HTTPException, PIL.UnidentifiedImageError, ValueError):
+            pass
+
+        url = create_image_url(
+            original_url=source,
+            alias_id=alias.id,
+            file=file,
+        )
+        image.attrib["src"] = url
 
         report.proxied_images.append(
             EmailReportProxyImageData(
                 url=source,
-                image_proxy_id=image_proxy.id,
-                created_at=image_proxy.created_at,
-                server_url=image_proxy.generate_url(source),
+                created_at=datetime.utcnow(),
+                server_url=url,
             )
         )
 
@@ -57,7 +72,7 @@ def check_is_single_pixel_image(image: _Element) -> bool:
            or (str(image.attrib.get("width")) == "1" and str(image.attrib.get("height") == "1"))
 
 
-def remove_single_pixel_image_trackers(report: EmailReportData, /, html: str) -> str:
+def remove_image_trackers(report: EmailReportData, /, html: str) -> str:
     try:
         d = pq(lxml.html.fromstring(html))
     except XMLSyntaxError:

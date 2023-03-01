@@ -9,6 +9,7 @@ __all__ = [
     "JWT_SECRET_KEY",
     "JWT_REFRESH_SECRET_KEY",
     "VERP_SECRET",
+    "IMAGE_PROXY_SECRET",
 ]
 
 SLOW_HASH_SALT = pbkdf2_hmac(
@@ -48,5 +49,12 @@ VERP_SECRET = pbkdf2_hmac(
     "sha256",
     life_constants.KLECK_SECRET.encode(),
     b"KLECKRELAY:VERP_SECRET--JVDUihonseib3vwhrge87",
+    life_constants.KDF_ITERATIONS
+).hex()
+
+IMAGE_PROXY_SECRET = pbkdf2_hmac(
+    "sha256",
+    life_constants.KLECK_SECRET.encode(),
+    b"KLECKRELAY:IMAGE_PROXY_SECRET--uhevfIMUvbt8w4zh8nt7947t6698",
     life_constants.KDF_ITERATIONS
 ).hex()
