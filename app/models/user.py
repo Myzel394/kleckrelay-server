@@ -3,6 +3,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 import bcrypt
 import sqlalchemy as sa
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import InstrumentedList
 
@@ -115,7 +116,10 @@ class User(Base, IDMixin, CreationMixin):
 
     @property
     def has_otp_enabled(self) -> bool:
-        return self.otp is not None and self.otp.is_verified
+        try:
+            return self.otp is not None and self.otp.is_verified
+        except NoResultFound:
+            return False
 
     def encrypt(self, message: str) -> str:
         return str(gpg_handler.encrypt_message(message, self.public_key))

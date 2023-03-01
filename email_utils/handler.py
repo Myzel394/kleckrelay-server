@@ -167,7 +167,11 @@ async def handle(envelope: Envelope, message: Message) -> str:
             )
 
             local, domain = envelope.rcpt_tos[0].split("@")
-            if alias := get_alias_by_local_and_domain(db, local=local, domain=domain):
+            try:
+                alias = get_alias_by_local_and_domain(db, local=local, domain=domain)
+            except NoResultFound:
+                pass
+            else:
                 handle_outside_to_local(
                     db,
                     alias=alias,
