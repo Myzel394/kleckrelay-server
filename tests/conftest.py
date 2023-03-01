@@ -8,6 +8,7 @@ from sqlalchemy_utils import create_database, database_exists
 from starlette.testclient import TestClient
 
 from app import constants, life_constants
+from app.authentication.authentication_response import OTPVerificationStatus
 from app.authentication.handler import access_security, refresh_security
 from app.controllers.alias import generate_random_local_id
 from app.controllers.email_login import generate_token
@@ -153,14 +154,14 @@ def create_auth_tokens(db):
     def _method(user: User) -> dict:
         access_token = access_security.create_access_token(subject={
             "id": str(user.id),
-            "has_otp_verified": False,
+            "otp_status": OTPVerificationStatus.NOT_VERIFIED,
         }),
 
         return {
             "access_token": access_token,
             "refresh_token": refresh_security.create_refresh_token(subject={
                 "id": str(user.id),
-                "has_otp_verified": False,
+                "otp_status": OTPVerificationStatus.NOT_VERIFIED,
             }),
             "headers": {
                 "Authorization": f"Bearer {access_token[0]}"
