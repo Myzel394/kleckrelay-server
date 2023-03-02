@@ -16,6 +16,29 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Clone kleckrelay-email ✉
+      uses: actions/checkout@v2
+      with:
+        repository: myzel394/kleckrelay-email
+        path: email
+
+    - name: Install Node.js 📦
+      uses: actions/setup-node@v2
+      with:
+          node-version: 16
+
+    - name: Install yarn 🧶
+      run: cd emails && npm install -g yarn
+
+    - name: Install dependencies 📦
+      run: cd emails && yarn install --frozen-lockfile
+
+    - name: Build Emails 📩
+      run: cd emails && yarn run export
+
+    - name: Copy Emails 📩
+      run: cp -r ./emails/out/*.html ./templates/emails/
+
     - name: Log into the Container registry 🧑
       uses: docker/login-action@v2
       with:

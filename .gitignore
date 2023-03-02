@@ -266,3 +266,4 @@ db.sqlite-journal
 storage
 tutorial
 letsencrypt
+templates/emails/*.html
