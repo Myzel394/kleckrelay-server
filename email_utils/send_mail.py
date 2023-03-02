@@ -65,9 +65,14 @@ def send_mail(
     to_mail: str,
     from_mail: str = life_constants.FROM_MAIL,
     from_name: Optional[str] = None,
+    extra_headers: dict[str, str] = None,
 ):
     logger.info(f"Send Mail -> Send new mail {from_mail=} {to_mail=}.")
     from_name = from_name or from_mail
+
+    if extra_headers:
+        for header, value in extra_headers.items():
+            set_header(message, header, value)
 
     set_header(
         message,

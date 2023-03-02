@@ -26,7 +26,8 @@ from email_utils.utils import (
 from email_utils.validators import validate_alias
 from . import headers
 from .bounce_messages import (
-    extract_forward_status, extract_forward_status_header, generate_forward_status,
+    extract_forward_status, extract_forward_status_header, extract_reply_to_header,
+    generate_forward_status,
     get_report_from_message, is_not_deliverable, StatusType,
 )
 from .handle_local_to_outside import handle_local_to_outside
@@ -100,6 +101,9 @@ async def handle(envelope: Envelope, message: Message) -> str:
                                 }
                             ),
                             to_mail=alias.user.email.address,
+                            extra_headers={
+                                headers.REPLY_TO: extract_reply_to_header(report_message),
+                            }
                         )
 
                         return status.E200
@@ -127,6 +131,9 @@ async def handle(envelope: Envelope, message: Message) -> str:
                                 }
                             ),
                             to_mail=envelope.rcpt_tos[0],
+                            extra_headers={
+                                headers.REPLY_TO: extract_reply_to_header(report_message),
+                            }
                         )
 
                         return status.E200
