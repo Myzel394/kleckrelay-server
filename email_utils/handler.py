@@ -243,6 +243,9 @@ async def handle(envelope: Envelope, message: Message) -> str:
                     },
                 ),
                 to_mail=envelope.mail_from,
+                extra_headers={
+                    headers.REPLY_TO: message.get(headers.REPLY_TO, ""),
+                }
             )
 
             return error.status_code or status.E501
