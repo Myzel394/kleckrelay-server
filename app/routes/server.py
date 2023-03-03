@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 
 from app import constants, life_constants, gpg_handler, logger
 from app.constant_keys import INSTANCE_SALT

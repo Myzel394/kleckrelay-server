@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 import sqlalchemy as sa
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.database.base import Base
 from app.life_constants import MAX_ENCRYPTED_NOTES_SIZE

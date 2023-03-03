@@ -12,8 +12,7 @@ from app.models import ReservedAlias, User
 from app.models.reserved_alias import ReservedAliasUser as ReservedAliasUserModel
 from app.schemas.reserved_alias import (
     ReservedAliasCreate, ReservedAliasCreateUser,
-    ReservedAliasUpdate, ReservedAliasUser,
-)
+    ReservedAliasUpdate, )
 
 __all__ = [
     "find_reserved_aliases_ordered",

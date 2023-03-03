@@ -6,7 +6,7 @@ from email.message import Message
 
 from app import life_constants, logger
 from . import headers
-from .headers import delete_header, set_header
+from .headers import delete_header
 from .utils import message_to_bytes
 
 

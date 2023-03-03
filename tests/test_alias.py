@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from app import constants, life_constants
+from app import life_constants
 from app.models.alias import DeletedEmailAlias
 from app.models.enums.alias import AliasType
 

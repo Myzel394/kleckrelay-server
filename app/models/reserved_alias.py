@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
-from sqlalchemy import Column, ForeignKey, Table
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import InstrumentedList

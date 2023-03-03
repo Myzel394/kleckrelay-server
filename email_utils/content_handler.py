@@ -13,7 +13,7 @@ from app.email_report_data import (
 )
 from app.models import EmailAlias
 from app.models.constants.alias import PROXY_USER_AGENT_STRING_MAP
-from app.utils.image import create_image_url, download_image, save_image
+from app.utils.image import create_image_url, save_image
 from email_utils.handlers import check_is_url_a_tracker
 
 __all__ = [

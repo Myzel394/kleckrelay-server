@@ -5,7 +5,7 @@ from typing import Optional
 from urllib.parse import urlparse
 
 from app.constants import ROOT_DIR
-from email_utils.trackers_handler_types import TrackerData, TrackerPattern, TrackersJsonFile
+from email_utils.trackers_handler_types import TrackerData, TrackersJsonFile
 from email_utils.url_shorteners_handler_types import ShortenerData, UrlShortenersJsonFile
 
 TRACKERS_PATH = ROOT_DIR / "assets" / "trackers.json"

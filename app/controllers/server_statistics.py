@@ -2,8 +2,6 @@ from typing import Optional
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-
-from app import life_constants
 from app.controllers import global_settings as settings
 
 from app.models import ServerStatistics
