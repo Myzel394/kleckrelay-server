@@ -5,8 +5,6 @@ from datetime import datetime, timedelta
 
 from pathlib import Path
 
-from email_utils import headers
-
 __all__ = [
     "LOCAL_REGEX",
     "DOMAIN_REGEX",

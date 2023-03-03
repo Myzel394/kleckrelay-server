@@ -1,5 +1,4 @@
 import secrets
-import string
 
 import pyotp
 from sqlalchemy.orm import Session
@@ -15,7 +14,7 @@ __all__ = [
     "delete_otp",
 ]
 
-from app.utils.hashes import hash_fast, hash_slowly
+from app.utils.hashes import hash_slowly
 
 
 def _create_recovery_code() -> str:
