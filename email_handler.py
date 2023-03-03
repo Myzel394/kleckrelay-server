@@ -8,7 +8,7 @@ from aiosmtpd.smtp import Envelope
 
 from app import life_constants, logger
 from email_utils import status
-from email_utils.bounce_messages import is_bounce, is_not_deliverable
+from email_utils.bounce_messages import is_not_deliverable
 from email_utils.errors import EmailHandlerError
 from email_utils.handler import handle
 from email_utils.sanitizers import sanitize_envelope, sanitize_message
