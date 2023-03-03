@@ -50,6 +50,8 @@ def get_alias(db: Session, /, local: str, domain: str) -> Union[Alias, ReservedA
 async def handle(envelope: Envelope, message: Message) -> str:
     logger.info("Retrieving mail from database.")
 
+    original_message_id = ""
+
     with with_db() as db:
         try:
             original_message_id = message[headers.MESSAGE_ID] or ""
