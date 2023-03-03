@@ -13,6 +13,7 @@ TEMPLATE_DIR = ROOT_DIR / "templates" / "emails"
 
 env = Environment(
     loader=FileSystemLoader(str(TEMPLATE_DIR.absolute())),
+    autoescape=True,
 )
 
 
