@@ -60,15 +60,8 @@ def message_to_bytes(message: Message) -> bytes:
     return message_string.encode(errors="replace")
 
 
-def get_user_aliases(user: User, /) -> set[EmailAlias]:
-    return {
-        alias
-        for alias in user.email_aliases
-    }
-
-
 def find_alias_for_full_address(user: User, /, email: str) -> EmailAlias:
-    for alias in get_user_aliases(user):
+    for alias in user.email_aliases:
         if email.endswith(f"_{alias.address}"):
             return alias
 
