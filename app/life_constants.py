@@ -107,6 +107,8 @@ def get_path(name: str, default: Optional[str] = None, must_exist: bool = True) 
             f"Please create it or specify a different path."
         )
 
+    return value
+
 
 def get_list(name: str, default: list = None) -> list:
     default = default or []
