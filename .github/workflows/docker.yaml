@@ -28,13 +28,13 @@ jobs:
           node-version: 16
 
     - name: Install yarn 🧶
-      run: cd emails && npm install -g yarn
+      run: cd kleckrelay-email && npm install -g yarn
 
     - name: Install dependencies 📦
-      run: cd emails && yarn install --frozen-lockfile
+      run: cd kleckrelay-email && yarn install --frozen-lockfile
 
     - name: Build Emails 📩
-      run: cd emails && yarn run export
+      run: cd kleckrelay-email && yarn run export
 
     - name: Copy Emails 📩
       run: cp -r ./emails/out/*.html ./templates/emails/
