@@ -1,3 +1,5 @@
+from typing import Union
+
 from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
@@ -84,12 +86,8 @@ async def create_login_with_email_token(
 
 @router.post(
     "/verify",
-    response_model=UserDetail,
+    response_model=Union[UserDetail, LoginWithEmailOTPRequiredResponseModel],
     responses={
-        200: {
-            "model": UserDetail,
-            "description": "User was successfully logged in (No OTP active).",
-        },
         202: {
             "model": LoginWithEmailOTPRequiredResponseModel,
             "description": "User was successfully logged in, but OTP is required.",
