@@ -54,7 +54,7 @@ def message_to_bytes(message: Message) -> bytes:
 
     try:
         return message_string.encode()
-    except:
+    except UnicodeEncodeError:
         pass
 
     return message_string.encode(errors="replace")
