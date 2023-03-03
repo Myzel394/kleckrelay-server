@@ -84,6 +84,7 @@ async def create_login_with_email_token(
 
 @router.post(
     "/verify",
+    response_model=UserDetail,
     responses={
         200: {
             "model": UserDetail,

@@ -18,12 +18,15 @@ FALLBACK_TYPE = ImageProxyFormatType(life_constants.IMAGE_PROXY_FALLBACK_IMAGE_T
 FALLBACK_USER_AGENT = ProxyUserAgentType(life_constants.IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE)
 
 
-@router.get("/image", responses={
-    403: {
-        "model": HTTPBadRequestExceptionModel,
-        "description": "Invalid signature.",
-    },
-})
+@router.get(
+    "/image",
+    responses={
+        403: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "Invalid signature.",
+        },
+    }
+)
 def proxy_image(
     db: Session = Depends(get_db),
     data: str = Query(..., description="The data of the request."),

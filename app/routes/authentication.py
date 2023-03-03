@@ -26,7 +26,7 @@ from app.dependencies.get_user import get_user
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.models import User
 from app.schemas._basic import (
-    HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel,
+    HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel, SimpleDetailResponseModel,
 )
 from app.schemas.authentication import (
     ResendEmailAlreadyVerifiedResponseModel, ResendEmailModel, SignupResponseModel,
@@ -99,6 +99,7 @@ async def signup(
 
 @router.post(
     "/resend-email",
+    response_model=SimpleDetailResponseModel,
     responses={
         404: {
             "model": HTTPNotFoundExceptionModel,
