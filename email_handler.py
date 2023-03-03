@@ -8,6 +8,7 @@ from aiosmtpd.smtp import Envelope
 
 from app import life_constants, logger
 from email_utils import status
+from email_utils.bounce_messages import is_bounce, is_not_deliverable
 from email_utils.errors import EmailHandlerError
 from email_utils.handler import handle
 from email_utils.sanitizers import sanitize_envelope, sanitize_message
@@ -32,13 +33,16 @@ class ExampleHandler:
     async def handle_DATA(self, server, session, envelope: Envelope):
         logger.info("New DATA received. Validating data...")
 
+        message = None
+
         try:
             envelope, message = self.validate(envelope)
 
             logger.info(f"New mail received from {envelope.mail_from} to {envelope.rcpt_tos[0]}")
 
-            if len(envelope.rcpt_tos) != 1:
+            if len(envelope.rcpt_tos) != 1 and not is_not_deliverable(envelope, message):
                 send_mail(
+                    to_mail=envelope.mail_from,
                     message=draft_message(
                         template="not-deliverable-to-server",
                         subject="Your email could not be delivered",
@@ -70,8 +74,9 @@ class ExampleHandler:
         except EmailHandlerError as error:
             logger.info("An EmailHandlerError occurred while handling the mail.")
 
-            if not error.avoid_error_email:
+            if not error.avoid_error_email and not is_not_deliverable(envelope, message):
                 send_mail(
+                    to_mail=envelope.mail_from,
                     message=draft_message(
                         template="not-deliverable-to-server",
                         subject="Your email could not be delivered",
