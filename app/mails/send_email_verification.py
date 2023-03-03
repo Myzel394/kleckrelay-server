@@ -1,4 +1,3 @@
-from collections import namedtuple
 from urllib.parse import urlencode, urlunparse
 
 from app.life_constants import IS_DEBUG
@@ -8,7 +7,6 @@ from app.utils.url import Components
 from email_utils.send_mail import draft_message, send_mail
 
 from app import life_constants
-from email_utils.template_renderer import render
 
 
 def _generate_url(email: str, token: str) -> str:

@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
 
 from app import logger
 from app.authentication.authentication_response import (

@@ -9,7 +9,7 @@ from app.controllers.alias import (
     create_alias, delete_alias, find_aliases_from_user_ordered, get_alias_from_user,
     update_alias,
 )
-from app.controllers.global_settings import get_settings, get_settings_model
+from app.controllers.global_settings import get_settings_model
 from app.database.dependencies import get_db
 from app.dependencies.get_instance_from_user import get_instance_from_user
 from app.dependencies.get_user import get_user

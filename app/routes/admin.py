@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 
 from app import life_constants, logger
 from app.controllers.admin import get_admin_users

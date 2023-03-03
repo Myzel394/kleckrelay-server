@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from email_utils.utils import DataclassJSONEncoder
 from .admin import get_admin_users
 from app.cron_report_builder import CronReportBuilder
-from app.models import CronReport, CronReportData, User
+from app.models import CronReport, CronReportData
 from .. import life_constants
 from ..gpg_handler import sign_message
 

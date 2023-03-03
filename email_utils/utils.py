@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from app import constants, life_constants
 from app.models import Email, EmailAlias, LanguageType, User
 from email_utils import status
-from email_utils.errors import AliasNotFoundError, InvalidEmailError
+from email_utils.errors import AliasNotFoundError
 
 __all__ = [
     "generate_message_id",

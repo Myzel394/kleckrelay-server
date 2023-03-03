@@ -4,14 +4,10 @@ from email.message import Message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any, Optional
-import lxml.html
-from pyquery import PyQuery as pq
 
 from app import life_constants, logger
-from app.models import LanguageType
 from . import formatters, headers
 from .bounce_messages import generate_forward_status, StatusType
-from .errors import EmailHandlerError
 from .headers import set_header
 from .template_renderer import render
 from .utils import message_to_bytes

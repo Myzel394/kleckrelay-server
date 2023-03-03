@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException, Response, Security
@@ -14,9 +14,7 @@ from app.authentication.authentication_response import (
     OTPVerificationStatus, set_authentication_cookies,
 )
 from app.authentication.errors import (
-    TokenIncorrectError, TokenExpiredError,
-    TokenMaxTriesReachedError, TokenCorsInvalidError,
-)
+    TokenIncorrectError, )
 from app.authentication.handler import access_security, refresh_security
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
 from app.controllers.global_settings import get_settings_model

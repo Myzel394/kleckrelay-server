@@ -2,7 +2,6 @@ from app import life_constants
 from app.logger import logger
 from app.models.user import User
 from email_utils.send_mail import draft_message, send_mail
-from email_utils.template_renderer import render
 
 
 def send_email_login_token(user: User, token: str) -> None:
