@@ -132,12 +132,13 @@ def is_bounce(envelope: Envelope, message: Message) -> bool:
     return envelope.mail_from == "<>" and message.get_content_type().lower() == "multipart/report"
 
 
-def is_not_deliverable(envelope: Envelope, message: Message) -> bool:
+def is_not_deliverable(envelope: Envelope, message: Optional[Message] = None) -> bool:
     if envelope.mail_from == "<>":
         return True
 
-    if (from_header := message.get(headers.FROM)) is not None:
-        return is_local_a_bounce_address(from_header.split("@")[0])
+    if message is None:
+        if (from_header := message.get(headers.FROM)) is not None:
+            return is_local_a_bounce_address(from_header.split("@")[0])
 
     return False
 

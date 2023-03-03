@@ -142,7 +142,7 @@ def update_reserved_alias_api(
         }
     }
 )
-def update_reserved_alias_api(
+def delete_reserved_alias_api(
     id: uuid.UUID,
     _: User = Depends(get_admin_user),
     db: Session = Depends(get_db),

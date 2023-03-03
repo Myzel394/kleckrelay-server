@@ -62,6 +62,8 @@ __all__ = [
     "IMAGE_PROXY_HMAC_ALGORITHM",
     "IMAGE_PROXY_FALLBACK_IMAGE_TYPE",
     "IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE",
+    "EMAIL_HANDLER_HOST",
+    "RECOVERY_CODES_AMOUNT",
 ]
 
 load_dotenv()
@@ -104,6 +106,8 @@ def get_path(name: str, default: Optional[str] = None, must_exist: bool = True) 
             f"Doctor: Tried to get path {value} for constant {name}, but it does not exist. "
             f"Please create it or specify a different path."
         )
+
+    return value
 
 
 def get_list(name: str, default: list = None) -> list:
@@ -174,3 +178,4 @@ RECOVERY_CODES_AMOUNT = get_int("RECOVERY_CODES_AMOUNT")
 IMAGE_PROXY_HMAC_ALGORITHM = get_str("IMAGE_PROXY_HMAC_ALGORITHM")
 IMAGE_PROXY_FALLBACK_IMAGE_TYPE = get_str("IMAGE_PROXY_FALLBACK_IMAGE_TYPE")
 IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE = get_str("IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE")
+EMAIL_HANDLER_HOST = get_str("EMAIL_HANDLER_HOST")
