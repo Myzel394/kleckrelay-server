@@ -28,16 +28,16 @@ jobs:
           node-version: 16
 
     - name: Install yarn 🧶
-      run: cd kleckrelay-email && npm install -g yarn
+      run: cd email && npm install -g yarn
 
     - name: Install dependencies 📦
-      run: cd kleckrelay-email && yarn install --frozen-lockfile
+      run: cd email && yarn install --frozen-lockfile
 
     - name: Build Emails 📩
-      run: cd kleckrelay-email && yarn run export
+      run: cd email && yarn run export
 
     - name: Copy Emails 📩
-      run: cp -r ./emails/out/*.html ./templates/emails/
+      run: cp -r ./email/out/*.html ./templates/emails/
 
     - name: Log into the Container registry 🧑
       uses: docker/login-action@v2
