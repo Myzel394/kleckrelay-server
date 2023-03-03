@@ -21,15 +21,15 @@ __all__ = [
     "is_not_deliverable",
     "get_report_from_message",
     "extract_forward_status_header",
-    "extract_reply_to_header",
+    "extract_in_reply_to_header",
 ]
 
 
 FORWARD_STATUS_HEADER_REGEX = re.compile(
     rf"\n{headers.KLECK_FORWARD_STATUS}:\s+([a-z0-9]+\.[a-z0-9]+)\n"
 )
-REPLY_TO_HEADER_REGEX = re.compile(
-    rf"\n{headers.REPLY_TO}:\s+( -~)\n"
+IN_REPLY_TO_HEADER_REGEX = re.compile(
+    rf"\n{headers.IN_REPLY_TO}:\s+( -~)\n"
 )
 
 
@@ -123,8 +123,8 @@ def extract_forward_status_header(message: Message) -> Optional[str]:
         return result.group(1)
 
 
-def extract_reply_to_header(message: Message) -> Optional[str]:
-    if (result := REPLY_TO_HEADER_REGEX.search(message.as_string())) is not None:
+def extract_in_reply_to_header(message: Message) -> Optional[str]:
+    if (result := IN_REPLY_TO_HEADER_REGEX.search(message.as_string())) is not None:
         return result.group(1)
 
 

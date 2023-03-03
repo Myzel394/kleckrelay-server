@@ -26,7 +26,7 @@ from email_utils.utils import (
 from email_utils.validators import validate_alias
 from . import headers
 from .bounce_messages import (
-    extract_forward_status, extract_forward_status_header, extract_reply_to_header,
+    extract_forward_status, extract_forward_status_header, extract_in_reply_to_header,
     generate_forward_status,
     get_report_from_message, is_not_deliverable, StatusType,
 )
@@ -52,6 +52,7 @@ async def handle(envelope: Envelope, message: Message) -> str:
 
     with with_db() as db:
         try:
+            original_message_id = message[headers.MESSAGE_ID] or ""
             message_id = generate_message_id()
             set_header(message, headers.MESSAGE_ID, message_id)
 
@@ -102,7 +103,7 @@ async def handle(envelope: Envelope, message: Message) -> str:
                             ),
                             to_mail=alias.user.email.address,
                             extra_headers={
-                                headers.REPLY_TO: extract_reply_to_header(report_message),
+                                headers.IN_REPLY_TO: extract_in_reply_to_header(report_message),
                             }
                         )
 
@@ -132,7 +133,7 @@ async def handle(envelope: Envelope, message: Message) -> str:
                             ),
                             to_mail=envelope.rcpt_tos[0],
                             extra_headers={
-                                headers.REPLY_TO: extract_reply_to_header(report_message),
+                                headers.REPLY_TO: extract_in_reply_to_header(report_message),
                             }
                         )
 
@@ -244,7 +245,7 @@ async def handle(envelope: Envelope, message: Message) -> str:
                 ),
                 to_mail=envelope.mail_from,
                 extra_headers={
-                    headers.REPLY_TO: message._headers.get(headers.REPLY_TO, ""),
+                    headers.IN_REPLY_TO: original_message_id,
                 }
             )
 
