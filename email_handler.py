@@ -103,7 +103,11 @@ class ExampleHandler:
 
 
 def main():
-    controller = Controller(ExampleHandler(), hostname="0.0.0.0", port=20381)
+    controller = Controller(
+        ExampleHandler(),
+        hostname=life_constants.EMAIL_HANDLER_HOST,
+        port=20381
+    )
     controller.start()
 
     while True:
