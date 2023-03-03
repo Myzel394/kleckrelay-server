@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from app import life_constants
+from app import constants, life_constants
 from app.models.alias import DeletedEmailAlias
 from app.models.enums.alias import AliasType
 
@@ -22,8 +22,6 @@ def test_can_create_random_alias(
         },
         headers=auth["headers"]
     )
-    print("======================")
-    print(response.json())
 
     assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
 

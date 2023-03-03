@@ -24,7 +24,9 @@ __all__ = [
     "generate_random_local_id",
     "create_alias",
     "update_alias",
-    "delete_alias"
+    "delete_alias",
+    "get_alias_by_id",
+    "get_alias_by_local_and_domain",
 ]
 
 
@@ -101,6 +103,20 @@ def get_alias_from_user(db: Session, /, user: User, id: uuid.UUID) -> EmailAlias
     return db \
         .query(EmailAlias) \
         .filter(and_(EmailAlias.user == user, EmailAlias.id == id)) \
+        .one()
+
+
+def get_alias_by_id(db: Session, /, id: uuid.UUID) -> EmailAlias:
+    return db \
+        .query(EmailAlias) \
+        .filter(EmailAlias.id == id) \
+        .one()
+
+
+def get_alias_by_local_and_domain(db: Session, /, local: str, domain: str) -> EmailAlias:
+    return db \
+        .query(EmailAlias) \
+        .filter(and_(EmailAlias.local == local, EmailAlias.domain == domain)) \
         .one()
 
 

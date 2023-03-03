@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, Response, Security
+from datetime import datetime, timedelta
+
+import pyotp
+from fastapi import APIRouter, Depends, HTTPException, Response, Security
 from fastapi_jwt import JwtAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
@@ -8,40 +11,30 @@ from starlette.responses import JSONResponse
 
 from app import constants, life_constants, logger
 from app.authentication.authentication_response import (
-    set_authentication_cookies,
+    OTPVerificationStatus, set_authentication_cookies,
 )
 from app.authentication.errors import (
-    EmailIncorrectTokenError, EmailLoginTokenExpiredError,
-    EmailLoginTokenMaxTriesReachedError, EmailLoginTokenSameRequestTokenInvalidError,
+    TokenIncorrectError, TokenExpiredError,
+    TokenMaxTriesReachedError, TokenCorsInvalidError,
 )
-from app.authentication.handler import refresh_security
+from app.authentication.handler import access_security, refresh_security
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
-from app.controllers.email_login import (
-    change_allow_login_from_different_devices, create_email_login_token,
-    delete_email_login_token, get_email_login_token_from_email, is_token_valid,
-)
-from app.controllers.global_settings import get_settings, get_settings_model
+from app.controllers.global_settings import get_settings_model
 from app.controllers.user import (
-    check_if_email_exists, create_user,
-    get_user_by_email, get_user_by_id,
+    check_if_email_exists, create_user, get_user_by_id,
 )
 from app.database.dependencies import get_db
-from app.dependencies.email_login import get_email_login_token
 from app.dependencies.get_user import get_user
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
-from app.mails.send_email_login_token import send_email_login_token
-from app.models import EmailLoginToken, User
+from app.models import User
 from app.schemas._basic import (
     HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel,
-    SimpleDetailResponseModel,
 )
 from app.schemas.authentication import (
-    EmailLoginTokenResponseModel,
-    EmailLoginTokenVerifyModel,
-    LoginWithEmailTokenModel,
     ResendEmailAlreadyVerifiedResponseModel, ResendEmailModel, SignupResponseModel,
     VerifyEmailModel,
 )
+from app.schemas.otp_authentication import VerifyOTPAuthenticationModel
 from app.schemas.user import UserCreate, UserDetail
 
 router = APIRouter()
@@ -189,7 +182,11 @@ def signup_verify_email(
             f"Request: Verify Email -> Done verifying {email.address}. Returning credentials."
         )
 
-        set_authentication_cookies(response, email.user)
+        set_authentication_cookies(
+            response,
+            email.user,
+            otp_status=OTPVerificationStatus.NOT_VERIFIED
+        )
 
         return email.user
     except NoResultFound:
@@ -205,7 +202,7 @@ def signup_verify_email(
                 detail=default_error_message,
             )
 
-    except EmailIncorrectTokenError:
+    except TokenIncorrectError:
         if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
             raise HTTPException(
                 status_code=400,
@@ -219,243 +216,103 @@ def signup_verify_email(
 
 
 @router.post(
-    "/login/email-token",
-    response_model=EmailLoginTokenResponseModel,
+    "/login/verify-otp",
+    response_model=UserDetail,
     responses={
-        404: {
-            "model": HTTPNotFoundExceptionModel,
-        }
+        400: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "No OTP challenge found. Please request one."
+        },
+        410: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "OTP code expired."
+        },
     }
 )
-async def login_with_email_token(
-    input_data: LoginWithEmailTokenModel,
-    db: Session = Depends(get_db),
+async def verify_otp_api(
+    data: VerifyOTPAuthenticationModel,
+    response: Response,
+    user: User = Depends(get_user),
+    credentials: JwtAuthorizationCredentials = Security(access_security),
 ):
-    logger.info("Request: Login with email token -> New Request.")
-    email = input_data.email
+    logger.info(
+        f"Request: Verify OTP -> New request from {user=} with {credentials=}."
+    )
 
-    # No other error can occur, so we can simply return if the email doesn't exist
-    if not (await check_if_email_exists(db, email)):
-        logger.info(f"Request: Login with email token -> Email {email} not found.")
-        raise HTTPException(
-            status_code=404,
-            detail="Email not found."
+    otp_status = OTPVerificationStatus(credentials["otp_status"])
+
+    if otp_status is not OTPVerificationStatus.CHALLENGED:
+        logger.info(
+            f"Request: Verify OTP -> {user=} has not challenged an OTP."
         )
-
-    user = await get_user_by_email(db, email=email)
-
-    if not user.email.is_verified:
-        logger.info(f"Request: Login with email token -> Email {email} not verified.")
-
-        send_verification_email(user.email, language=user.language)
 
         raise HTTPException(
             status_code=400,
-            detail="Your email has not been verified. Please verify it.",
+            detail="No OTP challenge found. Please request one.",
         )
 
-    logger.info(f"Request: Login with email token -> Create email login token for {email}.")
-    token_data = create_email_login_token(db, user=user)
+    challenged_at = datetime.fromisoformat(credentials["otp_challenged_at"])
 
-    return {
-        "same_request_token": token_data[1],
-        "detail": "An email was sent."
-    }
-
-
-@router.post(
-    "/login/email-token/verify",
-    response_model=UserDetail,
-    responses={
-        404: {
-            "model": HTTPNotFoundExceptionModel,
-        },
-        400: {
-            "model": HTTPBadRequestExceptionModel,
-        }
-    }
-)
-async def verify_email_token(
-    response: Response,
-    input_data: EmailLoginTokenVerifyModel,
-    db: Session = Depends(get_db),
-):
-    logger.info(f"Request: Verify Email Token -> New verification request for {input_data.email}.")
-    default_error_message = "Email or token or same request token invalid or no token found."
-
-    if email_login := (await get_email_login_token_from_email(db, email=input_data.email)):
-        try:
-            is_valid = is_token_valid(
-                db,
-                instance=email_login,
-                token=input_data.token,
-                same_request_token=input_data.same_request_token
-            )
-        except EmailLoginTokenExpiredError:
-            logger.info(
-                f"Request: Verify Email Token -> Token for {input_data.email} expired."
-            )
-
-            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Token expired. Please request a new one.",
-                )
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail=default_error_message,
-                )
-        except EmailLoginTokenMaxTriesReachedError:
-            logger.info(
-                f"Request: Verify Email Token -> Token for {input_data.email} has exceeded its "
-                f"tries."
-            )
-
-            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Token tries exceeded. Please request a new one.",
-                )
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail=default_error_message,
-                )
-        except EmailLoginTokenSameRequestTokenInvalidError:
-            logger.info(
-                f"Request: Verify Email Token -> Same request token for {input_data.email} is "
-                f"invalid."
-            )
-
-            if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Same request token invalid.",
-                )
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail=default_error_message,
-                )
-        else:
-            if not is_valid:
-                logger.info(
-                    f"Request: Verify Email Token -> Token for {input_data.email} incorrect."
-                )
-                if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Token invalid.",
-                    )
-                else:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=default_error_message,
-                    )
-
-            logger.info(
-                f"Request: Verify Email Token -> Token for {input_data.email} correct. Proceeding."
-            )
-
-            user = email_login.user
-
-            logger.info(
-                f"Request: Verify Email Token -> Removing Email Login Token for {input_data.email}."
-            )
-            # Clean up the token
-            delete_email_login_token(db, email_login)
-
-            logger.info(
-                f"Request: Verify Email Token -> Returning credentials for {input_data.email}"
-            )
-
-            set_authentication_cookies(response, user)
-
-            return user
-    else:
+    if challenged_at < datetime.utcnow() - constants.OTP_TIMEOUT:
         logger.info(
-            f"Request: Verify Email Token -> No Login Token for {input_data.email} found."
+            f"Request: Verify OTP -> {user=} has challenged an OTP but it has expired."
         )
 
-        if EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS:
-            raise HTTPException(
-                status_code=404,
-                detail="No Token found. Please request one.",
-            )
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail=default_error_message,
-            )
+        raise HTTPException(
+            status_code=410,
+            detail="OTP challenge expired. Please request a new one.",
+        )
 
+    expected_code = pyotp.TOTP(user.otp.secret).now()
 
-@router.post(
-    "/login/email-token/resend-email",
-    response_model=SimpleDetailResponseModel,
-    responses={
-        404: {
-            "model": HTTPBadRequestExceptionModel,
-            "description": "No current email login token found. Please request one."
-        }
-    }
-)
-async def resend_email_login_token(
-    email_login: EmailLoginToken = Depends(get_email_login_token),
-):
-    logger.info(
-        f"Request: Resend Email Login Token: New Request for {email_login.user.email.address}."
-    )
+    if data.code != expected_code:
+        logger.info(
+            f"Request: Verify OTP -> {user=} has challenged an OTP but the code is incorrect."
+        )
 
-    send_email_login_token(
-        user=email_login.user,
-        token=email_login.token,
-    )
+        raise HTTPException(
+            status_code=400,
+            detail="OTP code is incorrect.",
+        )
 
-    return {
-        "detail": "Login code was resent."
-    }
+    logger.info(f"Request: Verify OTP -> Token for {user=} correct. Returning credentials.")
+    set_authentication_cookies(response, user, otp_status=OTPVerificationStatus.VERIFIED)
 
-
-@router.patch(
-    "/login/email-token/allow-login-from-different-devices",
-    response_model=SimpleDetailResponseModel,
-    responses={
-        404: {
-            "model": HTTPBadRequestExceptionModel,
-            "description": "No current email login token found. Please request one."
-        }
-    }
-)
-async def email_login_allow_login_from_different_devices(
-    allow: bool = Body(..., example=True),
-    db: Session = Depends(get_db),
-    email_login_token: EmailLoginToken = Depends(get_email_login_token),
-):
-    change_allow_login_from_different_devices(
-        db,
-        email_login_token,
-        allow,
-    )
-
-    return {
-        "detail": "Login from different devices updated."
-    }
+    return user
 
 
 @router.post(
     "/refresh",
     response_model=UserDetail,
+    responses={
+        "404": {
+            "model": HTTPNotFoundExceptionModel,
+            "description": "User account not found."
+        }
+    }
 )
 async def refresh_token(
     response: Response,
-    user: User = Depends(get_user),
+    credentials: JwtAuthorizationCredentials = Security(refresh_security),
+    db: Session = Depends(get_db),
 ):
     logger.info("Request: Refresh -> New Request to refresh JWT token.")
 
+    try:
+        user = get_user_by_id(db, credentials["id"])
+    except NoResultFound:
+        raise HTTPException(
+            status_code=404,
+            detail="User account not found.",
+        )
+
     logger.info("Request: Refresh -> Returning new credentials.")
 
-    set_authentication_cookies(response, user)
+    set_authentication_cookies(
+        response,
+        user,
+        otp_status=OTPVerificationStatus(credentials["otp_status"])
+    )
 
     return user
 

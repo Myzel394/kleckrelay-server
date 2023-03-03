@@ -12,14 +12,12 @@ _all__ = [
 @dataclass
 class EmailReportProxyImageData:
     url: str
-    image_proxy_id: str
     server_url: str
     created_at: datetime.datetime
 
     def as_dict(self) -> dict[str, str]:
         return {
             "url": self.url,
-            "image_proxy_id": str(self.image_proxy_id),
             "server_url": self.server_url,
             "created_at": self.created_at.isoformat(),
         }
@@ -83,7 +81,7 @@ class EmailReportData:
                     "message_id": self.message_id,
                     "from": self.mail_from,
                     "to": self.mail_to,
-                    "created_at": datetime.datetime.now().isoformat(),
+                    "created_at": datetime.datetime.utcnow().isoformat(),
                 },
                 "content": {
                     "subject": self.subject,

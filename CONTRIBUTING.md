@@ -10,6 +10,10 @@ as follows:
 This setup makes it easier to debug the application as you will not need to rebuild
 the whole docker images each time you change something.
 
+If you prefer simplicity however, you can also simply rebuild the docker image
+each time you change something, but this will be slower.
+The command for this is `docker-compose up --force-recreate --build`.
+
 Here's what to do based on what you want to contribute to
 
 ## Main Worker

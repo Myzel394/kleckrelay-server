@@ -2,6 +2,7 @@ from mailbox import Message
 
 from aiosmtpd.smtp import Envelope
 
+from app import logger
 from .validators import validate_envelope
 
 __all__ = [
@@ -14,11 +15,14 @@ def sanitize_mail(mail: str) -> str:
 
 
 def sanitize_envelope(envelope: Envelope) -> None:
-    envelope.mail_from = sanitize_mail(envelope.mail_from)
+    logger.info("Sanitizing envelope...")
+    envelope.mail_from = sanitize_mail(envelope.mail_from) if envelope.mail_from else None
     envelope.rcpt_tos = [
         sanitize_mail(mail)
         for mail in envelope.rcpt_tos
     ]
+
+    logger.info("Validating envelope...")
 
     validate_envelope(envelope)
 

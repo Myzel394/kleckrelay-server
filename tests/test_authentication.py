@@ -139,7 +139,7 @@ def test_can_verify_email_with_correct_token(
             "token": "abc",
         }
     )
-    print("========================")
+
     assert response.status_code == 200, "Status code should be 200"
     assert is_a_jwt_token(response.cookies.get(constants.ACCESS_TOKEN_COOKIE_NAME)), \
         f"Cookie {constants.ACCESS_TOKEN_COOKIE_NAME} should be a jwt token."

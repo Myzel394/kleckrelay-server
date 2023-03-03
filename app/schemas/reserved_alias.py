@@ -11,6 +11,9 @@ __all__ = [
     "ReservedAliasDetail",
 ]
 
+from app.utils.email import is_local_a_bounce_address
+
+
 # Utils
 
 
@@ -55,10 +58,15 @@ class ReservedAliasCreate(ReservedAliasBase):
         regex=LOCAL_REGEX,
         default=None,
         max_length=MAX_LOCAL_LENGTH,
-        description="Only required if type == AliasType.CUSTOM. To avoid collisions, a random "
-                    "suffix will be added to the end.",
     )
     users: list[ReservedAliasCreateUser]
+
+    @validator("local")
+    def check_local_is_not_a_forbidden_name(cls, value: str) -> str:
+        if is_local_a_bounce_address(value):
+            raise ValueError(f"This address cannot be used as it is required by the system.")
+
+        return value
 
     @validator("users")
     def check_users(cls, value: list[ReservedAliasCreateUser]) -> list[ReservedAliasCreateUser]:

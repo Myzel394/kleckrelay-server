@@ -14,11 +14,15 @@ __all__ = [
 
 
 def validate_email(email: str) -> None:
+    if email == "<>":
+        return
+
     if not re.match(constants.RELAY_EMAIL_REGEX, email):
         raise InvalidEmailError()
 
 
 def validate_envelope(envelope: Envelope) -> None:
+    # "<>" is required for bounce emails
     validate_email(envelope.mail_from)
 
     for mail in envelope.rcpt_tos:

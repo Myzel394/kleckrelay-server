@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 
 from . import default_life_constants
 
+# We should probably add a feature to "lock" environment variables or at least show the hash of
+# non-admin constants to prevent changes.
+
 __all__ = [
     "DB_URI",
     "MAX_ENCRYPTED_NOTES_SIZE",
@@ -52,6 +55,13 @@ __all__ = [
     "SUPPORT_MAIL_FROM_NAME",
     "KDF_ITERATIONS",
     "KLECK_SECRET",
+    "VERP_HMAC_ALGORITHM",
+    "OTP_MAX_TRIES",
+    "RECOVERY_CODE_CHARS",
+    "RECOVERY_CODE_LENGTH",
+    "IMAGE_PROXY_HMAC_ALGORITHM",
+    "IMAGE_PROXY_FALLBACK_IMAGE_TYPE",
+    "IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE",
 ]
 
 load_dotenv()
@@ -156,3 +166,11 @@ KEEP_CRON_JOBS_AMOUNT = get_int("KEEP_CRON_JOBS_AMOUNT")
 SUPPORT_MAIL_FROM_NAME = get_str("SUPPORT_MAIL_FROM_NAME")
 KLECK_SECRET = get_str("KLECK_SECRET")
 KDF_ITERATIONS = get_int("KDF_ITERATIONS")
+VERP_HMAC_ALGORITHM = get_str("VERP_HMAC_ALGORITHM")
+OTP_MAX_TRIES = get_int("OTP_MAX_TRIES")
+RECOVERY_CODE_CHARS = get_str("RECOVERY_CODE_CHARS")
+RECOVERY_CODE_LENGTH = get_int("RECOVERY_CODE_LENGTH")
+RECOVERY_CODES_AMOUNT = get_int("RECOVERY_CODES_AMOUNT")
+IMAGE_PROXY_HMAC_ALGORITHM = get_str("IMAGE_PROXY_HMAC_ALGORITHM")
+IMAGE_PROXY_FALLBACK_IMAGE_TYPE = get_str("IMAGE_PROXY_FALLBACK_IMAGE_TYPE")
+IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE = get_str("IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE")

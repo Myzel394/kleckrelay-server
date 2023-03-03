@@ -4,7 +4,9 @@ import pytest
 from aiosmtpd.smtp import Envelope
 
 from email_utils import status
+from email_utils.bounce_messages import extract_forward_status, generate_forward_status, StatusType
 from email_utils.handler import handle
+from email_utils.utils import generate_message_id
 
 
 @pytest.mark.asyncio
@@ -114,3 +116,20 @@ async def test_outside_can_send_to_local_user_with_multipart(
     )
 
     assert response == status.E200
+
+
+def test_can_create_and_decrypt_forward_status_header():
+    outside_address = "outside@kleckrelay.example"
+    message_id = generate_message_id()
+
+    header = generate_forward_status(
+        status_type=StatusType.FORWARD_ALIAS_TO_OUTSIDE,
+        outside_address=outside_address,
+        message_id=message_id,
+    )
+
+    extracted = extract_forward_status(header)
+
+    assert extracted["type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE.value
+    assert extracted["outside_address"] == outside_address
+    assert extracted["message_id"] == message_id

@@ -1,24 +1,24 @@
 import smtplib
 import time
-from email.message import EmailMessage, Message
+from email.message import Message
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any, Optional
+import lxml.html
+from pyquery import PyQuery as pq
 
 from app import life_constants, logger
 from app.models import LanguageType
 from . import formatters, headers
-from .dkim_signature import add_dkim_signature
+from .bounce_messages import generate_forward_status, StatusType
 from .errors import EmailHandlerError
-from .headers import delete_header, set_header
+from .headers import set_header
 from .template_renderer import render
 from .utils import message_to_bytes
 
 __all__ = [
-    "send_error_mail",
     "send_mail",
     "draft_message",
-    "send_template_mail",
 ]
 
 
@@ -33,8 +33,11 @@ def _send_mail_to_smtp_server(
     )
     with smtplib.SMTP(host=life_constants.POSTFIX_HOST, port=life_constants.POSTFIX_PORT) as smtp:
         logger.info("Send mail -> Activating TLS.")
-        time.sleep(1)
-        smtp.starttls()
+        if life_constants.IS_DEBUG:
+            time.sleep(1)
+
+        if not life_constants.IS_DEBUG:
+            smtp.starttls()
 
         logger.info("Send mail -> Sending mail now.")
         smtp.sendmail(
@@ -53,7 +56,7 @@ def _debug_email(
     logger.info("<===============> SEND email <===============>")
     logger.info(f"FROM {from_address} ----> TO ----> {to_address}")
     logger.info("Content:")
-    logger.info(message)
+    logger.info(message.as_string())
     logger.info("<===============> SEND email --- END --- <===============>")
 
 
@@ -62,9 +65,14 @@ def send_mail(
     to_mail: str,
     from_mail: str = life_constants.FROM_MAIL,
     from_name: Optional[str] = None,
+    extra_headers: dict[str, str] = None,
 ):
     logger.info(f"Send Mail -> Send new mail {from_mail=} {to_mail=}.")
     from_name = from_name or from_mail
+
+    if extra_headers:
+        for header, value in extra_headers.items():
+            set_header(message, header, value)
 
     set_header(
         message,
@@ -92,64 +100,24 @@ def send_mail(
         )
 
 
-def send_error_mail(
-    from_mail: str,
-    targeted_mail: str,
-    error: Optional[EmailHandlerError] = None,
-    language: LanguageType = LanguageType.EN_US,
-) -> None:
-    send_mail(
-        message=draft_message(
-            subject=f"Email could not be delivered to {targeted_mail}.",
-            plaintext=render(
-                "general_error",
-                language,
-                error=error,
-                targeted_mail=targeted_mail,
-            ),
-        ),
-        from_mail=life_constants.FROM_MAIL,
-        to_mail=from_mail,
-    )
-
-
-def send_template_mail(
-    template: str,
-    subject: str,
-    to: str,
-    language: LanguageType = LanguageType.EN_US,
-    from_address: str = life_constants.FROM_MAIL,
-    from_name: str = life_constants.SUPPORT_MAIL_FROM_NAME,
-    context: dict[str, Any] = None,
-) -> None:
-    send_mail(
-        message=draft_message(
-            subject=subject,
-            plaintext=render(
-                template,
-                language,
-                **(context or {})
-            ),
-        ),
-        from_name=from_name,
-        from_mail=from_address,
-        to_mail=to,
-    )
-
-
 def draft_message(
     subject: str,
-    plaintext: str,
-    html: Optional[str] = None,
+    template: str,
+    bounce_status: StatusType = StatusType.OFFICIAL,
+    context: dict[str, Any] = None,
 ) -> Message:
-    if html:
-        message = MIMEMultipart("alternative")
-        message.attach(MIMEText(plaintext))
-        message.attach(MIMEText(html, "html"))
-    else:
-        message = EmailMessage()
-        message.set_payload(plaintext)
-        message[headers.CONTENT_TYPE] = "text/plain"
+    html = render(
+        f"{template}.html",
+        **context,
+    )
+    plaintext = render(
+        f"{template}.jinja2",
+        **context,
+    )
+
+    message = MIMEMultipart("alternative")
+    message.attach(MIMEText(html, "html"))
+    message.attach(MIMEText(plaintext, "plain"))
 
     # Those headers will be replaced by `send_mail`
     message[headers.FROM] = "ReplaceMe"
@@ -158,6 +126,8 @@ def draft_message(
     message[headers.SUBJECT] = subject
     message[headers.DATE] = formatters.format_date()
     message[headers.MIME_VERSION] = "1.0"
+
+    message[headers.KLECK_FORWARD_STATUS] = generate_forward_status(bounce_status)
 
     return message
 

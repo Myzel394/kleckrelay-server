@@ -1,3 +1,6 @@
+import logging
+
+import binascii
 from mailbox import Message
 from typing import Union
 
@@ -7,30 +10,28 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import Alias
 
 from app import life_constants, logger
-from app.controllers import global_settings as settings
-from app.controllers.email_report import create_email_report
+from app.controllers.alias import get_alias_by_local_and_domain
 from app.controllers import server_statistics
 from app.controllers.reserved_alias import get_reserved_alias_by_address
 from app.database.dependencies import with_db
-from app.email_report_data import EmailReportData
-from app.models import LanguageType, ReservedAlias, User
-from app.utils.email import normalize_email
+from app.models import ReservedAlias
 from email_utils import status
-from email_utils.errors import AliasNotFoundError, AliasNotYoursError, EmailHandlerError
-from email_utils.html_handler import (
-    convert_images, expand_shortened_urls,
-    remove_single_pixel_image_trackers,
-)
+from email_utils.errors import AliasNotFoundError, EmailHandlerError
 from email_utils.send_mail import (
-    send_error_mail, send_mail,
+    draft_message, send_mail,
 )
 from email_utils.utils import (
-    get_alias_from_user, extract_alias_address, generate_message_id, get_alias_by_email,
-    get_header_unicode,
-    get_email_by_from,
+    extract_alias_address, generate_message_id
 )
 from email_utils.validators import validate_alias
 from . import headers
+from .bounce_messages import (
+    extract_forward_status, extract_forward_status_header, extract_in_reply_to_header,
+    generate_forward_status,
+    get_report_from_message, is_not_deliverable, StatusType,
+)
+from .handle_local_to_outside import handle_local_to_outside
+from .handle_outside_to_local import handle_outside_to_local
 from .headers import set_header
 
 __all__ = [
@@ -50,11 +51,105 @@ async def handle(envelope: Envelope, message: Message) -> str:
     logger.info("Retrieving mail from database.")
 
     with with_db() as db:
-        enable_image_proxy = settings.get(db, "ENABLE_IMAGE_PROXY")
-        user = None
-
         try:
-            set_header(message, headers.MESSAGE_ID, generate_message_id())
+            original_message_id = message[headers.MESSAGE_ID] or ""
+            message_id = generate_message_id()
+            set_header(message, headers.MESSAGE_ID, message_id)
+
+            logger.info("Checking if mail is a bounce mail from us.")
+            if (report_message := get_report_from_message(message)) is not None:
+                if (forward_status := extract_forward_status_header(report_message)) is not None:
+                    logger.info("Mail is a bounce mail from us. Extracting data.")
+
+                    try:
+                        data = extract_forward_status(forward_status)
+                    except (ValueError, binascii.Error):
+                        logger.info("Forward status is invalid. Ignoring mail.")
+                        return status.E200
+
+                    logger.info(f"Data is {data=}.")
+
+                    if data["status_type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE:
+                        logger.info(
+                            "Mail should originally be forwarded FROM a local alias TO the "
+                            "outside. Informing local user."
+                        )
+
+                        local, domain = envelope.rcpt_tos[0].split("@")
+                        try:
+                            alias = get_alias_by_local_and_domain(db, local=local, domain=domain)
+                        except NoResultFound:
+                            logger.info("Alias does not exist. We can't inform the user.")
+                            return status.E200
+
+                        logger.info("Alias exists. Informing user.")
+
+                        send_mail(
+                            message=draft_message(
+                                subject="Your mail could not be delivered",
+                                template="not-deliverable-to-web",
+                                context={
+                                    "title": "Your mail could not be delivered",
+                                    "preview_text": "Your mail could not be delivered",
+                                    "body":
+                                        f"We are sorry, but we couldn't deliver your email to "
+                                        f"{data['outside_address']}. We tried to send it, "
+                                        f"but the user's server couldn't receive it.",
+                                    "explanation":
+                                        "We recommend you to try it again later. "
+                                        "This is probably a temporary issue only.",
+                                    "server_url": life_constants.APP_DOMAIN,
+                                }
+                            ),
+                            to_mail=alias.user.email.address,
+                            extra_headers={
+                                headers.IN_REPLY_TO: extract_in_reply_to_header(report_message),
+                            }
+                        )
+
+                        return status.E200
+                    elif data["status_type"] == StatusType.FORWARD_OUTSIDE_TO_ALIAS:
+                        logger.info(
+                            "Mail should originally be forwarded FROM the outside TO a local alias. "
+                            "Informing outside user."
+                        )
+
+                        send_mail(
+                            message=draft_message(
+                                subject="Your mail could not be delivered",
+                                template="not-deliverable-to-web",
+                                context={
+                                    "title": "Your mail could not be delivered",
+                                    "preview_text": "Your mail could not be delivered",
+                                    "body":
+                                        f"We are sorry, but we couldn't deliver your email to "
+                                        f"{data['outside_address']}. We tried to send it, "
+                                        f"but the user's server couldn't receive it.",
+                                    "explanation":
+                                        "We recommend you to try it again later. "
+                                        "This is probably a temporary issue only.",
+                                    "server_url": life_constants.APP_DOMAIN,
+                                }
+                            ),
+                            to_mail=envelope.rcpt_tos[0],
+                            extra_headers={
+                                headers.REPLY_TO: extract_in_reply_to_header(report_message),
+                            }
+                        )
+
+                        return status.E200
+                    elif data["status_type"] == StatusType.BOUNCE:
+                        logger.info("Mail is a bounce mail from us. Nothing to do.")
+
+                        return status.E200
+                    elif data["status_type"] == StatusType.OFFICIAL:
+                        # Todo: Inform admins
+                        return status.E200
+
+            logger.info("Checking if mail is a normal bounce mail.")
+            if is_not_deliverable(envelope, message):
+                logger.info("Mail is a bounce mail. No further action required.")
+                return status.E200
 
             logger.info(
                 f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is a relay address."
@@ -63,128 +158,35 @@ async def handle(envelope: Envelope, message: Message) -> str:
             if (result := extract_alias_address(envelope.rcpt_tos[0])) is not None:
                 # LOCALLY saved user wants to send a mail FROM alias TO the outside.
                 alias_address, target = result
-                from_mail = await normalize_email(envelope.mail_from)
-                logger.info(
-                    f"{envelope.rcpt_tos[0]} is an forward alias address (LOCAL wants to send to "
-                    f"OUTSIDE). It should be sent to {target} via alias {alias_address} "
-                    f"Checking if FROM {from_mail} user owns it."
+
+                await handle_local_to_outside(
+                    db,
+                    alias_address=alias_address,
+                    target=target,
+                    message=message,
+                    envelope=envelope,
+                    message_id=message_id,
                 )
 
-                try:
-                    email = get_email_by_from(db, from_mail)
-                except NoResultFound:
-                    logger.info(f"User does not exist. Raising error.")
-                    # Return "AliasNotYoursError" to avoid an alias being leaked
-                    raise AliasNotYoursError()
-
-                logger.info(f"Checking if user owns the given alias.")
-                user = email.user
-
-                local, domain = alias_address.split("@")
-
-                if (alias := get_reserved_alias_by_address(db, local, domain)) is not None:
-                    logger.info("Alias is a reserved alias.")
-
-                    # Reserved alias
-                    if user not in alias.users:
-                        logger.info("User is not in reserved alias users. Raising error.")
-                        raise AliasNotYoursError()
-                else:
-                    # Local alias
-                    try:
-                        alias = get_alias_from_user(db, user, local=local, domain=domain)
-                    except NoResultFound:
-                        logger.info("Alias does not exist. Raising error.")
-                        raise AliasNotYoursError()
-
-                logger.info("User owns the alias. Checking if alias is valid.")
-                validate_alias(alias)
-                logger.info("Alias is valid.")
-
-                logger.info(
-                    f"Local mail {alias.address} should be relayed to outside mail {target}. "
-                    f"Sending email now..."
-                )
-
-                send_mail(
-                    message,
-                    from_mail=alias.address,
-                    to_mail=target,
-                )
-                logger.info("Email sent.")
-                server_statistics.add_sent_email(db)
-
-                logger.info("Returning sucesss back.")
                 return status.E200
 
             logger.info(
                 f"Checking if DESTINATION mail {envelope.rcpt_tos[0]} is an alias mail."
             )
 
-            if alias := get_alias_by_email(db, email=envelope.rcpt_tos[0]):
-                logger.info("Mail is an alias mail (OUTSIDE wants to send to LOCAL).")
-                user = alias.user
-
-                logger.info("Checking if alias is valid.")
-                # OUTSIDE user wants to send a mail TO a locally saved user's private mail.
-                validate_alias(alias)
-                logger.info("Alias is valid.")
-
-                report = EmailReportData(
-                    mail_from=envelope.mail_from,
-                    mail_to=alias.address,
-                    subject=get_header_unicode(message[headers.SUBJECT]),
-                    message_id=message[headers.MESSAGE_ID],
+            local, domain = envelope.rcpt_tos[0].split("@")
+            try:
+                alias = get_alias_by_local_and_domain(db, local=local, domain=domain)
+            except NoResultFound:
+                pass
+            else:
+                handle_outside_to_local(
+                    db,
+                    alias=alias,
+                    message=message,
+                    envelope=envelope,
+                    message_id=message_id,
                 )
-
-                content = message.get_payload()
-
-                if type(content) is list:
-                    # Find html part
-                    for part in content:
-                        if part.get_content_type() == "text/html":
-                            content = part.get_payload()
-                            break
-                    else:
-                        # No html part found
-                        content = None
-
-                if content is not None:
-                    if alias.remove_trackers:
-                        content = remove_single_pixel_image_trackers(report, html=content)
-
-                    if enable_image_proxy and alias.proxy_images:
-                        content = convert_images(db, report, alias=alias, html=content)
-
-                    if alias.expand_url_shorteners:
-                        content = expand_shortened_urls(report, alias=alias, html=content)
-
-                    server_statistics.add_removed_trackers(db, len(report.single_pixel_images))
-                    server_statistics.add_proxied_images(db, len(report.proxied_images))
-                    server_statistics.add_expanded_urls(db, len(report.expanded_urls))
-
-                    message.set_payload(content, "utf-8")
-
-                if alias.create_mail_report and alias.user.public_key is not None:
-                    create_email_report(
-                        db,
-                        report_data=report,
-                        user=alias.user,
-                    )
-
-                logger.info(
-                    f"Email {envelope.mail_from} is from outside and wants to send to alias "
-                    f"{alias.address}. "
-                    f"Relaying email to locally saved user {alias.user.email.address}."
-                )
-
-                send_mail(
-                    message,
-                    from_mail=alias.create_outside_email(envelope.mail_from),
-                    from_name=envelope.mail_from,
-                    to_mail=alias.user.email.address,
-                )
-                server_statistics.add_sent_email(db)
 
                 return status.E200
 
@@ -195,6 +197,16 @@ async def handle(envelope: Envelope, message: Message) -> str:
             if reserved_alias := get_reserved_alias_by_address(db, local=local, domain=domain):
                 # OUTSIDE user wants to send a mail TO a reserved alias.
                 validate_alias(reserved_alias)
+
+                set_header(
+                    message,
+                    headers.KLECK_FORWARD_STATUS,
+                    generate_forward_status(
+                        StatusType.OFFICIAL,
+                        outside_address=envelope.mail_from,
+                        message_id=message_id,
+                    )
+                )
 
                 for user in reserved_alias.users:
                     send_mail(
@@ -213,11 +225,33 @@ async def handle(envelope: Envelope, message: Message) -> str:
             )
             raise AliasNotFoundError(status_code=status.E515)
         except EmailHandlerError as error:
-            send_error_mail(
-                from_mail=envelope.mail_from,
-                targeted_mail=envelope.rcpt_tos[0],
-                error=error,
-                language=user.language if user is not None else LanguageType.EN_US,
+            logger.info(f"Error occurred: {error.reason}")
+
+            send_mail(
+                message=draft_message(
+                    subject="Your email could not be delivered",
+                    template="not-deliverable-to-server",
+                    context={
+                        "title": "We didn't know what to do with your email",
+                        "preview_text": "We could not deliver your email.",
+                        "body":
+                            f"We are sorry, but we couldn't deliver your email to "
+                            f"{envelope.rcpt_tos[0]}. We received it, "
+                            f"but we couldn't process it."
+                        ,
+                        "explanation": error.reason,
+                        "server_url": life_constants.APP_DOMAIN,
+                    },
+                ),
+                to_mail=envelope.mail_from,
+                extra_headers={
+                    headers.IN_REPLY_TO: original_message_id,
+                }
             )
 
-            return error.status_code
+            return error.status_code or status.E501
+        except Exception as error:
+            logging.error(error, exc_info=True)
+            logger.info("Exception occurred.")
+
+            return status.E501

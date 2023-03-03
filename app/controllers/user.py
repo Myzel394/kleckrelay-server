@@ -78,7 +78,7 @@ def get_non_verified_users_to_delete(db: Session, /) -> list[User]:
         .filter(
             and_(
                 Email.is_verified is False,
-                User.created_at < datetime.now() - timedelta(days=lifetime),
+                User.created_at < datetime.utcnow() - timedelta(days=lifetime),
             )
         )\
         .all()

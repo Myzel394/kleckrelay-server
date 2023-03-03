@@ -206,3 +206,28 @@ def test_can_not_update_alias_when_users_are_not_admin(
     )
 
     assert response.status_code == 400, f"Status code should be 400 but is {response.status_code}"
+
+
+def test_can_not_create_forbidden_alias(
+    create_user,
+    create_auth_tokens,
+    db,
+    client: TestClient,
+) -> None:
+    user = create_user(is_verified=True, is_admin=True)
+    auth = create_auth_tokens(user)
+
+    response = client.post(
+        "/v1/reserved-alias/",
+        json={
+            "local": "bounce",
+            "users": [
+                {
+                    "id": str(user.id),
+                }
+            ]
+        },
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 422, f"Status code should be 422 but is {response.status_code}"

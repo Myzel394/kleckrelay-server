@@ -1,26 +1,53 @@
+from collections import namedtuple
+from urllib.parse import urlencode, urlunparse
+
 from app.life_constants import IS_DEBUG
 from app.logger import logger
 from app.models import LanguageType
-from email_utils.send_mail import send_template_mail
+from app.utils.url import Components
+from email_utils.send_mail import draft_message, send_mail
 
 from app import life_constants
+from email_utils.template_renderer import render
+
+
+def _generate_url(email: str, token: str) -> str:
+    scheme = "https" if not IS_DEBUG else "http"
+    query_parameters = {
+        "email": email,
+        "token": token,
+    }
+
+    return urlunparse(
+        Components(
+            scheme=scheme,
+            netloc=life_constants.APP_DOMAIN,
+            url="/auth/verify-email",
+            path="",
+            query=urlencode(query_parameters),
+            fragment="",
+        )
+    )
 
 
 def send_email_verification(address: str, token: str, language: LanguageType) -> None:
     logger.info(f"Send Email Verification: Send to {address}.")
 
-    if IS_DEBUG:
-        logger.info(f"Send Email Verification: Token for {address} is {token}.")
+    verification_url = _generate_url(email=address, token=token)
 
-    verification_url = f"https://{life_constants.APP_DOMAIN}/auth/verify-email?email={address}&token" \
-                       f"={token}"
-
-    send_template_mail(
-        template="signup",
-        to=address,
-        subject="Sign up to KleckRelay",
-        language=language,
-        context={
-            "verification_url": verification_url
-        }
+    send_mail(
+        message=draft_message(
+            subject="Log in to KleckRelay",
+            template="signup",
+            context={
+                "title": "Sign up to KleckRelay",
+                "preview_text": "Confirm your email address to use KleckRelay",
+                "body": "Welcome to KleckRelay! Please click the button below to verify your email address.",
+                "verify_text": "Verify",
+                "verify_url": verification_url,
+                "body_not_requested": "If you did not request this email, please ignore it.",
+                "server_url": life_constants.APP_DOMAIN,
+            },
+        ),
+        to_mail=address,
     )

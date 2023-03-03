@@ -3,6 +3,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 import bcrypt
 import sqlalchemy as sa
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import InstrumentedList
 
@@ -15,8 +16,6 @@ __all__ = [
     "LanguageType",
     "User",
 ]
-
-from ..logger import logger
 
 
 class LanguageType(str, enum.Enum):
@@ -33,6 +32,7 @@ class User(Base, IDMixin, CreationMixin):
         from .email_report import EmailReport
         from .user_preferences import UserPreferences
         from .reserved_alias import ReservedAlias
+        from .user_otp import UserOTP
         email: Email
         language: LanguageType
         public_key: Optional[str]
@@ -43,6 +43,7 @@ class User(Base, IDMixin, CreationMixin):
         email_login_token: EmailLoginToken
         preferences: UserPreferences
         reserved_aliases: list[ReservedAlias]
+        otp: UserOTP
     else:
         email = relationship(
             "Email",
@@ -102,19 +103,23 @@ class User(Base, IDMixin, CreationMixin):
             back_populates="users",
             cascade="all, delete",
         )
+        otp = relationship(
+            "UserOTP",
+            backref="user",
+            uselist=False,
+            cascade="all, delete",
+        )
 
     @property
     def is_admin(self) -> bool:
         return self.email.address.lower() in life_constants.ADMINS
 
-    def to_jwt_object(self) -> dict[str, Any]:
-        # Only save the absolute minimum information that is required to the retrieve the user;
-        # in this case only their ID.
-        # We want all other information to be retrieved from the database freshly, so that there
-        # is no permission leakage.
-        return {
-            "id": str(self.id),
-        }
+    @property
+    def has_otp_enabled(self) -> bool:
+        try:
+            return self.otp is not None and self.otp.is_verified
+        except NoResultFound:
+            return False
 
     def encrypt(self, message: str) -> str:
         return str(gpg_handler.encrypt_message(message, self.public_key))

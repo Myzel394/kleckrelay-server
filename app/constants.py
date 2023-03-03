@@ -1,7 +1,11 @@
 import os.path
+import re
 import string
+from datetime import datetime, timedelta
 
 from pathlib import Path
+
+from email_utils import headers
 
 __all__ = [
     "LOCAL_REGEX",
@@ -11,8 +15,8 @@ __all__ = [
     "RELAY_EMAIL_REGEX",
     "MAX_EMAIL_LENGTH",
     "MAX_LOCAL_LENGTH",
-    "EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH",
-    "EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS",
+    "CORS_TOKEN_LENGTH",
+    "CORS_TOKEN_CHARS",
     "EMAIL_VERIFICATION_TOKEN_CHARS",
     "EMAIL_VERIFICATION_TOKEN_LENGTH",
     "MAX_RANDOM_ALIAS_ID_GENERATION",
@@ -25,8 +29,11 @@ __all__ = [
     "ACCESS_TOKEN_COOKIE_NAME",
     "REFRESH_TOKEN_COOKIE_NAME",
     "ENCRYPTED_PASSWORD_MAX_LENGTH",
+    "BOUNCE_MAX_TIME",
+    "OTP_TIMEOUT",
+    "OTP_REGEX",
+    "FORBIDDEN_ALIASES"
 ]
-
 
 # According to https://www.mailboxvalidator.com/resources/articles/acceptable-email-address-syntax-rfc/
 LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~-]{1,64}$"
@@ -36,12 +43,12 @@ EMAIL_REGEX = f"^{LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 # (e.g. `outside_at_example.com_test.1234@mail.kleckrelay.com`)
 ALIAS_OUTSIDE_REGEX = \
     f"({LOCAL_REGEX[1:-1]})_at_({DOMAIN_REGEX[1:-1]})_({EMAIL_REGEX[1:-1]})$"
-RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,68}$"
+RELAY_LOCAL_REGEX = r"^[a-zA-Z0-9!\#\$\%\&\‘\*\+\–\/\=\?\^_\`\.\{\|\}\~.+-]{1,64}$"
 RELAY_EMAIL_REGEX = f"^{RELAY_LOCAL_REGEX[1:-1]}@{DOMAIN_REGEX[1:-1]}$"
 MAX_EMAIL_LENGTH = 400
 MAX_LOCAL_LENGTH = 64
-EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_LENGTH = 80
-EMAIL_LOGIN_TOKEN_SAME_REQUEST_TOKEN_CHARS = string.ascii_letters + string.digits
+CORS_TOKEN_LENGTH = 80
+CORS_TOKEN_CHARS = string.ascii_letters + string.digits
 EMAIL_VERIFICATION_TOKEN_CHARS = string.ascii_letters + string.digits
 EMAIL_VERIFICATION_TOKEN_LENGTH = 80
 # How often should be tried to generate a new alias id. After this amount, the length of the
@@ -59,6 +66,18 @@ EMAIL_REPORT_ENCRYPTED_CONTENT_MAX_LENGTH = 200_000
 ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 SALT_MAX_LENGTH = 29
 APP_VERSION = "0.0.1"
+BOUNCE_MAX_TIME = timedelta(days=5)
+# To store data, we only store the minutes that have passed since the start of 2023-01-01 00:00:00.
+BOUNCE_START_TIME = datetime(2023, 1, 1)
+FORBIDDEN_ALIASES = [
+    re.compile(r"^bounce$", re.IGNORECASE),
+    re.compile(r"^double-bounce$", re.IGNORECASE),
+    re.compile(r"^mailer-daemon$", re.IGNORECASE),
+    re.compile(r"^postmaster$", re.IGNORECASE),
+    re.compile(r"^noreply$", re.IGNORECASE),
+]
+OTP_REGEX = r"^[0-9]{6}$"
+OTP_TIMEOUT = timedelta(minutes=5)
 
 
 TESTING_DB = None

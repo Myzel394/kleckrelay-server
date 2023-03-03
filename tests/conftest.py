@@ -1,5 +1,6 @@
 import random
 
+import pyotp
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -7,15 +8,21 @@ from sqlalchemy_utils import create_database, database_exists
 from starlette.testclient import TestClient
 
 from app import constants, life_constants
+from app.authentication.authentication_response import OTPVerificationStatus
 from app.authentication.handler import access_security, refresh_security
 from app.controllers.alias import generate_random_local_id
-from app.controllers.email_login import generate_same_request_token, generate_token
+from app.controllers.email_login import generate_token
+from app.controllers._cors import generate_cors_token
 from app.database.base import Base
 from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN, DB_URI
 from app.main import app
-from app.models import Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserPreferences
+from app.models import (
+    Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserOTP,
+    UserPreferences,
+)
 from app.models.enums.alias import AliasType
+from app.models.user_otp import OTPStatusType
 from tests.helpers import create_item
 from app.utils.hashes import hash_fast
 
@@ -126,7 +133,7 @@ def create_user(db, create_email):
 def create_email_token(db):
     def _method(user: User) -> tuple[EmailLoginToken, str, str]:
         token = generate_token()
-        same_request_token = generate_same_request_token()
+        same_request_token = generate_cors_token()
         email_login = create_item(
             db,
             {
@@ -145,11 +152,17 @@ def create_email_token(db):
 @pytest.fixture
 def create_auth_tokens(db):
     def _method(user: User) -> dict:
-        access_token = access_security.create_access_token(subject=user.to_jwt_object()),
+        access_token = access_security.create_access_token(subject={
+            "id": str(user.id),
+            "otp_status": OTPVerificationStatus.NOT_VERIFIED,
+        }),
 
         return {
             "access_token": access_token,
-            "refresh_token": refresh_security.create_refresh_token(subject=user.to_jwt_object()),
+            "refresh_token": refresh_security.create_refresh_token(subject={
+                "id": str(user.id),
+                "otp_status": OTPVerificationStatus.NOT_VERIFIED,
+            }),
             "headers": {
                 "Authorization": f"Bearer {access_token[0]}"
             }
@@ -192,5 +205,25 @@ def create_reserved_alias(db: Session):
         alias.users.extend(users)
 
         return alias
+
+    return _method
+
+
+@pytest.fixture
+def setup_otp(db: Session) -> callable:
+    def _method(user: User) -> UserOTP:
+        secret = pyotp.random_base32()
+        otp = create_item(
+            db,
+            {
+                "user": user,
+                "secret": secret,
+                "status": OTPStatusType.AVAILABLE,
+                "hashed_recovery_codes": [],
+            },
+            UserOTP
+        )
+
+        return otp
 
     return _method
