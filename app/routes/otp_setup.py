@@ -3,9 +3,13 @@ from datetime import datetime
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from app import constants, logger
+from app.authentication.authentication_response import (
+    OTPVerificationStatus,
+    set_authentication_cookies,
+)
 from app.controllers.user_otp import create_otp, delete_otp, verify_otp_setup
 from app.database.dependencies import get_db
 from app.dependencies.require_otp import require_otp_if_enabled
@@ -77,6 +81,7 @@ def create_user_otp_api(
 )
 def verify_otp_api(
     data: VerifyOTPModel,
+    response: Response,
     user: User = Depends(get_user),
     db: Session = Depends(get_db),
 ):
@@ -104,6 +109,8 @@ def verify_otp_api(
             status_code=400,
             detail="OTP code invalid."
         )
+
+    set_authentication_cookies(response, user, otp_status=OTPVerificationStatus.VERIFIED)
 
     return {
         "detail": "OTP is verified.",
