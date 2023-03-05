@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import hmac
 import uuid
 from datetime import datetime
@@ -13,7 +14,7 @@ from PIL import Image
 from requests import HTTPError
 from urllib3.exceptions import ConnectTimeoutError
 
-from app import constant_keys, life_constants, logger
+from app import constant_keys, constants, life_constants, logger
 from app.constants import ROOT_DIR
 from app.life_constants import IS_DEBUG
 from app.models import EmailAlias
@@ -36,7 +37,7 @@ def _create_signature(payload: bytes) -> bytes:
     return hmac.new(
         constant_keys.IMAGE_PROXY_SECRET.encode("utf-8"),
         payload,
-        life_constants.VERP_HMAC_ALGORITHM
+        constants.HMAC_ALGORITHM,
     ).digest()
 
 
