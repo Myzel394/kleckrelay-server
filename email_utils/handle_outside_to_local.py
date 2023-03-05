@@ -72,24 +72,24 @@ def handle_outside_to_local(
 
             message.set_payload(content, "utf-8")
     elif type(content) is list:
-        content_maps = {
-            part.get_content_type(): part.get_payload()
-            for part in message.walk()
-        }
+        for part in message.walk():
+            match part.get_content_type():
+                case "text/html":
+                    content = parse_html(
+                        db,
+                        alias=alias,
+                        report=report,
+                        content=part.get_payload(),
+                    )
 
-        if "text/html" in content_maps:
-            content_maps["text/html"] = parse_html(
-                db,
-                alias=alias,
-                report=report,
-                content=content_maps["text/html"],
-            )
+                    part.set_payload(content, "utf-8")
+                case "text/plain":
+                    content = parse_text(
+                        alias=alias,
+                        content=part.get_payload(),
+                    )
 
-        if "text/plain" in content_maps:
-            content_maps["text/plain"] = parse_text(
-                alias=alias,
-                content=content_maps["text/plain"],
-            )
+                    part.set_payload(content, "utf-8")
 
     if alias.create_mail_report and alias.user.public_key is not None:
         create_email_report(
