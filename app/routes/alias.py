@@ -1,6 +1,9 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import Page, paginate, Params
 from pydantic import ValidationError
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
@@ -11,11 +14,13 @@ from app.controllers.alias import (
 )
 from app.controllers.global_settings import get_settings_model
 from app.database.dependencies import get_db
+from app.dependencies.api_key_or_jwt import api_key_or_jwt
 from app.dependencies.get_instance_from_user import get_instance_from_user
 from app.dependencies.get_user import get_user
 from app.dependencies.require_otp import require_otp_if_enabled
 from app.models import User
 from app.models.alias import AliasType, EmailAlias
+from app.models.enums.api_key import APIKeyScope
 from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
 from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
 from app.controllers import global_settings as settings
@@ -28,7 +33,7 @@ router = APIRouter()
     response_model=Page[AliasList]
 )
 def get_all_aliases(
-    user: User = Depends(get_user),
+    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_READ)),
     db: Session = Depends(get_db),
     params: Params = Depends(),
     query: str = Query(""),
@@ -57,7 +62,7 @@ def get_all_aliases(
 async def create_alias_api(
     request: Request,
     db: Session = Depends(get_db),
-    user: User = Depends(get_user),
+    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_CREATE)),
     _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Create Alias -> New request. Validating data.")
@@ -87,10 +92,19 @@ async def create_alias_api(
 )
 def update_alias_api(
     update: AliasUpdate,
-    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
+    id: uuid.UUID,
+    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_UPDATE)),
     db: Session = Depends(get_db),
     _: bool = Depends(require_otp_if_enabled),
 ):
+    logger.info("Request: Update Alias -> New request. Validating data.")
+
+    try:
+        alias = get_alias_from_user(db, user=user, id=id)
+    except NoResultFound:
+        logger.info(f"Request: Update Alias -> Alias with id={id} not found.")
+        raise HTTPException(status_code=404, detail="Alias not found.")
+
     logger.info(f"Request: Update Alias -> Updating {alias=}.")
     update_alias(db, alias, update)
     logger.info(f"Request: Update Alias -> Updated successfully!")
@@ -109,10 +123,18 @@ def update_alias_api(
     }
 )
 def get_alias(
-    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
+    id: uuid.UUID,
+    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_UPDATE)),
+    db: Session = Depends(get_db),
     _: bool = Depends(require_otp_if_enabled),
 ):
-    return alias
+    logger.info("Request: Update Alias -> New request. Validating data.")
+
+    try:
+        return get_alias_from_user(db, user=user, id=id)
+    except NoResultFound:
+        logger.info(f"Request: Update Alias -> Alias with id={id} not found.")
+        raise HTTPException(status_code=404, detail="Alias not found.")
 
 
 @router.delete(
@@ -130,11 +152,18 @@ def get_alias(
     }
 )
 def delete_alias_api(
-    alias: EmailAlias = Depends(get_instance_from_user(get_alias_from_user)),
+    id: uuid.UUID,
+    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_DELETE)),
     db: Session = Depends(get_db),
     _: bool = Depends(require_otp_if_enabled),
 ):
-    logger.info(f"Request: Delete Alias -> New request to delete {alias=}.")
+    logger.info(f"Request: Delete Alias -> New request.")
+
+    try:
+        alias = get_alias_from_user(db, user=user, id=id)
+    except NoResultFound:
+        logger.info(f"Request: Delete Alias -> Alias with id={id} not found.")
+        raise HTTPException(status_code=404, detail="Alias not found.")
 
     if not settings.get(db, "ALLOW_ALIAS_DELETION"):
         logger.info(f"Request: Delete Alias -> Alias deletion is not allowed.")
