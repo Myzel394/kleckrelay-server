@@ -32,7 +32,8 @@ __all__ = [
     "OTP_TIMEOUT",
     "OTP_REGEX",
     "FORBIDDEN_ALIASES",
-    "HMAC_ALGORITHM"
+    "HMAC_ALGORITHM",
+    "DEFAULT_API_EXPIRE_DURATION"
 ]
 
 # According to https://www.mailboxvalidator.com/resources/articles/acceptable-email-address-syntax-rfc/
@@ -79,6 +80,7 @@ FORBIDDEN_ALIASES = [
 OTP_REGEX = r"^[0-9]{6}$"
 OTP_TIMEOUT = timedelta(minutes=5)
 HMAC_ALGORITHM = hashlib.sha256
+DEFAULT_API_EXPIRE_DURATION = timedelta(days=30)
 
 
 TESTING_DB = None
