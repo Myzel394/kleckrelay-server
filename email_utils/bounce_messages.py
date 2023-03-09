@@ -57,7 +57,7 @@ def _create_signature(payload: bytes) -> bytes:
     return hmac.new(
         constant_keys.VERP_SECRET.encode("utf-8"),
         payload,
-        life_constants.VERP_HMAC_ALGORITHM
+        constants.HMAC_ALGORITHM,
     ).digest()
 
 

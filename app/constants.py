@@ -1,3 +1,4 @@
+import hashlib
 import os.path
 import re
 import string
@@ -30,7 +31,8 @@ __all__ = [
     "BOUNCE_MAX_TIME",
     "OTP_TIMEOUT",
     "OTP_REGEX",
-    "FORBIDDEN_ALIASES"
+    "FORBIDDEN_ALIASES",
+    "HMAC_ALGORITHM"
 ]
 
 # According to https://www.mailboxvalidator.com/resources/articles/acceptable-email-address-syntax-rfc/
@@ -76,6 +78,7 @@ FORBIDDEN_ALIASES = [
 ]
 OTP_REGEX = r"^[0-9]{6}$"
 OTP_TIMEOUT = timedelta(minutes=5)
+HMAC_ALGORITHM = hashlib.sha256
 
 
 TESTING_DB = None
