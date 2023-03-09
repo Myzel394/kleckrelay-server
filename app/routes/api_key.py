@@ -19,7 +19,13 @@ def create_api_key_api(
 ):
     logger.info("Request: Create API Key -> New Request.")
 
-    key = create_api_key(db, user=user, data=data)
+    api_key_instance, key = create_api_key(db, user=user, data=data)
 
     logger.info("Request: Create API Key -> Success! Returning back.")
-    return key
+
+    return {
+        "id": api_key_instance.id,
+        "key": key,
+        "expires_at": api_key_instance.expires_at,
+        "scopes": api_key_instance.scopes,
+    }
