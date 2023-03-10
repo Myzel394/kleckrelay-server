@@ -35,7 +35,7 @@ def test_can_delete_api_key_by_id(
 ):
     user = create_user(is_verified=True)
     auth = create_auth_tokens(user)
-    api_key, key = create_api_key(
+    api_key, _ = create_api_key(
         user=user,
         scopes=[APIKeyScope.ALIAS_CREATE],
         expires_at=datetime.utcnow() - timedelta(days=1),
@@ -55,7 +55,7 @@ def test_can_delete_api_key_by_key(
     create_api_key,
 ):
     user = create_user(is_verified=True)
-    api_key, key = create_api_key(
+    _, key = create_api_key(
         user=user,
         scopes=[APIKeyScope.ALIAS_CREATE],
         expires_at=datetime.utcnow() + timedelta(days=1),

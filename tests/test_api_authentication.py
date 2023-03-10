@@ -12,7 +12,7 @@ def test_can_authenticate_using_api_key(
     create_api_key,
 ):
     user = create_user(is_verified=True)
-    api_key, key = create_api_key(user=user, scopes=[APIKeyScope.ALIAS_CREATE])
+    _, key = create_api_key(user=user, scopes=[APIKeyScope.ALIAS_CREATE])
 
     response = client.post(
         "/v1/alias/",
@@ -33,7 +33,7 @@ def test_can_not_authenticate_with_expired_api_key(
     create_api_key,
 ):
     user = create_user(is_verified=True)
-    api_key, key = create_api_key(
+    _, key = create_api_key(
         user=user,
         scopes=[APIKeyScope.ALIAS_CREATE],
         expires_at=datetime.utcnow() - timedelta(days=1),
@@ -58,7 +58,7 @@ def test_can_not_authenticate_with_wrong_scope(
     create_api_key,
 ):
     user = create_user(is_verified=True)
-    api_key, key = create_api_key(user=user, scopes=[APIKeyScope.ALIAS_DELETE])
+    _, key = create_api_key(user=user, scopes=[APIKeyScope.ALIAS_DELETE])
 
     response = client.post(
         "/v1/alias/",
