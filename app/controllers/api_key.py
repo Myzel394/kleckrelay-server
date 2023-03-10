@@ -33,6 +33,7 @@ def create_api_key(
         user_id=user.id,
         scopes=data.scopes,
         expires_at=data.expires_at,
+        label=data.label,
         hashed_key=hash_fast(key),
     )
 

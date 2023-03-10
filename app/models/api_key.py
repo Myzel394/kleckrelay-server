@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.database.base import Base
 from ._mixins import IDMixin, CreationMixin
 from .enums.api_key import APIKeyScope
+from .. import constants
 from ..utils.hashes import hash_fast, hash_slowly
 
 __all__ = [
@@ -31,6 +32,10 @@ class APIKey(Base, IDMixin):
         user_id = sa.Column(
             UUID(as_uuid=True),
             ForeignKey("user.id"),
+        )
+        label = sa.Column(
+            sa.String(constants.API_KEY_MAX_LABEL_LENGTH),
+            nullable=False,
         )
         expires_at = sa.Column(
             sa.DateTime,

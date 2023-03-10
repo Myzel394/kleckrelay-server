@@ -17,12 +17,17 @@ class APIKeyCreateModel(BaseModel):
         default_factory=lambda: datetime.utcnow() + constants.DEFAULT_API_EXPIRE_DURATION
     )
     scopes: list[APIKeyScope]
+    label: str = Field(
+        ...,
+        max_length=constants.API_KEY_MAX_LABEL_LENGTH,
+    )
 
 
 class APIKeyModel(BaseModel):
     id: uuid.UUID
     expires_at: datetime
     scopes: list[APIKeyScope]
+    label: str
 
 
 class APIKeyCreatedResponseModel(APIKeyModel):

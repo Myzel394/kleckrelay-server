@@ -221,6 +221,7 @@ def create_api_key(db: Session):
                 "user_id": user.id,
                 "expires_at": datetime.utcnow() + timedelta(days=1),
                 "hashed_key": hash_fast(key),
+                "label": "t",
                 **kwargs,
             },
             APIKey,

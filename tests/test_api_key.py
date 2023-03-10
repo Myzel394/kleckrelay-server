@@ -17,9 +17,9 @@ def test_can_create_api_key(
         "/v1/api-key/",
         json={
             "scopes": ["create:alias"],
+            "label": "Test API Key",
         },
         headers=auth["headers"]
     )
-    print(response.json())
 
     assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"

@@ -27,4 +27,5 @@ def create_api_key_api(
         "key": key,
         "expires_at": api_key_instance.expires_at,
         "scopes": api_key_instance.scopes,
+        "label": api_key_instance.label,
     }
