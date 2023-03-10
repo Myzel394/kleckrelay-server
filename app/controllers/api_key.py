@@ -48,7 +48,7 @@ def find_api_key(
     key: str
 ) -> Optional[APIKey]:
     # Does someone have a better way to do this?
-    all_keys = db.query(APIKey).filter(APIKey.expires_at < datetime.utcnow())
+    all_keys = db.query(APIKey).filter(APIKey.expires_at > datetime.utcnow())
 
     for api_key in all_keys:
         if verify_fast_hash(api_key.hashed_key, key):

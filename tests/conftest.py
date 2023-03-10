@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timedelta
 
 import pyotp
 import pytest
@@ -11,6 +12,7 @@ from app import constants, life_constants
 from app.authentication.authentication_response import OTPVerificationStatus
 from app.authentication.handler import access_security, refresh_security
 from app.controllers.alias import generate_random_local_id
+from app.controllers.api_key import _generate_key
 from app.controllers.email_login import generate_token
 from app.controllers._cors import generate_cors_token
 from app.database.base import Base
@@ -18,7 +20,7 @@ from app.database.dependencies import get_db
 from app.life_constants import MAIL_DOMAIN, DB_URI
 from app.main import app
 from app.models import (
-    Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserOTP,
+    APIKey, Email, EmailAlias, EmailLoginToken, ReservedAlias, User, UserOTP,
     UserPreferences,
 )
 from app.models.enums.alias import AliasType
@@ -205,6 +207,26 @@ def create_reserved_alias(db: Session):
         alias.users.extend(users)
 
         return alias
+
+    return _method
+
+
+@pytest.fixture
+def create_api_key(db: Session):
+    def _method(user: User, **kwargs) -> tuple[APIKey, str]:
+        key = _generate_key()
+        api_key = create_item(
+            db,
+            {
+                "user_id": user.id,
+                "expires_at": datetime.utcnow() + timedelta(days=1),
+                "hashed_key": hash_fast(key),
+                **kwargs,
+            },
+            APIKey,
+        )
+
+        return api_key, key
 
     return _method
 

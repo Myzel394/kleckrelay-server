@@ -19,5 +19,3 @@ class APIKeyScope(str, enum.Enum):
 
     REPORT_READ = "read:report"
     REPORT_DELETE = "delete:report"
-
-
