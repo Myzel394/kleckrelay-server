@@ -22,6 +22,7 @@ from app.controllers.user import (
     check_if_email_exists, create_user, get_user_by_id,
 )
 from app.database.dependencies import get_db
+from app.dependencies.auth import AuthResult, get_auth
 from app.dependencies.get_user import get_user
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
 from app.models import User
@@ -231,18 +232,18 @@ def signup_verify_email(
 async def verify_otp_api(
     data: VerifyOTPAuthenticationModel,
     response: Response,
-    user: User = Depends(get_user),
-    credentials: JwtAuthorizationCredentials = Security(access_security),
+    auth: AuthResult = Depends(get_auth(check_otp_if_enabled=False)),
 ):
     logger.info(
-        f"Request: Verify OTP -> New request from {user=} with {credentials=}."
+        f"Request: Verify OTP -> New request from user={auth.user} "
+        f"with credentials={auth.credentials}."
     )
 
-    otp_status = OTPVerificationStatus(credentials["otp_status"])
+    otp_status = OTPVerificationStatus(auth.credentials["otp_status"])
 
     if otp_status is not OTPVerificationStatus.CHALLENGED:
         logger.info(
-            f"Request: Verify OTP -> {user=} has not challenged an OTP."
+            f"Request: Verify OTP -> User has not challenged an OTP."
         )
 
         raise HTTPException(
@@ -250,11 +251,11 @@ async def verify_otp_api(
             detail="No OTP challenge found. Please request one.",
         )
 
-    challenged_at = datetime.fromisoformat(credentials["otp_challenged_at"])
+    challenged_at = datetime.fromisoformat(auth.credentials["otp_challenged_at"])
 
     if challenged_at < datetime.utcnow() - constants.OTP_TIMEOUT:
         logger.info(
-            f"Request: Verify OTP -> {user=} has challenged an OTP but it has expired."
+            f"Request: Verify OTP -> User has challenged an OTP but it has expired."
         )
 
         raise HTTPException(
@@ -262,11 +263,11 @@ async def verify_otp_api(
             detail="OTP challenge expired. Please request a new one.",
         )
 
-    expected_code = pyotp.TOTP(user.otp.secret).now()
+    expected_code = pyotp.TOTP(auth.user.otp.secret).now()
 
     if data.code != expected_code:
         logger.info(
-            f"Request: Verify OTP -> {user=} has challenged an OTP but the code is incorrect."
+            f"Request: Verify OTP -> User has challenged an OTP but the code is incorrect."
         )
 
         raise HTTPException(
@@ -274,10 +275,10 @@ async def verify_otp_api(
             detail="OTP code is incorrect.",
         )
 
-    logger.info(f"Request: Verify OTP -> Token for {user=} correct. Returning credentials.")
-    set_authentication_cookies(response, user, otp_status=OTPVerificationStatus.VERIFIED)
+    logger.info(f"Request: Verify OTP -> Token for user correct. Returning credentials.")
+    set_authentication_cookies(response, auth.user, otp_status=OTPVerificationStatus.VERIFIED)
 
-    return user
+    return auth.user
 
 
 @router.post(
@@ -292,28 +293,18 @@ async def verify_otp_api(
 )
 async def refresh_token(
     response: Response,
-    credentials: JwtAuthorizationCredentials = Security(refresh_security),
+    auth: AuthResult = Depends(get_auth()),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Refresh -> New Request to refresh JWT token.")
 
-    try:
-        user = get_user_by_id(db, credentials["id"])
-    except NoResultFound:
-        raise HTTPException(
-            status_code=404,
-            detail="User account not found.",
-        )
-
-    logger.info("Request: Refresh -> Returning new credentials.")
-
     set_authentication_cookies(
         response,
-        user,
-        otp_status=OTPVerificationStatus(credentials["otp_status"])
+        auth.user,
+        otp_status=OTPVerificationStatus(auth.credentials["otp_status"])
     )
 
-    return user
+    return auth.user
 
 
 @router.post(
