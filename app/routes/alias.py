@@ -14,10 +14,7 @@ from app.controllers.alias import (
 )
 from app.controllers.global_settings import get_settings_model
 from app.database.dependencies import get_db
-from app.dependencies.api_key_or_jwt import api_key_or_jwt
 from app.dependencies.auth import AuthResult, get_auth
-from app.dependencies.require_otp import require_otp_if_enabled
-from app.models import User
 from app.models.alias import AliasType
 from app.models.enums.api_key import APIKeyScope
 from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel

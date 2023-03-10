@@ -11,10 +11,7 @@ from app.controllers.email_report import (
     get_report_from_user_by_id,
 )
 from app.database.dependencies import get_db
-from app.dependencies.api_key_or_jwt import api_key_or_jwt
 from app.dependencies.auth import AuthResult, get_auth
-from app.dependencies.require_otp import require_otp_if_enabled
-from app.models import User
 from app.models.enums.api_key import APIKeyScope
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.report import Report

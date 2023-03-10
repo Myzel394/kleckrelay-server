@@ -13,9 +13,6 @@ from app.authentication.authentication_response import (
 from app.controllers.user_otp import create_otp, delete_otp, verify_otp_setup
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
-from app.dependencies.require_otp import require_otp_if_enabled
-from app.dependencies.get_user import get_user
-from app.models import User
 from app.schemas._basic import HTTPBadRequestExceptionModel, SimpleDetailResponseModel
 from app.schemas.user_otp import (
     DeleteOTPModel, HasUserOTPEnabledResponseModel, UserOTPResponseModel, VerifyOTPModel,

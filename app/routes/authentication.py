@@ -2,7 +2,6 @@ from datetime import datetime
 
 import pyotp
 from fastapi import APIRouter, Depends, HTTPException, Response, Security
-from fastapi_jwt import JwtAuthorizationCredentials
 from pydantic import ValidationError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -15,17 +14,14 @@ from app.authentication.authentication_response import (
 )
 from app.authentication.errors import (
     TokenIncorrectError, )
-from app.authentication.handler import access_security, refresh_security
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
 from app.controllers.global_settings import get_settings_model
 from app.controllers.user import (
-    check_if_email_exists, create_user, get_user_by_id,
+    check_if_email_exists, create_user,
 )
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
-from app.dependencies.get_user import get_user
 from app.life_constants import EMAIL_LOGIN_TOKEN_CHECK_EMAIL_EXISTS
-from app.models import User
 from app.schemas._basic import (
     HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel, SimpleDetailResponseModel,
 )

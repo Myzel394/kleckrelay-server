@@ -5,9 +5,6 @@ from app import logger
 from app.controllers.account import update_account_data
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
-from app.dependencies.get_user import get_user
-from app.dependencies.require_otp import require_otp_if_enabled
-from app.models import User
 from app.models.enums.api_key import APIKeyScope
 from app.schemas.user import UserDetail, UserUpdate
 

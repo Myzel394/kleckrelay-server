@@ -8,9 +8,6 @@ from app.controllers.cron_report import get_latest_cron_report
 from app.controllers.global_settings import get_settings, update_settings
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
-from app.dependencies.get_user import get_admin_user
-from app.dependencies.require_otp import require_otp_if_enabled
-from app.models import User
 from app.schemas.admin import (
     AdminGlobalSettingsDisabledResponseModel,
     AdminUpdateGlobalSettingsModel, AdminUsersResponseModel,

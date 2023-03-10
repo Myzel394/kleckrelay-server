@@ -9,10 +9,7 @@ from app import logger
 from app.controllers.alias_utils import check_if_alias_exists
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
-from app.dependencies.get_user import get_admin_user
-from app.dependencies.require_otp import require_otp_if_enabled
 from app.life_constants import MAIL_DOMAIN
-from app.models import User
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
