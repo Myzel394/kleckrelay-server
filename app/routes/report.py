@@ -12,6 +12,7 @@ from app.controllers.email_report import (
 )
 from app.database.dependencies import get_db
 from app.dependencies.api_key_or_jwt import api_key_or_jwt
+from app.dependencies.auth import AuthResult, get_auth
 from app.dependencies.require_otp import require_otp_if_enabled
 from app.models import User
 from app.models.enums.api_key import APIKeyScope
@@ -23,26 +24,24 @@ router = APIRouter()
 
 @router.get("/", response_model=Page[Report])
 def get_reports(
-    user: User = Depends(api_key_or_jwt(APIKeyScope.REPORT_READ)),
+    auth: AuthResult = Depends(get_auth(allow_api=True, api_key_scope=APIKeyScope.REPORT_READ)),
     params: Params = Depends(),
-    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get all Reports -> New Request.")
 
-    return paginate(user.email_reports, params)
+    return paginate(auth.user.email_reports, params)
 
 
 @router.get("/{id}", response_model=Report)
 def get_report(
     id: uuid.UUID,
-    user: User = Depends(api_key_or_jwt(APIKeyScope.REPORT_READ)),
     db: Session = Depends(get_db),
-    _: bool = Depends(require_otp_if_enabled),
+    auth: AuthResult = Depends(get_auth(allow_api=True, api_key_scope=APIKeyScope.REPORT_READ)),
 ):
     logger.info("Request: Get Report -> New Request.")
 
     try:
-        return get_report_from_user_by_id(db, user=user, id=id)
+        return get_report_from_user_by_id(db, user=auth.user, id=id)
     except NoResultFound:
         raise HTTPException(
             status_code=404,
@@ -53,14 +52,13 @@ def get_report(
 @router.delete("/{id}", response_model=SimpleDetailResponseModel)
 def delete_report_api(
     id: uuid.UUID,
-    user: User = Depends(api_key_or_jwt(APIKeyScope.REPORT_DELETE)),
+    auth: AuthResult = Depends(get_auth(allow_api=True, api_key_scope=APIKeyScope.REPORT_DELETE)),
     db: Session = Depends(get_db),
-    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Delete Report -> New Request.")
 
     try:
-        report= get_report_from_user_by_id(db, user=user, id=id)
+        report = get_report_from_user_by_id(db, user=auth.user, id=id)
     except NoResultFound:
         raise HTTPException(
             status_code=404,
