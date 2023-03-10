@@ -15,11 +15,10 @@ from app.controllers.alias import (
 from app.controllers.global_settings import get_settings_model
 from app.database.dependencies import get_db
 from app.dependencies.api_key_or_jwt import api_key_or_jwt
-from app.dependencies.get_instance_from_user import get_instance_from_user
-from app.dependencies.get_user import get_user
+from app.dependencies.auth import AuthResult, get_auth
 from app.dependencies.require_otp import require_otp_if_enabled
 from app.models import User
-from app.models.alias import AliasType, EmailAlias
+from app.models.alias import AliasType
 from app.models.enums.api_key import APIKeyScope
 from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
 from app.schemas.alias import AliasCreate, AliasDetail, AliasList, AliasUpdate
@@ -33,20 +32,22 @@ router = APIRouter()
     response_model=Page[AliasList]
 )
 def get_all_aliases(
-    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_READ)),
+    auth: AuthResult = Depends(get_auth(
+        allow_api=True,
+        api_key_scope=APIKeyScope.ALIAS_READ,
+    )),
     db: Session = Depends(get_db),
     params: Params = Depends(),
     query: str = Query(""),
     active: bool = Query(None),
     alias_type: AliasType = Query(None),
-    _: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get all aliases -> New Request.")
 
     return paginate(
         find_aliases_from_user_ordered(
             db,
-            user=user,
+            user=auth.user,
             search=query,
             active=active,
             alias_type=alias_type,
@@ -62,8 +63,10 @@ def get_all_aliases(
 async def create_alias_api(
     request: Request,
     db: Session = Depends(get_db),
-    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_CREATE)),
-    _: bool = Depends(require_otp_if_enabled),
+    auth: AuthResult = Depends(get_auth(
+        allow_api=True,
+        api_key_scope=APIKeyScope.ALIAS_CREATE,
+    )),
 ):
     logger.info("Request: Create Alias -> New request. Validating data.")
 
@@ -76,7 +79,7 @@ async def create_alias_api(
 
     logger.info("Request: Create Alias -> Valid data. Creating alias.")
 
-    alias = create_alias(db, alias_data, user)
+    alias = create_alias(db, alias_data, auth.user)
 
     return alias
 
@@ -93,14 +96,16 @@ async def create_alias_api(
 def update_alias_api(
     update: AliasUpdate,
     id: uuid.UUID,
-    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_UPDATE)),
     db: Session = Depends(get_db),
-    _: bool = Depends(require_otp_if_enabled),
+    auth: AuthResult = Depends(get_auth(
+        allow_api=True,
+        api_key_scope=APIKeyScope.ALIAS_UPDATE,
+    )),
 ):
     logger.info("Request: Update Alias -> New request. Validating data.")
 
     try:
-        alias = get_alias_from_user(db, user=user, id=id)
+        alias = get_alias_from_user(db, user=auth.user, id=id)
     except NoResultFound:
         logger.info(f"Request: Update Alias -> Alias with id={id} not found.")
         raise HTTPException(status_code=404, detail="Alias not found.")
@@ -124,14 +129,16 @@ def update_alias_api(
 )
 def get_alias(
     id: uuid.UUID,
-    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_UPDATE)),
     db: Session = Depends(get_db),
-    _: bool = Depends(require_otp_if_enabled),
+    auth: AuthResult = Depends(get_auth(
+        allow_api=True,
+        api_key_scope=APIKeyScope.ALIAS_READ,
+    )),
 ):
     logger.info("Request: Update Alias -> New request. Validating data.")
 
     try:
-        return get_alias_from_user(db, user=user, id=id)
+        return get_alias_from_user(db, user=auth.user, id=id)
     except NoResultFound:
         logger.info(f"Request: Update Alias -> Alias with id={id} not found.")
         raise HTTPException(status_code=404, detail="Alias not found.")
@@ -153,14 +160,16 @@ def get_alias(
 )
 def delete_alias_api(
     id: uuid.UUID,
-    user: User = Depends(api_key_or_jwt(APIKeyScope.ALIAS_DELETE)),
     db: Session = Depends(get_db),
-    _: bool = Depends(require_otp_if_enabled),
+    auth: AuthResult = Depends(get_auth(
+        allow_api=True,
+        api_key_scope=APIKeyScope.ALIAS_DELETE,
+    )),
 ):
     logger.info(f"Request: Delete Alias -> New request.")
 
     try:
-        alias = get_alias_from_user(db, user=user, id=id)
+        alias = get_alias_from_user(db, user=auth.user, id=id)
     except NoResultFound:
         logger.info(f"Request: Delete Alias -> Alias with id={id} not found.")
         raise HTTPException(status_code=404, detail="Alias not found.")
