@@ -1,4 +1,5 @@
 import secrets
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -12,6 +13,8 @@ from app.utils.hashes import hash_fast, verify_fast_hash
 __all__ = [
     "create_api_key",
     "find_api_key",
+    "get_api_key_from_user_by_id",
+    "delete_api_key",
 ]
 
 
@@ -54,3 +57,23 @@ def find_api_key(
     for api_key in all_keys:
         if verify_fast_hash(api_key.hashed_key, key):
             return api_key
+
+
+def get_api_key_from_user_by_id(
+    db: Session,
+    /,
+    id: uuid.UUID,
+    user: User,
+):
+    return db.query(APIKey).filter_by(id=id, user_id=user.id).one()
+
+
+def delete_api_key(
+    db: Session,
+    /,
+    api_key: APIKey
+) -> None:
+    db.delete(api_key)
+    db.commit()
+
+

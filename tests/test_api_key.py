@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from requests import Session
 from starlette.testclient import TestClient
 
+from app.models.enums.api_key import APIKeyScope
+
 
 def test_can_create_api_key(
     client: TestClient,
@@ -19,6 +21,28 @@ def test_can_create_api_key(
             "scopes": ["create:alias"],
             "label": "Test API Key",
         },
+        headers=auth["headers"]
+    )
+
+    assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
+
+
+def test_can_delete_api_key(
+    client: TestClient,
+    create_user,
+    create_api_key,
+    create_auth_tokens,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+    api_key, key = create_api_key(
+        user=user,
+        scopes=[APIKeyScope.ALIAS_CREATE],
+        expires_at=datetime.utcnow() - timedelta(days=1),
+    )
+
+    response = client.delete(
+        f"/v1/api-key/{api_key.id}/",
         headers=auth["headers"]
     )
 
