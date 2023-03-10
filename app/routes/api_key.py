@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_pagination import paginate, Params, Page
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
@@ -12,9 +13,22 @@ from app.controllers.api_key import (
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
 from app.schemas._basic import HTTPNotFoundExceptionModel, SimpleDetailResponseModel
-from app.schemas.api_key import APIKeyCreatedResponseModel, APIKeyCreateModel, APIKeyDeleteModel
+from app.schemas.api_key import (
+    APIKeyCreatedResponseModel, APIKeyCreateModel, APIKeyDeleteModel,
+    APIKeyResponseModel,
+)
 
 router = APIRouter()
+
+
+@router.get("/", response_model=Page[APIKeyResponseModel])
+def get_api_keys_api(
+    auth: AuthResult = Depends(get_auth()),
+    params: Params = Depends(),
+):
+    logger.info("Request: Get all API Keys -> New Request.")
+
+    return paginate(auth.user.api_keys, params)
 
 
 @router.post("/", response_model=APIKeyCreatedResponseModel)

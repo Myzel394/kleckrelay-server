@@ -70,3 +70,26 @@ def test_can_delete_api_key_by_key(
     )
 
     assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
+
+
+def test_can_get_api_keys(
+    client: TestClient,
+    create_user,
+    create_api_key,
+    create_auth_tokens,
+):
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+    create_api_key(
+        user=user,
+        scopes=[APIKeyScope.ALIAS_CREATE],
+        expires_at=datetime.utcnow() + timedelta(days=1),
+    )
+
+    response = client.get(
+        "/v1/api-key/",
+        headers=auth["headers"]
+    )
+
+    assert response.status_code == 200, f"Status code should be 200 but is {response.status_code}"
+    assert len(response.json()["items"]) == 1, "There should be one API key"

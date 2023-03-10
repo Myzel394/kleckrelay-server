@@ -10,6 +10,7 @@ __all__ = [
     "APIKeyCreateModel",
     "APIKeyCreatedResponseModel",
     "APIKeyDeleteModel",
+    "APIKeyResponseModel",
 ]
 
 
@@ -24,14 +25,17 @@ class APIKeyCreateModel(BaseModel):
     )
 
 
-class APIKeyModel(BaseModel):
+class APIKeyResponseModel(BaseModel):
     id: uuid.UUID
     expires_at: datetime
     scopes: list[APIKeyScope]
     label: str
 
+    class Config:
+        orm_mode = True
 
-class APIKeyCreatedResponseModel(APIKeyModel):
+
+class APIKeyCreatedResponseModel(APIKeyResponseModel):
     key: str
 
 
