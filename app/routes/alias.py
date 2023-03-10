@@ -155,7 +155,7 @@ def get_alias(
         },
     }
 )
-def delete_alias_api(
+def delete_alias_by_id_api(
     id: uuid.UUID,
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(get_auth(
@@ -185,6 +185,7 @@ def delete_alias_api(
         alias=alias,
     )
     logger.info(f"Request: Delete Alias -> Alias deleted successfully.")
+
     return {
         "detail": "Alias deleted successfully."
     }

@@ -3,12 +3,13 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app import constants
+from app import constants, life_constants
 from app.models.enums.api_key import APIKeyScope
 
 __all__ = [
     "APIKeyCreateModel",
     "APIKeyCreatedResponseModel",
+    "APIKeyDeleteModel",
 ]
 
 
@@ -32,3 +33,11 @@ class APIKeyModel(BaseModel):
 
 class APIKeyCreatedResponseModel(APIKeyModel):
     key: str
+
+
+class APIKeyDeleteModel(BaseModel):
+    key: str = Field(
+        ...,
+        min_length=life_constants.API_KEY_LENGTH,
+        max_length=life_constants.API_KEY_LENGTH,
+    )
