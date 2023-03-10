@@ -15,6 +15,7 @@ __all__ = [
     "find_api_key",
     "get_api_key_from_user_by_id",
     "delete_api_key",
+    "delete_expired_api_keys",
 ]
 
 
@@ -77,3 +78,13 @@ def delete_api_key(
     db.commit()
 
 
+def delete_expired_api_keys(db: Session, /) -> int:
+    query = db.query(APIKey).filter(APIKey.expires_at < datetime.utcnow())
+
+    count = query.count()
+
+    query.delete()
+
+    db.commit()
+
+    return count

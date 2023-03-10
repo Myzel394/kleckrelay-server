@@ -20,7 +20,7 @@ __all__ = [
     "get_user_by_email",
     "create_user",
     "get_user_by_id",
-    "get_non_verified_users_to_delete",
+    "delete_non_verified_users",
     "delete_user"
 ]
 
@@ -70,10 +70,10 @@ def get_user_by_id(db: Session, /, user_id: uuid.UUID) -> User:
     return db.query(User).filter_by(id=user_id).one()
 
 
-def get_non_verified_users_to_delete(db: Session, /) -> list[User]:
+def delete_non_verified_users(db: Session, /) -> int:
     lifetime = get(db, "NON_VERIFIED_USER_LIFE_TIME_IN_DAYS")
 
-    return db\
+    query = db\
         .query(User)\
         .filter(
             and_(
@@ -81,7 +81,14 @@ def get_non_verified_users_to_delete(db: Session, /) -> list[User]:
                 User.created_at < datetime.utcnow() - timedelta(days=lifetime),
             )
         )\
-        .all()
+
+    amount = query.count()
+
+    query.delete()
+
+    db.commit()
+
+    return amount
 
 
 def delete_user(

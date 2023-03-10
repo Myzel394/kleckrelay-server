@@ -4,15 +4,15 @@ import logging
 from sqlalchemy.orm import Session
 
 from app import logger
+from app.controllers.api_key import delete_expired_api_keys
 from app.controllers.cron_report import (
     create_cron_report, delete_cron_report,
-    get_expired_cron_reports,
+    delete_expired_cron_reports,
 )
-from app.controllers.image_proxy import get_expired_images
-from app.controllers.user import delete_user, get_non_verified_users_to_delete
+from app.controllers.user import delete_user, delete_non_verified_users
 from app.cron_report_builder import CronReportBuilder
 from app.database.dependencies import with_db
-from app.models.image_proxy import STORAGE_PATH
+from maid_utils.image_proxy import delete_expired_images
 
 
 def clean_up(
@@ -22,37 +22,25 @@ def clean_up(
     logger.info("Maid: Starting cleanup.")
     logger.info("Maid: Cleaning up expired images.")
 
-    expired_images = get_expired_images(db)
+    expired_images_count = delete_expired_images(db)
 
-    logger.info(f"Maid: Found {len(expired_images)} images to delete.")
-    for image in expired_images:
-        path = STORAGE_PATH / image.filename
+    logger.info(f"Maid: Deleted {expired_images_count} expired images.")
 
-        if path.exists():
-            path.unlink()
-            logger.info(f"Maid: Deleted {path}.")
-
-    report_builder.expired_images = len(expired_images)
+    report_builder.expired_images = expired_images_count
 
     logger.info("Maid: Cleaning up non-verified old users.")
 
-    users = get_non_verified_users_to_delete(db)
+    non_verified_amount = delete_non_verified_users(db)
+    logger.info(f"Maid: Deleted {non_verified_amount} non verified users.")
+    report_builder.non_verified_users = non_verified_amount
 
-    logger.info(f"Maid: Found {len(users)} users to delete.")
-    for user in users:
-        delete_user(db, user)
-        logger.info(f"Maid: Deleted user {user.id}.")
+    reports_amount = delete_expired_cron_reports(db)
+    logger.info(f"Maid: Deleted {reports_amount} reports.")
+    report_builder.expired_reports = reports_amount
 
-    report_builder.non_verified_users = len(users)
-
-    reports = get_expired_cron_reports(db)
-
-    logger.info(f"Maid: Found {len(reports)} reports to delete.")
-    for report in reports:
-        delete_cron_report(db, report)
-        logger.info(f"Maid: Deleted report {report.id}.")
-
-    report_builder.expired_reports = len(reports)
+    api_keys_amount = delete_expired_api_keys(db)
+    logger.info(f"Maid: Deleted {api_keys_amount} API keys.")
+    report_builder.expired_api_keys = api_keys_amount
 
     logger.info("Maid: Finished cleanup.")
 
