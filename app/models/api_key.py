@@ -1,4 +1,3 @@
-import enum
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -7,10 +6,10 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database.base import Base
-from ._mixins import IDMixin, CreationMixin
+from ._mixins import IDMixin
 from .enums.api_key import APIKeyScope
 from .. import constants
-from ..utils.hashes import hash_fast, hash_slowly
+from ..utils.hashes import hash_fast
 
 __all__ = [
     "APIKey"
