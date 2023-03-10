@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app import logger
 from app.controllers.alias_utils import check_if_alias_exists
 from app.database.dependencies import get_db
+from app.dependencies.auth import AuthResult, get_auth
 from app.dependencies.get_user import get_admin_user
 from app.dependencies.require_otp import require_otp_if_enabled
 from app.life_constants import MAIL_DOMAIN
@@ -27,11 +28,10 @@ router = APIRouter()
     response_model=Page[ReservedAliasDetail]
 )
 def get_reserved_aliases_api(
-    _: User = Depends(get_admin_user),
+    _: AuthResult = Depends(get_auth(require_admin=True)),
     db: Session = Depends(get_db),
     params: Params = Depends(),
     query: str = Query(""),
-    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get all reserved aliases -> New Request.")
 
@@ -55,9 +55,8 @@ def get_reserved_aliases_api(
 )
 def get_reserved_alias_api(
     id: uuid.UUID,
-    _: User = Depends(get_admin_user),
+    _: AuthResult = Depends(get_auth(require_admin=True)),
     db: Session = Depends(get_db),
-    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Get Reserved Alias -> New Request.")
 
@@ -79,9 +78,8 @@ def get_reserved_alias_api(
 )
 def create_reserved_alias_api(
     alias_data: ReservedAliasCreate,
-    _: User = Depends(get_admin_user),
+    _: AuthResult = Depends(get_auth(require_admin=True)),
     db: Session = Depends(get_db),
-    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Create Reserved Alias -> New Request.")
 
@@ -113,9 +111,8 @@ def create_reserved_alias_api(
 def update_reserved_alias_api(
     id: uuid.UUID,
     alias_data: ReservedAliasUpdate,
-    _: User = Depends(get_admin_user),
+    _: AuthResult = Depends(get_auth(require_admin=True)),
     db: Session = Depends(get_db),
-    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Update Reserved Alias -> New Request.")
 
@@ -144,9 +141,8 @@ def update_reserved_alias_api(
 )
 def delete_reserved_alias_api(
     id: uuid.UUID,
-    _: User = Depends(get_admin_user),
+    _: AuthResult = Depends(get_auth(require_admin=True)),
     db: Session = Depends(get_db),
-    __: bool = Depends(require_otp_if_enabled),
 ):
     logger.info("Request: Delete Reserved Alias -> New Request.")
 
