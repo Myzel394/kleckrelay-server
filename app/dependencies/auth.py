@@ -36,7 +36,6 @@ class AuthResult:
     method: AuthResultMethod
     credentials: Optional[JwtAuthorizationCredentials] = None
     api_key: Optional[APIKey] = None
-    otp_ok: bool = False
 
 
 def _extract_api_key_from_header(
