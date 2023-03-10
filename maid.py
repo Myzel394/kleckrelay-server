@@ -6,10 +6,9 @@ from sqlalchemy.orm import Session
 from app import logger
 from app.controllers.api_key import delete_expired_api_keys
 from app.controllers.cron_report import (
-    create_cron_report, delete_cron_report,
-    delete_expired_cron_reports,
+    create_cron_report, delete_expired_cron_reports,
 )
-from app.controllers.user import delete_user, delete_non_verified_users
+from app.controllers.user import delete_non_verified_users
 from app.cron_report_builder import CronReportBuilder
 from app.database.dependencies import with_db
 from maid_utils.image_proxy import delete_expired_images
