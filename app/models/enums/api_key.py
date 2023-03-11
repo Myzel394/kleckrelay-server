@@ -6,7 +6,7 @@ __all__ = [
 
 
 class APIKeyScope(str, enum.Enum):
-    PROFILE_BASIC = "profile_basic"
+    PROFILE_BASIC = "basic_profile"
     FULL_PROFILE = "full_profile"
 
     PREFERENCES_READ = "read:preferences"
