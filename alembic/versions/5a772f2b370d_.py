@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 298d6a4e0d71
+Revision ID: 5a772f2b370d
 Revises: 7e9ad1bb809e
-Create Date: 2023-03-09 22:08:08.677664
+Create Date: 2023-03-11 14:47:34.318260
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '298d6a4e0d71'
+revision = '5a772f2b370d'
 down_revision = '7e9ad1bb809e'
 branch_labels = None
 depends_on = None
@@ -21,9 +21,10 @@ def upgrade() -> None:
     op.create_table('api_key',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=True),
-    sa.Column('expires_at', sa.DateTime(), nullable=False),
+    sa.Column('label', sa.String(length=80), nullable=False),
+    sa.Column('expires_at', sa.Date(), nullable=False),
     sa.Column('hashed_key', sa.String(length=97), nullable=False),
-    sa.Column('scopes', sa.ARRAY(sa.Enum('PROFILE_BASIC', 'FULL_PROFILE', 'PREFERENCES_READ', 'PREFERENCES_UPDATE', 'ALIAS_READ', 'ALIAS_CREATE', 'ALIAS_UPDATE', 'ALIAS_DELETE', 'REPORT_READ', 'REPORT_DELETE', name='apikeyscope')), nullable=False),
+    sa.Column('scopes', sa.ARRAY(sa.Enum('PROFILE_READ', 'PROFILE_UPDATE', 'PREFERENCES_READ', 'PREFERENCES_UPDATE', 'ALIAS_READ', 'ALIAS_CREATE', 'ALIAS_UPDATE', 'ALIAS_DELETE', 'REPORT_READ', 'REPORT_DELETE', 'ADMIN_CRON_REPORT_READ', 'ADMIN_SETTINGS_READ', 'ADMIN_SETTINGS_UPDATE', 'ADMIN_RESERVED_ALIAS_READ', 'ADMIN_RESERVED_ALIAS_CREATE', 'ADMIN_RESERVED_ALIAS_UPDATE', 'ADMIN_RESERVED_ALIAS_DELETE', name='apikeyscope')), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

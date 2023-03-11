@@ -8,6 +8,7 @@ from app.controllers.cron_report import get_latest_cron_report
 from app.controllers.global_settings import get_settings, update_settings
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
+from app.models.enums.api_key import APIKeyScope
 from app.schemas.admin import (
     AdminGlobalSettingsDisabledResponseModel,
     AdminUpdateGlobalSettingsModel, AdminUsersResponseModel,
@@ -24,7 +25,11 @@ router = APIRouter()
 )
 def get_admin_users_api(
     db: Session = Depends(get_db),
-    _: AuthResult = Depends(get_auth(require_admin=True))
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_SETTINGS_UPDATE,
+    ))
 ):
     logger.info("Request: Get Admins -> New Request.")
 
@@ -45,7 +50,11 @@ def get_admin_users_api(
 )
 def get_settings_api(
     db: Session = Depends(get_db),
-    _: AuthResult = Depends(get_auth(require_admin=True))
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_SETTINGS_READ,
+    ))
 ):
     logger.info("Request: Get Admin Settings -> New Request.")
 
@@ -76,7 +85,11 @@ def get_settings_api(
 def update_settings_api(
     update_data: AdminUpdateGlobalSettingsModel,
     db: Session = Depends(get_db),
-    _: AuthResult = Depends(get_auth(require_admin=True))
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_SETTINGS_UPDATE,
+    ))
 ):
     logger.info("Request: Update Admin Settings -> New Request.")
 
@@ -101,7 +114,11 @@ def update_settings_api(
 @router.get("/cron-report/latest/", response_model=CronReportResponseModel)
 def get_cron_jobs(
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(get_auth(require_admin=True))
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_CRON_REPORT_READ,
+    ))
 ):
     logger.info("Request: Get Cron Jobs -> New Request.")
 
