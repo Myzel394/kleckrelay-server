@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date
 
 from pydantic import BaseModel, Field
 
@@ -15,8 +15,8 @@ __all__ = [
 
 
 class APIKeyCreateModel(BaseModel):
-    expires_at: datetime = Field(
-        default_factory=lambda: datetime.utcnow() + constants.DEFAULT_API_EXPIRE_DURATION
+    expires_at: date = Field(
+        default_factory=lambda: date.today() + constants.DEFAULT_API_EXPIRE_DURATION
     )
     scopes: list[APIKeyScope]
     label: str = Field(
@@ -27,7 +27,7 @@ class APIKeyCreateModel(BaseModel):
 
 class APIKeyResponseModel(BaseModel):
     id: uuid.UUID
-    expires_at: datetime
+    expires_at: date
     scopes: list[APIKeyScope]
     label: str
 

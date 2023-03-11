@@ -37,7 +37,7 @@ class APIKey(Base, IDMixin):
             nullable=False,
         )
         expires_at = sa.Column(
-            sa.DateTime,
+            sa.Date,
             nullable=False,
         )
         hashed_key = sa.Column(
