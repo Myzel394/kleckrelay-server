@@ -29,6 +29,7 @@ class SettingsModel(BaseModel):
     instance_salt: str
     public_key: str
     allow_alias_deletion: bool
+    api_key_max_days: int
 
 
 class ServerStatisticsModel(BaseModel):

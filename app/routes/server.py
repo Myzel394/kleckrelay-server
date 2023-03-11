@@ -42,6 +42,7 @@ def get_settings(
         "allow_statistics": settings.get(db, "ALLOW_STATISTICS"),
         "allow_alias_deletion": settings.get(db, "ALLOW_ALIAS_DELETION"),
         "max_aliases_per_user": settings.get(db, "MAX_ALIASES_PER_USER"),
+        "api_key_max_days": life_constants.API_KEY_MAX_DAYS,
     }
 
 

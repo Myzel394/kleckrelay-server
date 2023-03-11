@@ -118,3 +118,7 @@ RECOVERY_CODES_AMOUNT = 5
 IMAGE_PROXY_FALLBACK_IMAGE_TYPE = "jpeg"
 IMAGE_PROXY_FALLBACK_USER_AGENT_TYPE = "firefox"
 EMAIL_HANDLER_HOST = "127.0.0.1"
+# Entropy of about 214 bits
+API_KEY_CHARS = string.ascii_uppercase + string.ascii_lowercase + string.digits
+API_KEY_LENGTH = 36
+API_KEY_MAX_DAYS = 365

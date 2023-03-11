@@ -14,7 +14,7 @@ from ..gpg_handler import sign_message
 __all__ = [
     "create_cron_report",
     "get_latest_cron_report",
-    "get_expired_cron_reports"
+    "delete_expired_cron_reports"
 ]
 
 
@@ -62,11 +62,18 @@ def get_latest_cron_report(db: Session, /) -> CronReport:
     return db.query(CronReport).order_by(CronReport.created_at.desc()).first()
 
 
-def get_expired_cron_reports(db: Session, /) -> list[CronReport]:
-    return db \
+def delete_expired_cron_reports(db: Session, /) -> int:
+    query = db \
         .query(CronReport) \
         .filter(CronReport.created_at < datetime.utcnow() - timedelta(days=life_constants.KEEP_CRON_JOBS_AMOUNT))\
-        .all()
+
+    count = query.count()
+
+    query.delete()
+
+    db.commit()
+
+    return count
 
 
 def delete_cron_report(db: Session, /, report: CronReport) -> None:

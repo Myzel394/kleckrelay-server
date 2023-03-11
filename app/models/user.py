@@ -109,6 +109,11 @@ class User(Base, IDMixin, CreationMixin):
             uselist=False,
             cascade="all, delete",
         )
+        api_keys = relationship(
+            "APIKey",
+            backref="user",
+            cascade="all, delete",
+        )
 
     @property
     def is_admin(self) -> bool:

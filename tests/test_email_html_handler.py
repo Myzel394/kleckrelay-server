@@ -25,6 +25,7 @@ def test_can_convert_images(
         report_id="",
     )
     new_html = content_handler.convert_images(report, alias=alias, html=html)
+    print(new_html)
 
     assert html != new_html, "HTML should have changed."
     d = pq(lxml.html.fromstring(new_html))
