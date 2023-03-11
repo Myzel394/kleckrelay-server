@@ -10,6 +10,7 @@ from app.controllers.alias_utils import check_if_alias_exists
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, get_auth
 from app.life_constants import MAIL_DOMAIN
+from app.models.enums.api_key import APIKeyScope
 from app.schemas._basic import SimpleDetailResponseModel
 from app.schemas.reserved_alias import ReservedAliasCreate, ReservedAliasDetail, ReservedAliasUpdate
 from app.controllers.reserved_alias import (
@@ -25,7 +26,11 @@ router = APIRouter()
     response_model=Page[ReservedAliasDetail]
 )
 def get_reserved_aliases_api(
-    _: AuthResult = Depends(get_auth(require_admin=True)),
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_RESERVED_ALIAS_READ,
+    )),
     db: Session = Depends(get_db),
     params: Params = Depends(),
     query: str = Query(""),
@@ -52,7 +57,11 @@ def get_reserved_aliases_api(
 )
 def get_reserved_alias_api(
     id: uuid.UUID,
-    _: AuthResult = Depends(get_auth(require_admin=True)),
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_RESERVED_ALIAS_READ,
+    )),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Get Reserved Alias -> New Request.")
@@ -75,7 +84,11 @@ def get_reserved_alias_api(
 )
 def create_reserved_alias_api(
     alias_data: ReservedAliasCreate,
-    _: AuthResult = Depends(get_auth(require_admin=True)),
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_RESERVED_ALIAS_CREATE,
+    )),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Create Reserved Alias -> New Request.")
@@ -108,7 +121,11 @@ def create_reserved_alias_api(
 def update_reserved_alias_api(
     id: uuid.UUID,
     alias_data: ReservedAliasUpdate,
-    _: AuthResult = Depends(get_auth(require_admin=True)),
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_RESERVED_ALIAS_UPDATE,
+    )),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Update Reserved Alias -> New Request.")
@@ -138,7 +155,11 @@ def update_reserved_alias_api(
 )
 def delete_reserved_alias_api(
     id: uuid.UUID,
-    _: AuthResult = Depends(get_auth(require_admin=True)),
+    _: AuthResult = Depends(get_auth(
+        require_admin=True,
+        allow_api=True,
+        api_key_scope=APIKeyScope.ADMIN_RESERVED_ALIAS_DELETE,
+    )),
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Delete Reserved Alias -> New Request.")
