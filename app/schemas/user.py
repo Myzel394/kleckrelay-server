@@ -16,6 +16,7 @@ __all__ = [
     "UserCreate",
     "UserUpdate",
     "UserDetail",
+    "UserDetailWithoutPreferences",
     "UserPreferences",
 ]
 
@@ -100,13 +101,21 @@ class UserPreferences(BaseModel):
         orm_mode = True
 
 
-class UserDetail(UserBase):
+class UserDetailWithoutPreferences(UserBase):
     id: uuid.UUID
     salt: str
     created_at: datetime
     email: Email
-    preferences: UserPreferences
     is_admin: bool
 
     class Config:
         orm_mode = True
+
+
+class UserDetail(UserDetailWithoutPreferences):
+    preferences: UserPreferences
+
+    class Config:
+        orm_mode = True
+
+

@@ -105,6 +105,7 @@ def get_auth(
                 return AuthResult(
                     user=api_key.user,
                     method=AuthResultMethod.API_KEY,
+                    api_key=api_key,
                 )
 
             raise HTTPException(
