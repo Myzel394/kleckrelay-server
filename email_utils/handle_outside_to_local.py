@@ -50,7 +50,7 @@ def handle_outside_to_local(
         message_id=message[headers.MESSAGE_ID],
     )
 
-    content = message.get_payload()
+    content = message.get_payload(decode=True)
 
     if type(content) is str:
         content_type = message.get_content_type()
@@ -79,14 +79,14 @@ def handle_outside_to_local(
                         db,
                         alias=alias,
                         report=report,
-                        content=part.get_payload(),
+                        content=part.get_payload(decode=True),
                     )
 
                     part.set_payload(content, "utf-8")
                 case "text/plain":
                     content = parse_text(
                         alias=alias,
-                        content=part.get_payload(),
+                        content=part.get_payload(decode=True),
                     )
 
                     part.set_payload(content, "utf-8")
