@@ -50,9 +50,11 @@ def handle_outside_to_local(
         message_id=message[headers.MESSAGE_ID],
     )
 
-    content = message.get_payload(decode=True)
+    content = message.get_payload(decode=True) or message.get_payload()
+    logger.info("Parsing content.")
 
     if type(content) is str:
+        logger.info("Found 1 content.")
         content_type = message.get_content_type()
 
         if content_type == "text/html":
@@ -72,6 +74,8 @@ def handle_outside_to_local(
 
             message.set_payload(content, "utf-8")
     elif type(content) is list:
+        logger.info(f"Found {len(content)} contents.")
+
         for part in message.walk():
             match part.get_content_type():
                 case "text/html":
@@ -91,18 +95,14 @@ def handle_outside_to_local(
 
                     part.set_payload(content, "utf-8")
 
+    logger.info("Parsing content done.")
     if alias.create_mail_report and alias.user.public_key is not None:
+        logger.info("Creating mail report.")
         create_email_report(
             db,
             report_data=report,
             user=alias.user,
         )
-
-    logger.info(
-        f"Email {envelope.mail_from} is from outside and wants to send to alias "
-        f"{alias.address}. "
-        f"Relaying email to locally saved user {alias.user.email.address}."
-    )
 
     set_header(
         message,

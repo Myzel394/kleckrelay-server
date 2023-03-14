@@ -182,6 +182,7 @@ async def handle(envelope: Envelope, message: Message) -> str:
             except NoResultFound:
                 pass
             else:
+                # OUTSIDE user wants to send a mail TO an alias
                 handle_outside_to_local(
                     db,
                     alias=alias,

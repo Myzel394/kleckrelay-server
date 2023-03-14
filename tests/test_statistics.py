@@ -6,6 +6,7 @@ from aiosmtpd.smtp import Envelope
 
 from app import constants
 from app.constants import ROOT_DIR
+from email_utils import headers
 from email_utils.handler import handle
 
 
@@ -18,7 +19,7 @@ async def test_can_create_statistics(
 ):
     previous_statistics = client.get("/v1/server/statistics").json()
     user = create_user(is_verified=True)
-    alias = create_random_alias(user=user)
+    alias = create_random_alias(user=user, pref_remove_trackers=True)
 
     envelope = Envelope()
     envelope.mail_from = "outside@example.com"
@@ -27,6 +28,9 @@ async def test_can_create_statistics(
     html = (ROOT_DIR / "explorative_tests" / "image_tracker_url.html").read_text()
     message = MIMEMultipart("alternative")
     message.attach(MIMEText(html, "html"))
+    message[headers.SUBJECT] = "Test"
+    message[headers.FROM] = "outside@example.com"
+    message[headers.TO] = alias.address
 
     response = await handle(
         envelope=envelope,
