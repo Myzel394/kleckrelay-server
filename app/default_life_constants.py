@@ -122,3 +122,4 @@ EMAIL_HANDLER_HOST = "127.0.0.1"
 API_KEY_CHARS = string.ascii_uppercase + string.ascii_lowercase + string.digits
 API_KEY_LENGTH = 36
 API_KEY_MAX_DAYS = 365
+ALLOW_REGISTRATIONS = "True"

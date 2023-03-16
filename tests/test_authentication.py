@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
+from app.controllers.global_settings import get_settings, get
 from app import constants, life_constants
 from app.models import User
 from tests.helpers import is_a_jwt_token
@@ -315,9 +316,9 @@ def test_can_resend_valid_email_verification_code(
 
 
 def test_can_not_resend_email_verification_code_with_invalid_email(
-        create_user,
-        create_email_token,
-        client: TestClient,
+    create_user,
+    create_email_token,
+    client: TestClient,
 ):
     user: User = create_user(is_verified=True)
     email_login, token, same_request_token = create_email_token(user=user)
@@ -333,9 +334,9 @@ def test_can_not_resend_email_verification_code_with_invalid_email(
 
 
 def test_can_not_resend_email_verification_code_with_invalid_same_request_token(
-        create_user,
-        create_email_token,
-        client: TestClient,
+    create_user,
+    create_email_token,
+    client: TestClient,
 ):
     user: User = create_user(is_verified=True)
     email_login, token, same_request_token = create_email_token(user=user)
@@ -348,3 +349,27 @@ def test_can_not_resend_email_verification_code_with_invalid_same_request_token(
         }
     )
     assert response.status_code == 404, "Status code should be 404"
+
+
+def test_can_not_signup_when_registrations_are_disabled(
+    client: TestClient,
+    db: Session,
+):
+    settings = get_settings(db)
+
+    settings.allow_registrations = False
+
+    db.add(settings)
+    db.commit()
+    db.refresh(settings)
+
+    response = client.post(
+        "/v1/auth/signup",
+        json={
+            "email": "email@example.com",
+            "public_key": PUBLIC_KEY,
+            "encrypted_notes": "abc",
+        }
+    )
+
+    assert response.status_code == 403, f"Status code should be 403 but is {response.status_code}"

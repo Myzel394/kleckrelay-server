@@ -64,3 +64,6 @@ class GlobalSettings(Base, IDMixin):
     max_aliases_per_user = sa.Column(
         sa.Integer(),
     )
+    allow_registrations = sa.Column(
+        sa.Boolean(),
+    )
