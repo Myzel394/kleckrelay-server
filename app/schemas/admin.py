@@ -50,3 +50,4 @@ class AdminUpdateGlobalSettingsModel(BaseModel):
     allow_statistics: Optional[bool] = None
     allow_alias_deletion: Optional[bool] = None
     max_aliases_per_user: Optional[int] = Field(None, ge=0, le=INTEGER_LIMIT)
+    allow_registrations: Optional[bool] = None

@@ -15,7 +15,7 @@ from app.authentication.authentication_response import (
 from app.authentication.errors import (
     TokenIncorrectError, )
 from app.controllers.email import get_email_by_address, send_verification_email, verify_email
-from app.controllers.global_settings import get_settings_model
+from app.controllers.global_settings import get_settings_model, get as get_setting_value
 from app.controllers.user import (
     check_if_email_exists, create_user,
 )
@@ -41,6 +41,10 @@ router = APIRouter()
     responses={
         400: {
             "model": HTTPBadRequestExceptionModel
+        },
+        403: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "Registrations are not allowed."
         }
     },
     openapi_extra={
@@ -58,6 +62,15 @@ async def signup(
     db: Session = Depends(get_db),
 ):
     logger.info("Request: Signup -> Sign up request.")
+
+    registrations_allowed = get_setting_value(db, "ALLOW_REGISTRATIONS")
+
+    if not registrations_allowed:
+        logger.info("Request: Signup -> Registrations are not allowed.")
+        raise HTTPException(
+            status_code=403,
+            detail="Registrations are not allowed.",
+        )
 
     user_data = await request.json()
     try:

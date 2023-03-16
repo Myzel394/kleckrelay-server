@@ -21,6 +21,7 @@ class GlobalSettingsModel(BaseModel):
     allow_statistics: bool
     allow_alias_deletion: bool
     max_aliases_per_user: int
+    allow_registrations: bool
 
     class Config:
         orm_mode = True
