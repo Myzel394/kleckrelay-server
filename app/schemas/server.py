@@ -30,6 +30,7 @@ class SettingsModel(BaseModel):
     public_key: str
     allow_alias_deletion: bool
     api_key_max_days: int
+    allow_registrations: bool
 
 
 class ServerStatisticsModel(BaseModel):
