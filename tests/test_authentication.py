@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from app.controllers.global_settings import get_settings, get
+from app.controllers.global_settings import get_settings
 from app import constants, life_constants
 from app.models import User
 from tests.helpers import is_a_jwt_token
