@@ -52,6 +52,9 @@ def handle_outside_to_local(
 
     content = message.get_payload(decode=True) or message.get_payload()
     logger.info("Parsing content.")
+    if type(content) is bytes:
+        # Try to get the payload firstly and then fallback
+        content = message.get_payload() or message.get_payload(decode=True)
 
     if type(content) is str:
         logger.info("Found 1 content.")
