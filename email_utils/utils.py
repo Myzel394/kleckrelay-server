@@ -193,4 +193,4 @@ def find_email_content(message: Message) -> Generator[tuple[Message, str], None,
 
         for part in message.walk():
             if part.get_content_type() in USER_EMAIL_CONTENT_TYPES:
-                yield part, part.get_payload(decode=True) or part.get_payload()
+                yield part, part.get_payload() or part.get_payload(decode=True)

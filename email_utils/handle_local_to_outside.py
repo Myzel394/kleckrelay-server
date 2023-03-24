@@ -78,7 +78,7 @@ async def handle_local_to_outside(
 
     logger.info("Checking for privacy leak.")
     for part, content in find_email_content(message):
-        check_for_privacy_leak(content, alias.address)
+        check_for_privacy_leak(content, alias.user.email.address)
     logger.info("No privacy leak found.")
 
     logger.info(

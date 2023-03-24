@@ -48,6 +48,6 @@ class AliasNotYoursError(EmailHandlerError):
 
 @dataclass
 class PrivacyLeakError(EmailHandlerError):
-    status_code: str = status.E519
+    status_code: str = status.E501
 
     reason = "Your email contains leaked information."

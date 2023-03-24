@@ -10,6 +10,7 @@ from email_utils.errors import AliasDisabledError, InvalidEmailError, PrivacyLea
 __all__ = [
     "validate_envelope",
     "validate_alias",
+    "check_for_privacy_leak",
 ]
 
 
@@ -34,6 +35,7 @@ def validate_alias(alias: Union[EmailAlias]) -> None:
         raise AliasDisabledError()
 
 
-def check_for_privacy_leak(message: str, search: str) -> None:
-    if search in message:
+def check_for_privacy_leak(content: str, search: str) -> None:
+    print(f"checking if {search} is in {content}")
+    if search in content:
         raise PrivacyLeakError()

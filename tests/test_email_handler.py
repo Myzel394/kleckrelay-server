@@ -133,3 +133,27 @@ def test_can_create_and_decrypt_forward_status_header():
     assert extracted["type"] == StatusType.FORWARD_ALIAS_TO_OUTSIDE.value
     assert extracted["outside_address"] == outside_address
     assert extracted["message_id"] == message_id
+
+
+@pytest.mark.asyncio
+async def test_local_user_can_not_send_email_on_privacy_leak(
+    create_user,
+    create_random_alias,
+):
+    user = create_user(is_verified=True)
+    alias = create_random_alias(user=user)
+
+    message = EmailMessage()
+    envelope = Envelope()
+    envelope.mail_from = user.email.address
+    envelope.rcpt_tos = [f"outside_at_example.com_{alias.address}"]
+
+    message.set_content("Hello")
+    message.add_alternative(f"<p>Hello {user.email.address}</p>", subtype="html")
+
+    response = await handle(
+        envelope=envelope,
+        message=message,
+    )
+
+    assert response == status.E501
