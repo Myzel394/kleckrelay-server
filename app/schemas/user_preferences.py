@@ -14,6 +14,7 @@ class UserPreferencesUpdate(BaseModel):
     alias_image_proxy_format: ImageProxyFormatType = None
     alias_proxy_user_agent: ProxyUserAgentType = None
     alias_expand_url_shortener: bool = None
+    alias_reject_on_privacy_leak: bool = None
 
     update_all_instances: bool = Field(default=False)
 

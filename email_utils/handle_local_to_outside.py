@@ -15,7 +15,8 @@ from email_utils.bounce_messages import generate_forward_status, StatusType
 from email_utils.errors import AliasNotYoursError
 from email_utils.headers import set_header
 from email_utils.send_mail import send_mail
-from email_utils.validators import validate_alias
+from email_utils.utils import find_email_content
+from email_utils.validators import check_for_privacy_leak, validate_alias
 
 
 __all__ = [
@@ -74,6 +75,11 @@ async def handle_local_to_outside(
     logger.info("Checking if alias is valid.")
     validate_alias(alias)
     logger.info("Alias is valid.")
+
+    logger.info("Checking for privacy leak.")
+    for part, content in find_email_content(message):
+        check_for_privacy_leak(content, alias.address)
+    logger.info("No privacy leak found.")
 
     logger.info(
         f"Local mail {alias.address} should be relayed to outside mail {target}. "

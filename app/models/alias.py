@@ -37,6 +37,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         pref_image_proxy_format: ImageProxyFormatType
         pref_proxy_user_agent: ProxyUserAgentType
         pref_expand_url_shorteners: bool
+        pref_reject_on_privacy_leak: bool
     else:
         local = sa.Column(
             sa.String(64),
@@ -97,6 +98,11 @@ class EmailAlias(Base, IDMixin, ModelPreference):
             default=None,
             nullable=True,
         )
+        pref_alias_reject_on_privacy_leak = sa.Column(
+            sa.Boolean,
+            default=None,
+            nullable=True,
+        )
 
     def _get_user_preference_prefix(self) -> str:
         return "alias_"
@@ -134,6 +140,10 @@ class EmailAlias(Base, IDMixin, ModelPreference):
     @property
     def expand_url_shorteners(self) -> bool:
         return self.get_preference_value("expand_url_shorteners")
+
+    @property
+    def reject_on_privacy_leak(self) -> bool:
+        return self.get_preference_value("alias_reject_on_privacy_leak")
 
 
 class DeletedEmailAlias(Base, IDMixin, CreationMixin):

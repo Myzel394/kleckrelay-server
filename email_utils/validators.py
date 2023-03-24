@@ -5,7 +5,7 @@ from aiosmtpd.smtp import Envelope
 
 from app import constants
 from app.models import EmailAlias
-from email_utils.errors import AliasDisabledError, InvalidEmailError
+from email_utils.errors import AliasDisabledError, InvalidEmailError, PrivacyLeakError
 
 __all__ = [
     "validate_envelope",
@@ -32,3 +32,8 @@ def validate_envelope(envelope: Envelope) -> None:
 def validate_alias(alias: Union[EmailAlias]) -> None:
     if not alias.is_active:
         raise AliasDisabledError()
+
+
+def check_for_privacy_leak(message: str, search: str) -> None:
+    if search in message:
+        raise PrivacyLeakError()
