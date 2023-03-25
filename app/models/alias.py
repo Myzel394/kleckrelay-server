@@ -98,7 +98,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
             default=None,
             nullable=True,
         )
-        pref_alias_reject_on_privacy_leak = sa.Column(
+        pref_reject_on_privacy_leak = sa.Column(
             sa.Boolean,
             default=None,
             nullable=True,
@@ -143,7 +143,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
 
     @property
     def reject_on_privacy_leak(self) -> bool:
-        return self.get_preference_value("alias_reject_on_privacy_leak")
+        return self.get_preference_value("reject_on_privacy_leak")
 
 
 class DeletedEmailAlias(Base, IDMixin, CreationMixin):
