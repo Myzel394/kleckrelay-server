@@ -51,3 +51,5 @@ class PrivacyLeakError(EmailHandlerError):
     status_code: str = status.E501
 
     reason = "Your email contains leaked information."
+    email: str = None
+    normalized_email: str = None
