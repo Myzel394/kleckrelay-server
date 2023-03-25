@@ -8,12 +8,12 @@ import time
 from email import policy
 from email.header import decode_header
 from email.message import Message
-from typing import Optional
+from typing import Generator, Optional
 
 import email_normalize
 from sqlalchemy.orm import Session
 
-from app import constants, life_constants
+from app import constants, life_constants, logger
 from app.models import Email, EmailAlias, LanguageType, User
 from email_utils import status
 from email_utils.errors import AliasNotFoundError
@@ -27,6 +27,11 @@ __all__ = [
     "DataclassJSONEncoder",
     "extract_alias_address",
     "get_alias_from_user",
+]
+
+USER_EMAIL_CONTENT_TYPES = [
+    "text/html",
+    "text/plain",
 ]
 
 
@@ -163,3 +168,34 @@ class DataclassJSONEncoder(json.JSONEncoder):
         if dataclasses.is_dataclass(o):
             return o.as_dict()
         return super().default(o)
+
+
+def find_email_content(message: Message) -> Generator[tuple[Message, str], None, None]:
+    """Return the content(s) of the message.
+
+    Only returns the content that will be visible to the user (encrypted content, attachments,
+    etc. are ignored).
+    """
+    content = message.get_payload(decode=True) or message.get_payload()
+    logger.info("Parsing content.")
+    if type(content) is bytes:
+        # Try to get the payload firstly and fallback then
+        content = message.get_payload() or message.get_payload(decode=True)
+
+    if type(content) is str:
+        logger.info("Found 1 content.")
+
+        if message.get_content_type() in USER_EMAIL_CONTENT_TYPES:
+            yield message, content
+
+    elif type(content) is list:
+        logger.info(f"Found {len(content)} contents.")
+
+        for part in message.walk():
+            if part.get_content_type() in USER_EMAIL_CONTENT_TYPES:
+                content = part.get_payload(decode=True) or part.get_payload()
+
+                if type(content) is bytes:
+                    yield part, content.decode("utf-8")
+                else:
+                    yield part, content

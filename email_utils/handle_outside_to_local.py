@@ -15,9 +15,9 @@ from email_utils.content_handler import (
     convert_images, expand_shortened_urls,
     remove_image_trackers,
 )
-from email_utils.headers import set_header
+from email_utils.headers import delete_header, set_header
 from email_utils.send_mail import send_mail
-from email_utils.utils import get_header_unicode
+from email_utils.utils import find_email_content, get_header_unicode
 from email_utils.validators import validate_alias
 
 
@@ -50,53 +50,26 @@ def handle_outside_to_local(
         message_id=message[headers.MESSAGE_ID],
     )
 
-    content = message.get_payload(decode=True) or message.get_payload()
-    logger.info("Parsing content.")
-    if type(content) is bytes:
-        # Try to get the payload firstly and then fallback
-        content = message.get_payload() or message.get_payload(decode=True)
+    for part, content in find_email_content(message):
+        match part.get_content_type():
+            case "text/html":
+                content = parse_html(
+                    db,
+                    alias=alias,
+                    report=report,
+                    content=content,
+                )
+                delete_header(part, headers.CONTENT_TRANSFER_ENCODING)
 
-    if type(content) is str:
-        logger.info("Found 1 content.")
-        content_type = message.get_content_type()
+                part.set_payload(content, "utf-8")
+            case "text/plain":
+                content = parse_text(
+                    alias=alias,
+                    content=content,
+                )
+                delete_header(part, headers.CONTENT_TRANSFER_ENCODING)
 
-        if content_type == "text/html":
-            content = parse_html(
-                db,
-                alias=alias,
-                report=report,
-                content=content,
-            )
-
-            message.set_payload(content, "utf-8")
-        elif content_type == "text/plain":
-            content = parse_text(
-                alias=alias,
-                content=content,
-            )
-
-            message.set_payload(content, "utf-8")
-    elif type(content) is list:
-        logger.info(f"Found {len(content)} contents.")
-
-        for part in message.walk():
-            match part.get_content_type():
-                case "text/html":
-                    content = parse_html(
-                        db,
-                        alias=alias,
-                        report=report,
-                        content=part.get_payload(decode=True),
-                    )
-
-                    part.set_payload(content, "utf-8")
-                case "text/plain":
-                    content = parse_text(
-                        alias=alias,
-                        content=part.get_payload(decode=True),
-                    )
-
-                    part.set_payload(content, "utf-8")
+                message.set_payload(content, "utf-8")
 
     logger.info("Parsing content done.")
     if alias.create_mail_report and alias.user.public_key is not None:

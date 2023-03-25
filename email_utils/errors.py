@@ -7,6 +7,7 @@ __all__ = [
     "InvalidEmailError",
     "AliasNotFoundError",
     "AliasDisabledError",
+    "PrivacyLeakError",
 ]
 
 
@@ -43,3 +44,12 @@ class AliasNotYoursError(EmailHandlerError):
     status_code: str = status.E502
 
     reason = "The alias you provided does not belong to you."
+
+
+@dataclass
+class PrivacyLeakError(EmailHandlerError):
+    status_code: str = status.E501
+
+    reason = "Your email contains leaked information."
+    email: str = None
+    normalized_email: str = None

@@ -27,6 +27,7 @@ class UserPreferences(Base, IDMixin):
         alias_image_proxy_format: ImageProxyFormatType
         alias_proxy_user_agent: ProxyUserAgentType
         alias_expand_url_shorteners: bool
+        alias_reject_on_privacy_leak: bool
     else:
         user_id = sa.Column(
             UUID(as_uuid=True),
@@ -54,6 +55,10 @@ class UserPreferences(Base, IDMixin):
             default=ProxyUserAgentType.FIREFOX,
         )
         alias_expand_url_shorteners = sa.Column(
+            sa.Boolean,
+            default=False,
+        )
+        alias_reject_on_privacy_leak = sa.Column(
             sa.Boolean,
             default=False,
         )
