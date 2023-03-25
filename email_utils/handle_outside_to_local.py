@@ -15,7 +15,7 @@ from email_utils.content_handler import (
     convert_images, expand_shortened_urls,
     remove_image_trackers,
 )
-from email_utils.headers import set_header
+from email_utils.headers import delete_header, set_header
 from email_utils.send_mail import send_mail
 from email_utils.utils import find_email_content, get_header_unicode
 from email_utils.validators import validate_alias
@@ -59,6 +59,7 @@ def handle_outside_to_local(
                     report=report,
                     content=content,
                 )
+                delete_header(part, headers.CONTENT_TRANSFER_ENCODING)
 
                 part.set_payload(content, "utf-8")
             case "text/plain":
@@ -66,6 +67,7 @@ def handle_outside_to_local(
                     alias=alias,
                     content=content,
                 )
+                delete_header(part, headers.CONTENT_TRANSFER_ENCODING)
 
                 message.set_payload(content, "utf-8")
 
@@ -117,6 +119,7 @@ def parse_html(
         logger.info("Removing single pixel image trackers.")
         content = remove_image_trackers(report, html=content)
 
+    print("asdasdasd", alias.proxy_images, enable_image_proxy)
     if enable_image_proxy and alias.proxy_images:
         logger.info("Converting images to proxy links.")
         content = convert_images(report, alias=alias, html=content)
