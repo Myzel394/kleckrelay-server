@@ -119,7 +119,6 @@ def parse_html(
         logger.info("Removing single pixel image trackers.")
         content = remove_image_trackers(report, html=content)
 
-    print("asdasdasd", alias.proxy_images, enable_image_proxy)
     if enable_image_proxy and alias.proxy_images:
         logger.info("Converting images to proxy links.")
         content = convert_images(report, alias=alias, html=content)
