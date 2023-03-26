@@ -34,6 +34,7 @@ class AliasBase(BaseModel):
     pref_image_proxy_format: Optional[ImageProxyFormatType] = None
     pref_proxy_user_agent: Optional[ProxyUserAgentType] = None
     pref_expand_url_shorteners: Optional[bool] = None
+    pref_reject_on_privacy_leak: Optional[bool] = None
 
 
 class AliasCreate(AliasBase):
