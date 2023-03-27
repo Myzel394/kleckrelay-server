@@ -1,3 +1,20 @@
+# Git
+
+**To contribute to KleckRelay you will need to set up 
+[signed commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
+We will reject any pull request that contains unverified commits.**
+
+To contribute to KleckRelay, please follow the following steps:
+
+1. Fork the repository
+2. Create a new branch following kebab-case (e.g. `new-feature`)
+3. Make your changes
+4. Commit your changes (make sure to sign your commits!)
+5. Push your changes to your fork
+6. Create a pull request
+7. Explain what your pull request does and why it is necessary
+8. If your pull request is accepted, it will be merged into the main branch 🥳
+
 # Contributing
 
 To test KleckRelay locally, we strongly recommend to run the following services
