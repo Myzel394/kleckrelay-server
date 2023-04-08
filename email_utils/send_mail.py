@@ -60,7 +60,7 @@ def _debug_email(
 # Create a email message
 def _m(
     klaas: Any,
-    *,
+    *args,
     headers: dict[str, str] = None,
     attachments: list[Message] = None,
     payload: Optional[str] = None,
@@ -69,7 +69,7 @@ def _m(
 ) -> Message:
     attachments = attachments or []
     headers = headers or {}
-    message = klaas(name=name, protocol=protocol)
+    message = klaas(*args, name=name, protocol=protocol)
 
     for header, value in headers.items():
         set_header(message, header, value)
@@ -140,10 +140,11 @@ def draft_message(
     )
 
     if gpg_public_key:
+        # Thanks to https://datawookie.dev/blog/2021/11/understanding-encrypted-email/
         content_message = _m(
             MIMEMultipart,
+            "mixed",
             headers={
-                headers.CONTENT_TYPE: "multipart/mixed",
                 headers.SUBJECT: subject,
                 headers.DATE: formatters.format_date(),
                 headers.MIME_VERSION: "1.0",
@@ -153,8 +154,9 @@ def draft_message(
                 MIMEText(plaintext, "plain"),
                 _m(
                     MIMENonMultipart,
+                    "application",
+                    "pgp-keys",
                     name="public_key.asc",
-                    protocol="application/pgp-keys",
                     headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP public key",
                         headers.CONTENT_TRANSFER_ENCODING: "quoted-printable",
@@ -165,16 +167,16 @@ def draft_message(
         )
         decrypted_message = _m(
             MIMEMultipart,
-            headers={
-                headers.CONTENT_TYPE: "multipart/signed",
-            },
+            "application",
+            "signed",
             protocol="application/pgp-signature",
             attachments=[
                 content_message,
                 _m(
                     MIMENonMultipart,
+                    "application",
+                    "pgp-signature",
                     name="signature.asc",
-                    protocol="application/pgp-signature",
                     headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP digital signature",
                     },
@@ -190,21 +192,15 @@ def draft_message(
 
         message = _m(
             MIMEMultipart,
-            headers={
-                headers.CONTENT_TYPE: "multipart/encrypted",
-            },
+            "encrypted",
             protocol="application/pgp-encrypted",
             attachments=[
-                _m(
-                    MIMEText,
-                    payload="Version: 1",
-                    name="pgp-encrypted",
-                    protocol="application/pgp-encrypted",
-                ),
+                MIMEText("Version: 1", "pgp-encrypted"),
                 _m(
                     MIMENonMultipart,
+                    "application",
+                    "octet-stream",
                     name="encrypted.asc",
-                    protocol="application/octet-stream",
                     headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP encrypted message",
                     },
