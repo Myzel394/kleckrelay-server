@@ -168,7 +168,9 @@ def draft_message(
         pgp_encrypted_message.add_header("Content-Description", "OpenPGP encrypted message")
         pgp_encrypted_message.set_payload(encrypted_content)
 
+        pgp_version_identification_message = MIMEText("Version: 1", "pgp-encrypted")
         message = MIMEMultipart("encrypted", protocol="application/pgp-encrypted")
+        message.attach(pgp_version_identification_message)
         message.attach(pgp_encrypted_message)
 
     else:
