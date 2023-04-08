@@ -144,11 +144,6 @@ def draft_message(
         content_message = _m(
             MIMEMultipart,
             "mixed",
-            headers={
-                headers.SUBJECT: subject,
-                headers.DATE: formatters.format_date(),
-                headers.MIME_VERSION: "1.0",
-            },
             attachments=[
                 MIMEText(html, "html"),
                 MIMEText(plaintext, "plain"),
@@ -194,6 +189,11 @@ def draft_message(
             MIMEMultipart,
             "encrypted",
             protocol="application/pgp-encrypted",
+            headers={
+                headers.SUBJECT: subject,
+                headers.DATE: formatters.format_date(),
+                headers.MIME_VERSION: "1.0",
+            },
             attachments=[
                 MIMEText("Version: 1", "pgp-encrypted"),
                 _m(
