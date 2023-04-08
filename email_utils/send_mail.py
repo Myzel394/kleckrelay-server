@@ -130,7 +130,9 @@ def draft_message(
             name="encrypted.asc",
         )
         part.add_header(_name="Content-Description", _value="OpenPGP encrypted message")
-        part.set_payload(encrypt_message(plaintext, gpg_public_key))
+        part.set_payload(str(encrypt_message(plaintext, gpg_public_key)))
+
+        message.attach(part)
     else:
         message.attach(MIMEText(html, "html"))
         message.attach(MIMEText(plaintext, "plain"))

@@ -2,7 +2,7 @@ import base64
 import sys
 
 from pretty_bad_protocol import gnupg
-from pretty_bad_protocol._parsers import ImportResult
+from pretty_bad_protocol._parsers import ImportResult, Crypt
 
 from app import life_constants
 
@@ -34,7 +34,7 @@ def sign_message(message: str) -> str:
     )
 
 
-def encrypt_message(message: str, public_key_in_str: str) -> str:
+def encrypt_message(message: str, public_key_in_str: str) -> Crypt:
     public_key = gpg.import_keys(public_key_in_str)
 
     return gpg.encrypt(message, public_key.fingerprints[0])
