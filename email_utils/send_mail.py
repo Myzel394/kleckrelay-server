@@ -149,7 +149,7 @@ def draft_message(
         signature_message.add_header("Content-Description", "OpenPGP digital signature")
         signature_message.set_payload(signed_content)
 
-        signed_message = MIMEMultipart("signed")
+        signed_message = MIMEMultipart("signed", protocol="application/pgp-signature")
         signed_message.attach(content_message)
         signed_message.attach(signature_message)
 
