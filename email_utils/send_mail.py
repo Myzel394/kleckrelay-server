@@ -2,11 +2,11 @@ import smtplib
 import time
 from email.message import Message
 from email.mime.multipart import MIMEMultipart
+from email.mime.nonmultipart import MIMENonMultipart
 from email.mime.text import MIMEText
 from typing import Any, Optional
 
-from app import life_constants, logger
-from app.gpg_handler import encrypt_message
+from app import life_constants, logger, gpg_handler
 from . import formatters, headers
 from .bounce_messages import generate_forward_status, StatusType
 from .headers import set_header
@@ -113,37 +113,72 @@ def draft_message(
         **context,
     )
 
-    message = MIMEMultipart("alternative")
-
     if gpg_public_key:
-        part = Message()
-        part.add_header(_name="Content-Type", _value="application/pgp-encrypted")
-        part.add_header(_name="Content-Description", _value="PGP/MIME version identification")
-        part.set_payload("Version: 1 \n")
+        content_message = MIMEMultipart("mixed")
 
-        message.attach(part)
+        content_message.attach(MIMEText(html, "html"))
+        content_message.attach(MIMEText(plaintext, "plain"))
 
-        part = Message()
-        part.add_header(
-            _name="Content-Type",
-            _value="application/octet-stream",
-            name="encrypted.asc",
+        content_message[headers.SUBJECT] = subject
+        content_message[headers.DATE] = formatters.format_date()
+        content_message[headers.MIME_VERSION] = "1.0"
+
+        public_key_message = MIMENonMultipart(
+            "application",
+            "pgp-keys",
+            name="public_key.asc"
         )
-        part.add_header(_name="Content-Description", _value="OpenPGP encrypted message")
-        part.set_payload(str(encrypt_message(plaintext, gpg_public_key)))
+        public_key_message.add_header("Content-Transfer-Encoding", "quoted-printable")
+        public_key_message.add_header("Content-Description", "OpenPGP public key")
+        public_key_message.set_payload(gpg_handler.SERVER_PUBLIC_KEY)
 
-        message.attach(part)
+        content_message.attach(public_key_message)
+
+        signed_content = str(gpg_handler.sign_message(content_message.as_string()))
+
+        signature_message = MIMENonMultipart(
+            "application",
+            "pgp-signature",
+            name="signature.asc"
+        )
+        signature_message.add_header("Content-Description", "OpenPGP digital signature")
+        signature_message.set_payload(signed_content)
+
+        signed_message = MIMEMultipart("signed")
+        signed_message.attach(content_message)
+        signed_message.attach(signature_message)
+
+        encrypted_content = str(
+            gpg_handler.encrypt_message(
+                signed_message.as_string(),
+                gpg_public_key,
+            )
+        )
+
+        pgp_encrypted_message = MIMENonMultipart(
+            "application",
+            "octet-stream",
+            name="encrypted.asc"
+        )
+        pgp_encrypted_message.add_header("Content-Description", "OpenPGP encrypted message")
+        pgp_encrypted_message.set_payload(encrypted_content)
+
+        message = MIMEMultipart("encrypted", protocol="application/pgp-encrypted")
+        message.attach(pgp_encrypted_message)
+
     else:
+        message = MIMEMultipart("alternative")
+
         message.attach(MIMEText(html, "html"))
         message.attach(MIMEText(plaintext, "plain"))
+
+        message[headers.SUBJECT] = subject
+        message[headers.DATE] = formatters.format_date()
+        message[headers.MIME_VERSION] = "1.0"
 
     # Those headers will be replaced by `send_mail`
     message[headers.FROM] = "ReplaceMe"
     message[headers.TO] = "ReplaceMe"
-
-    message[headers.SUBJECT] = subject
-    message[headers.DATE] = formatters.format_date()
-    message[headers.MIME_VERSION] = "1.0"
 
     message[headers.KLECK_FORWARD_STATUS] = generate_forward_status(bounce_status)
 
