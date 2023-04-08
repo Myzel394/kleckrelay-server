@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from typing import Any, Optional
 
 from app import life_constants, logger
+from app.gpg_handler import encrypt_message
 from . import formatters, headers
 from .bounce_messages import generate_forward_status, StatusType
 from .headers import set_header
@@ -101,6 +102,7 @@ def draft_message(
     template: str,
     bounce_status: StatusType = StatusType.OFFICIAL,
     context: dict[str, Any] = None,
+    gpg_public_key: str = None,
 ) -> Message:
     html = render(
         f"{template}.html",
@@ -112,8 +114,26 @@ def draft_message(
     )
 
     message = MIMEMultipart("alternative")
-    message.attach(MIMEText(html, "html"))
-    message.attach(MIMEText(plaintext, "plain"))
+
+    if gpg_public_key:
+        part = Message()
+        part.add_header(_name="Content-Type", _value="application/pgp-encrypted")
+        part.add_header(_name="Content-Description", _value="PGP/MIME version identification")
+        part.set_payload("Version: 1 \n")
+
+        message.attach(part)
+
+        part = Message()
+        part.add_header(
+            _name="Content-Type",
+            _value="application/octet-stream",
+            name="encrypted.asc",
+        )
+        part.add_header(_name="Content-Description", _value="OpenPGP encrypted message")
+        part.set_payload(encrypt_message(plaintext, gpg_public_key))
+    else:
+        message.attach(MIMEText(html, "html"))
+        message.attach(MIMEText(plaintext, "plain"))
 
     # Those headers will be replaced by `send_mail`
     message[headers.FROM] = "ReplaceMe"
