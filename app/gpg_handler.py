@@ -26,11 +26,11 @@ __private_key: ImportResult = gpg.import_keys(
 SERVER_PUBLIC_KEY = gpg.export_keys(__private_key.fingerprints[0])
 
 
-def sign_message(message: str) -> str:
+def sign_message(message: str, clearsign: bool = True) -> str:
     return gpg.sign(
         message,
         default_key=__private_key.fingerprints[0],
-        clearsign=True,
+        clearsign=clearsign,
     )
 
 

@@ -134,7 +134,12 @@ def draft_message(
 
         content_message.attach(public_key_message)
 
-        signed_content = str(gpg_handler.sign_message(content_message.as_string()))
+        signed_content = str(
+            gpg_handler.sign_message(
+                content_message.as_string(),
+                clearsign=False,
+            )
+        )
 
         signature_message = MIMENonMultipart(
             "application",
