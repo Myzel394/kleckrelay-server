@@ -57,6 +57,32 @@ def _debug_email(
     logger.info("<===============> SEND email --- END --- <===============>")
 
 
+# Create a email message
+def _m(
+    klaas: Any,
+    *,
+    headers: dict[str, str] = None,
+    attachments: list[Message] = None,
+    payload: Optional[str] = None,
+    name: Optional[str] = None,
+    protocol: Optional[str] = None,
+) -> Message:
+    attachments = attachments or []
+    headers = headers or {}
+    message = klaas(name=name, protocol=protocol)
+
+    for header, value in headers.items():
+        set_header(message, header, value)
+
+    if payload:
+        message.set_payload(payload)
+
+    for attachment in attachments:
+        message.attach(attachment)
+
+    return message
+
+
 def send_mail(
     message: Message,
     to_mail: str,
@@ -114,64 +140,83 @@ def draft_message(
     )
 
     if gpg_public_key:
-        content_message = MIMEMultipart("mixed")
-
-        content_message.attach(MIMEText(html, "html"))
-        content_message.attach(MIMEText(plaintext, "plain"))
-
-        content_message[headers.SUBJECT] = subject
-        content_message[headers.DATE] = formatters.format_date()
-        content_message[headers.MIME_VERSION] = "1.0"
-
-        public_key_message = MIMENonMultipart(
-            "application",
-            "pgp-keys",
-            name="public_key.asc"
+        content_message = _m(
+            MIMEMultipart,
+            headers={
+                headers.CONTENT_TYPE: "multipart/mixed",
+                headers.SUBJECT: subject,
+                headers.DATE: formatters.format_date(),
+                headers.MIME_VERSION: "1.0",
+            },
+            attachments=[
+                MIMEText(html, "html"),
+                MIMEText(plaintext, "plain"),
+                _m(
+                    MIMENonMultipart,
+                    name="public_key.asc",
+                    protocol="application/pgp-keys",
+                    headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP public key",
+                        headers.CONTENT_TRANSFER_ENCODING: "quoted-printable",
+                    },
+                    payload=gpg_handler.SERVER_PUBLIC_KEY,
+                ),
+            ]
         )
-        public_key_message.add_header("Content-Transfer-Encoding", "quoted-printable")
-        public_key_message.add_header("Content-Description", "OpenPGP public key")
-        public_key_message.set_payload(gpg_handler.SERVER_PUBLIC_KEY)
-
-        content_message.attach(public_key_message)
-
-        signed_content = str(
-            gpg_handler.sign_message(
-                content_message.as_string(),
-                clearsign=False,
-            )
+        decrypted_message = _m(
+            MIMEMultipart,
+            headers={
+                headers.CONTENT_TYPE: "multipart/signed",
+            },
+            protocol="application/pgp-signature",
+            attachments=[
+                content_message,
+                _m(
+                    MIMENonMultipart,
+                    name="signature.asc",
+                    protocol="application/pgp-signature",
+                    headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP digital signature",
+                    },
+                    payload=str(
+                        gpg_handler.sign_message(
+                            content_message.as_string(),
+                            clearsign=False,
+                        )
+                    ),
+                ),
+            ],
         )
 
-        signature_message = MIMENonMultipart(
-            "application",
-            "pgp-signature",
-            name="signature.asc"
+        message = _m(
+            MIMEMultipart,
+            headers={
+                headers.CONTENT_TYPE: "multipart/encrypted",
+            },
+            protocol="application/pgp-encrypted",
+            attachments=[
+                _m(
+                    MIMEText,
+                    payload="Version: 1",
+                    name="pgp-encrypted",
+                    protocol="application/pgp-encrypted",
+                ),
+                _m(
+                    MIMENonMultipart,
+                    name="encrypted.asc",
+                    protocol="application/octet-stream",
+                    headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP encrypted message",
+                    },
+                    payload=str(
+                        gpg_handler.encrypt_message(
+                            decrypted_message.as_string(),
+                            gpg_public_key,
+                        )
+                    ),
+                ),
+            ]
         )
-        signature_message.add_header("Content-Description", "OpenPGP digital signature")
-        signature_message.set_payload(signed_content)
-
-        signed_message = MIMEMultipart("signed", protocol="application/pgp-signature")
-        signed_message.attach(content_message)
-        signed_message.attach(signature_message)
-
-        encrypted_content = str(
-            gpg_handler.encrypt_message(
-                signed_message.as_string(),
-                gpg_public_key,
-            )
-        )
-
-        pgp_encrypted_message = MIMENonMultipart(
-            "application",
-            "octet-stream",
-            name="encrypted.asc"
-        )
-        pgp_encrypted_message.add_header("Content-Description", "OpenPGP encrypted message")
-        pgp_encrypted_message.set_payload(encrypted_content)
-
-        pgp_version_identification_message = MIMEText("Version: 1", "pgp-encrypted")
-        message = MIMEMultipart("encrypted", protocol="application/pgp-encrypted")
-        message.attach(pgp_version_identification_message)
-        message.attach(pgp_encrypted_message)
 
     else:
         message = MIMEMultipart("alternative")
