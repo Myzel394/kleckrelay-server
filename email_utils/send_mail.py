@@ -242,7 +242,6 @@ def draft_message(
 
         message = _m(
             MIMEMultipart,
-            "application",
             "signed",
             protocol="application/pgp-signature",
             attachments=[
