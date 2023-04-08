@@ -215,14 +215,55 @@ def draft_message(
         )
 
     else:
-        message = MIMEMultipart("alternative")
+        content_message = _m(
+            MIMEMultipart,
+            "alternative",
+            headers={
+                headers.SUBJECT: subject,
+                headers.DATE: formatters.format_date(),
+                headers.MIME_VERSION: "1.0",
+            },
+            attachments=[
+                MIMEText(html, "html"),
+                MIMEText(plaintext, "plain"),
+                _m(
+                    MIMENonMultipart,
+                    "application",
+                    "pgp-keys",
+                    name="public_key.asc",
+                    headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP public key",
+                        headers.CONTENT_TRANSFER_ENCODING: "quoted-printable",
+                    },
+                    payload=gpg_handler.SERVER_PUBLIC_KEY,
+                ),
+            ],
+        )
 
-        message.attach(MIMEText(html, "html"))
-        message.attach(MIMEText(plaintext, "plain"))
-
-        message[headers.SUBJECT] = subject
-        message[headers.DATE] = formatters.format_date()
-        message[headers.MIME_VERSION] = "1.0"
+        message = _m(
+            MIMEMultipart,
+            "application",
+            "signed",
+            protocol="application/pgp-signature",
+            attachments=[
+                content_message,
+                _m(
+                    MIMENonMultipart,
+                    "application",
+                    "pgp-signature",
+                    name="signature.asc",
+                    headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP digital signature",
+                    },
+                    payload=str(
+                        gpg_handler.sign_message(
+                            content_message.as_string(),
+                            clearsign=False,
+                        )
+                    ),
+                ),
+            ],
+        )
 
     # Those headers will be replaced by `send_mail`
     message[headers.FROM] = "ReplaceMe"
