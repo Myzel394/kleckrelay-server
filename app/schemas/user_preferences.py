@@ -8,6 +8,7 @@ __all__ = [
 
 
 class UserPreferencesUpdate(BaseModel):
+    email_gpg_public_key: str = None
     alias_remove_trackers: bool = None
     alias_create_mail_report: bool = None
     alias_proxy_images: bool = None

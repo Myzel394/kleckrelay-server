@@ -33,6 +33,11 @@ class UserPreferences(Base, IDMixin):
             UUID(as_uuid=True),
             ForeignKey("user.id"),
         )
+        email_gpg_public_key = sa.Column(
+            sa.String,
+            default=None,
+            nullable=True,
+        )
 
         alias_remove_trackers = sa.Column(
             sa.Boolean,
