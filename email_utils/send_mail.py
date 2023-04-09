@@ -61,17 +61,17 @@ def _debug_email(
 def _m(
     klaas: Any,
     *args,
-    headers: dict[str, str] = None,
+    extra_headers: dict[str, str] = None,
     attachments: list[Message] = None,
     payload: Optional[str] = None,
     name: Optional[str] = None,
     protocol: Optional[str] = None,
 ) -> Message:
     attachments = attachments or []
-    headers = headers or {}
+    extra_headers = extra_headers or {}
     message = klaas(*args, name=name, protocol=protocol)
 
-    for header, value in headers.items():
+    for header, value in extra_headers.items():
         set_header(message, header, value)
 
     if payload:
@@ -152,7 +152,7 @@ def draft_message(
                     "application",
                     "pgp-keys",
                     name="public_key.asc",
-                    headers={
+                    extra_headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP public key",
                         headers.CONTENT_TRANSFER_ENCODING: "quoted-printable",
                     },
@@ -172,7 +172,7 @@ def draft_message(
                     "application",
                     "pgp-signature",
                     name="signature.asc",
-                    headers={
+                    extra_headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP digital signature",
                     },
                     payload=str(
@@ -190,7 +190,7 @@ def draft_message(
             MIMEMultipart,
             "encrypted",
             protocol="application/pgp-encrypted",
-            headers={
+            extra_headers={
                 headers.SUBJECT: subject,
                 headers.DATE: formatters.format_date(),
                 headers.MIME_VERSION: "1.0",
@@ -202,7 +202,7 @@ def draft_message(
                     "application",
                     "octet-stream",
                     name="encrypted.asc",
-                    headers={
+                    extra_headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP encrypted message",
                     },
                     payload=str(
@@ -227,7 +227,7 @@ def draft_message(
                     "application",
                     "pgp-keys",
                     name="public_key.asc",
-                    headers={
+                    extra_headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP public key",
                         headers.CONTENT_TRANSFER_ENCODING: "quoted-printable",
                     },
@@ -240,7 +240,7 @@ def draft_message(
             MIMEMultipart,
             "signed",
             protocol="application/pgp-signature",
-            headers={
+            extra_headers={
                 headers.SUBJECT: subject,
                 headers.DATE: formatters.format_date(),
                 headers.MIME_VERSION: "1.0",
@@ -252,7 +252,7 @@ def draft_message(
                     "application",
                     "pgp-signature",
                     name="signature.asc",
-                    headers={
+                    extra_headers={
                         headers.CONTENT_DESCRIPTION: "OpenPGP digital signature",
                     },
                     payload=str(
