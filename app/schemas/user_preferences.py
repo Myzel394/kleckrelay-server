@@ -39,7 +39,7 @@ class UserPreferencesUpdate(BaseModel):
 
         return values
 
-    @validator("email_gp_public_key")
+    @validator("email_gpg_public_key")
     def validate_email_gpg_public_key(cls, value: Optional[str]) -> Optional[str]:
         if not value:
             return
@@ -58,3 +58,5 @@ class UserPreferencesUpdate(BaseModel):
             raise ValueError(
                 "This is not a valid PGP public key; we could not encrypt a test message."
             )
+
+        return value
