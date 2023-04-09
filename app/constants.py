@@ -86,5 +86,8 @@ DEFAULT_API_EXPIRE_DURATION = timedelta(days=30)
 API_KEY_HEADER_REGEX = re.compile(r"^Api-Key (.*)$")
 API_KEY_MAX_LABEL_LENGTH = 80
 
+GPG_AUTO_LOCATE_KEY_TYPE_REGEX = r"^pub   (\w+) ([0-9\-]+) \[\w+\]$"
+GPG_AUTO_LOCATE_KEY_FINGERPRINT_REGEX = r"^ +(\w+)$"
+GPG_AUTO_LOCATE_KEY_EMAIL_REGEX = rf"^uid +\[[\w\s]+\] ({EMAIL_REGEX[1:-1]}) <{EMAIL_REGEX[1:-1]}>$"
 
 TESTING_DB = None
