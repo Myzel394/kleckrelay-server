@@ -13,7 +13,7 @@ __all__ = [
 
 
 class UserPreferencesUpdate(BaseModel):
-    email_gpg_public_key: str = Field(
+    email_gpg_public_key: Optional[str] = Field(
         None,
         regex=constants.PUBLIC_KEY_REGEX,
         max_length=constants.PUBLIC_KEY_MAX_LENGTH,

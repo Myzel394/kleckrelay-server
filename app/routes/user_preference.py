@@ -56,7 +56,7 @@ async def find_public_key_api(
 ):
     result = find_public_key(auth.user.email.address)
 
-    if not result:
+    if result is None:
         return JSONResponse({
             "detail": "No public key found for the email address."
         }, status_code=404)

@@ -1,8 +1,7 @@
 import base64
 import sys
 
-from pretty_bad_protocol import gnupg, GPG
-from pretty_bad_protocol._parsers import ImportResult, Crypt
+import gnupg
 
 from app import life_constants
 
@@ -14,6 +13,7 @@ __all__ = [
     "get_public_key_from_fingerprint",
 ]
 
+
 PATHS = {
     "darwin": "/opt/homebrew/bin/gpg"
 }
@@ -21,7 +21,7 @@ PATHS = {
 gpg = gnupg.GPG(PATHS[sys.platform] if sys.platform in PATHS else None)
 gpg.encoding = "utf-8"
 
-__private_key: ImportResult = gpg.import_keys(
+__private_key: gnupg.ImportResult = gpg.import_keys(
     base64.b64decode(life_constants.SERVER_PRIVATE_KEY).decode("utf-8")
 )
 SERVER_PUBLIC_KEY = gpg.export_keys(__private_key.fingerprints[0])
@@ -36,8 +36,8 @@ def sign_message(message: str, clearsign: bool = True, detach: bool = True) -> s
     )
 
 
-def encrypt_message(message: str, public_key_in_str: str) -> Crypt:
-    public_key: ImportResult = gpg.import_keys(public_key_in_str)
+def encrypt_message(message: str, public_key_in_str: str) -> gnupg.Crypt:
+    public_key: gnupg.ImportResult = gpg.import_keys(public_key_in_str)
 
     if not public_key.fingerprints:
         raise ValueError("This is not a valid PGP public key.")
@@ -45,5 +45,7 @@ def encrypt_message(message: str, public_key_in_str: str) -> Crypt:
     return gpg.encrypt(message, public_key.fingerprints[0])
 
 
-def get_public_key_from_fingerprint(fingerprint: str) -> GPG:
-    return gpg.export_keys(fingerprint)
+def get_public_key_from_fingerprint(fingerprint: str) -> gnupg.GPG:
+    return gpg.export_keys(fingerprint, minimal=True)
+
+gpg.

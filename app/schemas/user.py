@@ -97,6 +97,7 @@ class UserPreferences(BaseModel):
     alias_proxy_user_agent: ProxyUserAgentType
     alias_expand_url_shorteners: bool
     alias_reject_on_privacy_leak: bool
+    email_gpg_public_key: Optional[str]
 
     class Config:
         orm_mode = True
