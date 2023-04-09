@@ -59,7 +59,12 @@ def test_can_update_gpg_key_preference(
     user = create_user(is_verified=True)
     auth = create_auth_tokens(user)
 
-    options = gpg_handler.gpg.gen_key_input(key_type="RSA", key_length=1024)
+    options = gpg_handler.gpg.gen_key_input(
+        key_type="RSA",
+        key_length=1024,
+        name_email="test@kleckrelay.example",
+        name_real="Test",
+    )
     key = gpg_handler.gpg.gen_key(options)
 
     public_key = gpg_handler.gpg.export_keys(key.fingerprint)
