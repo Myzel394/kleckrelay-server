@@ -1,6 +1,19 @@
 from starlette.testclient import TestClient
 
-from app import gpg_handler
+
+PUBLIC_KEY = """-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEY1BWURYJKwYBBAHaRw8BAQdAF7V3c/or1pqMSO+K1NdlTzX8M3OWMIsM
+fRaXjBpKcfrNG0pvbiBTbWl0aCA8am9uQGV4YW1wbGUuY29tPsKMBBAWCgA+
+BQJjUFZRBAsJBwgJEPYcYW9Bd+RzAxUICgQWAAIBAhkBAhsDAh4BFiEEoXES
+0EdOGluYpuHr9hxhb0F35HMAAHPbAQDKUYRKK4fBmx0oY51NFngIWlgh37r2
+jh43FGyEfPtiiAD/ar4x4hYdzdTgstCd5IgHGN0rHePn8buFQ+BTclK3UwjO
+OARjUFZREgorBgEEAZdVAQUBAQdAfNbp3wadPhBZd8PA0RuQbsWLQMkKozDF
+x/vu1H34bQQDAQgHwngEGBYIACoFAmNQVlEJEPYcYW9Bd+RzAhsMFiEEoXES
+0EdOGluYpuHr9hxhb0F35HMAAPaXAP90baEdk1ughlSfxwr1/qdXYasj4eXD
+CY/XrzMgKvnwawEAtMHyvho1Les1B+7jJsKpNmOjssHIbDSeWTc0Dl8hugc=
+=/9/F
+-----END PGP PUBLIC KEY BLOCK-----"""
 
 
 def test_user_can_update_single_preferences(
@@ -59,23 +72,14 @@ def test_can_update_gpg_key_preference(
     user = create_user(is_verified=True)
     auth = create_auth_tokens(user)
 
-    options = gpg_handler.gpg.gen_key_input(
-        key_type="RSA",
-        key_length=1024,
-        name_email="test@kleckrelay.example",
-        name_real="Test",
-    )
-    key = gpg_handler.gpg.gen_key(options)
-
-    public_key = gpg_handler.gpg.export_keys(key.fingerprint)
-
     response = client.patch(
         "/v1/preferences/",
         json={
-            "email_gpg_public_key": public_key,
+            "email_gpg_public_key": PUBLIC_KEY,
         },
         headers=auth["headers"],
     )
+    print(response.json())
 
     assert response.status_code == 200
 

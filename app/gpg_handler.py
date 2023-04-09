@@ -36,6 +36,9 @@ def sign_message(message: str, clearsign: bool = True, detach: bool = True) -> s
 
 
 def encrypt_message(message: str, public_key_in_str: str) -> Crypt:
-    public_key = gpg.import_keys(public_key_in_str)
+    public_key: ImportResult = gpg.import_keys(public_key_in_str)
+
+    if not public_key.fingerprints:
+        raise ValueError("This is not a valid PGP public key.")
 
     return gpg.encrypt(message, public_key.fingerprints[0])

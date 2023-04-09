@@ -54,7 +54,7 @@ class UserPreferencesUpdate(BaseModel):
                 raise ValueError(
                     "This is not a valid PGP public key; we could not encrypt a test message."
                 )
-        except (ValueError, TypeError):
+        except ValueError:
             raise ValueError(
                 "This is not a valid PGP public key; we could not encrypt a test message."
             )
