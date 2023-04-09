@@ -76,11 +76,11 @@ def client(db):
 
 @pytest.fixture
 def create_email(db):
-    def _method() -> Email:
+    def _method(address: str = None) -> Email:
         return create_item(
             db,
             {
-                "address": f"mail.{random.randint(10000, 99999)}@example.com",
+                "address": address or f"mail.{random.randint(10000, 99999)}@example.com",
                 "is_verified": False,
                 "token": "abc",
             },
@@ -92,8 +92,8 @@ def create_email(db):
 
 @pytest.fixture
 def create_user(db, create_email):
-    def _method(is_verified=False, is_admin=False, password=None) -> User:
-        email = create_email()
+    def _method(is_verified=False, is_admin=False, email=None, password=None) -> User:
+        email = create_email(email)
         user = create_item(
             db,
             {

@@ -1,3 +1,5 @@
+import base64
+
 from starlette.testclient import TestClient
 
 
@@ -105,3 +107,48 @@ Not a valid public key
     )
 
     assert response.status_code == 422
+
+
+def test_can_find_public_key(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+):
+    # "proton.me" strangely gives for every email address a public key
+    email = "no-reply@protonmail.com"
+
+    user = create_user(is_verified=True, email=email)
+    auth = create_auth_tokens(user)
+
+    response = client.post(
+        "/v1/preferences/find-public-key",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200
+    assert response.json()["public_key"] is not None
+
+
+def test_can_not_find_public_key_for_nonexistent_mail(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+):
+    # Please do not register this email just to fuck up our tests
+    # We base64 encode it so that bots don't register the domain
+    email = base64.b64decode(
+        "c2FoY3lpeGl1YnV2aWZk"
+        "aGlqYnNoem"
+        "5mdWhiY2l2eEBkb25vdHJlZ2lzdGVydGhpc2RvbWFpbnV"
+        "pamFzaWRta256anVma2hhc2RmaGp2eGNuaGp1eXhuY3YuY29t"
+    )
+
+    user = create_user(is_verified=True, email=email)
+    auth = create_auth_tokens(user)
+
+    response = client.post(
+        "/v1/preferences/find-public-key",
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 404
