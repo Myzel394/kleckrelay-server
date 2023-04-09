@@ -1,5 +1,7 @@
 from starlette.testclient import TestClient
 
+from app import gpg_handler
+
 
 def test_user_can_update_single_preferences(
     create_user,
@@ -47,3 +49,50 @@ def test_user_can_update_single_preferences_with_instances_update(
     assert response.status_code == 200
     assert user.preferences.alias_proxy_images is False
     assert user.email_aliases[0].pref_proxy_images is False
+
+
+def test_can_update_gpg_key_preference(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+) -> None:
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+
+    options = gpg_handler.gpg.gen_key_input(key_type="ECC", key_length=256)
+    key = gpg_handler.gpg.gen_key(options)
+
+    public_key = gpg_handler.gpg.export_keys(key.fingerprint)
+
+    response = client.patch(
+        "/v1/preferences/",
+        json={
+            "email_gpg_public_key": public_key,
+        },
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 200
+
+
+def test_can_not_update_preferences_with_invalid_public_key(
+    create_user,
+    create_auth_tokens,
+    client: TestClient,
+) -> None:
+    user = create_user(is_verified=True)
+    auth = create_auth_tokens(user)
+
+    invalid_public_key = """-----BEGIN PGP PUBLIC KEY BLOCK-----
+Not a valid public key
+-----END PGP PUBLIC KEY BLOCK-----"""
+
+    response = client.patch(
+        "/v1/preferences/",
+        json={
+            "email_gpg_public_key": invalid_public_key,
+        },
+        headers=auth["headers"],
+    )
+
+    assert response.status_code == 422
