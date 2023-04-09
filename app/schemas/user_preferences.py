@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -7,6 +8,7 @@ from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 
 __all__ = [
     "UserPreferencesUpdate",
+    "FindPublicKeyResponseModel"
 ]
 
 
@@ -60,3 +62,9 @@ class UserPreferencesUpdate(BaseModel):
             )
 
         return value
+
+
+class FindPublicKeyResponseModel(BaseModel):
+    public_key: str
+    type: str
+    created_at: date

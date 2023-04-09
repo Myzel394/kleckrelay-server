@@ -1,7 +1,7 @@
 import base64
 import sys
 
-from pretty_bad_protocol import gnupg
+from pretty_bad_protocol import gnupg, GPG
 from pretty_bad_protocol._parsers import ImportResult, Crypt
 
 from app import life_constants
@@ -10,7 +10,8 @@ __all__ = [
     "gpg",
     "encrypt_message",
     "SERVER_PUBLIC_KEY",
-    "sign_message"
+    "sign_message",
+    "get_public_key_from_fingerprint",
 ]
 
 PATHS = {
@@ -42,3 +43,7 @@ def encrypt_message(message: str, public_key_in_str: str) -> Crypt:
         raise ValueError("This is not a valid PGP public key.")
 
     return gpg.encrypt(message, public_key.fingerprints[0])
+
+
+def get_public_key_from_fingerprint(fingerprint: str) -> GPG:
+    return gpg.export_keys(fingerprint)

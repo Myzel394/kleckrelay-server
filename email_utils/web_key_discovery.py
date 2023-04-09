@@ -29,7 +29,7 @@ def find_public_key(email: str) -> Optional[PublicKeyResult]:
     # We validate the email again to avoid any possible injection
     email = email.strip()
     if not re.match(constants.EMAIL_REGEX, email):
-        raise ValueError("Invalid email address.")
+        return None
 
     # We don't want to locate keys locally, as the user can't access the server internally.
     # If there was a key locally, it is most likely fake.
@@ -68,4 +68,3 @@ def find_public_key(email: str) -> Optional[PublicKeyResult]:
         created_at=date.fromisoformat(type_regex_result.group(2)),
         raw_email=email_regex_result.group(1),
     )
-
