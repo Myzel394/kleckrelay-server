@@ -179,6 +179,7 @@ def draft_message(
                         gpg_handler.sign_message(
                             content_message.as_string(),
                             clearsign=False,
+                            detach=True,
                         )
                     ),
                 ),
@@ -218,11 +219,6 @@ def draft_message(
         content_message = _m(
             MIMEMultipart,
             "alternative",
-            headers={
-                headers.SUBJECT: subject,
-                headers.DATE: formatters.format_date(),
-                headers.MIME_VERSION: "1.0",
-            },
             attachments=[
                 MIMEText(html, "html"),
                 MIMEText(plaintext, "plain"),
@@ -244,6 +240,11 @@ def draft_message(
             MIMEMultipart,
             "signed",
             protocol="application/pgp-signature",
+            headers={
+                headers.SUBJECT: subject,
+                headers.DATE: formatters.format_date(),
+                headers.MIME_VERSION: "1.0",
+            },
             attachments=[
                 content_message,
                 _m(
