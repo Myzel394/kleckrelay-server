@@ -11,7 +11,7 @@ RUN echo "postfix postfix/mailname string ${MAIL_DOMAIN}" | debconf-set-selectio
 # https://stackoverflow.com/a/51752997/9878135 We'll use `gnupg` instead of `gnupg2`
 RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
-    && apt install python3 python3-pip gunicorn3 gnupg postfix postfix-pgsql postfix-policyd-spf-python opendkim opendkim-tools dnsutils -y \
+    && apt install python3 python3-pip gunicorn3 gnupg2 postfix postfix-pgsql postfix-policyd-spf-python opendkim opendkim-tools dnsutils -y \
     && pip install psycopg2
 
 # Create gnupg path

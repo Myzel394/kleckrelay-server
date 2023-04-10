@@ -18,7 +18,7 @@ PATHS = {
     "darwin": "/opt/homebrew/bin/gpg"
 }
 
-gpg = gnupg.GPG(PATHS[sys.platform] if sys.platform in PATHS else None)
+gpg = gnupg.GPG(PATHS[sys.platform] if sys.platform in PATHS else "gpg")
 gpg.encoding = "utf-8"
 
 __private_key: gnupg.ImportResult = gpg.import_keys(
@@ -30,7 +30,7 @@ SERVER_PUBLIC_KEY = gpg.export_keys(__private_key.fingerprints[0])
 def sign_message(message: str, clearsign: bool = True, detach: bool = True) -> str:
     return gpg.sign(
         message,
-        default_key=__private_key.fingerprints[0],
+        keyid=__private_key.fingerprints[0],
         clearsign=clearsign,
         detach=detach,
     )
@@ -38,6 +38,8 @@ def sign_message(message: str, clearsign: bool = True, detach: bool = True) -> s
 
 def encrypt_message(message: str, public_key_in_str: str) -> gnupg.Crypt:
     public_key: gnupg.ImportResult = gpg.import_keys(public_key_in_str)
+
+    result = gpg.trust_keys(public_key.fingerprints[0], "TRUST_ULTIMATE")
 
     if not public_key.fingerprints:
         raise ValueError("This is not a valid PGP public key.")
@@ -47,5 +49,3 @@ def encrypt_message(message: str, public_key_in_str: str) -> gnupg.Crypt:
 
 def get_public_key_from_fingerprint(fingerprint: str) -> gnupg.GPG:
     return gpg.export_keys(fingerprint, minimal=True)
-
-gpg.
