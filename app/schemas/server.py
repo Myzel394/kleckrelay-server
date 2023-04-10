@@ -31,6 +31,7 @@ class SettingsModel(BaseModel):
     allow_alias_deletion: bool
     api_key_max_days: int
     allow_registrations: bool
+    allow_pgp_key_discovery: bool
 
 
 class ServerStatisticsModel(BaseModel):
