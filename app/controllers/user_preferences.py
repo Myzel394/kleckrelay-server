@@ -30,7 +30,7 @@ def update_user_preferences(
 
     user = preferences.user
 
-    update_data = update.dict(exclude_unset=True, exclude_none=True)
+    update_data = update.dict(exclude_unset=True)
     update_all = update_data.pop("update_all_instances", None)
 
     for key, value in update_data.items():

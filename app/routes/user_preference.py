@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Depends
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from app import gpg_handler
 from app.controllers.user_preferences import update_user_preferences
 from app.database.dependencies import get_db
-from app.dependencies.auth import AuthResult, get_auth
+from app.dependencies.auth import AuthResult, AuthResultMethod, get_auth
 from app.models.enums.api_key import APIKeyScope
-from app.schemas._basic import HTTPNotFoundExceptionModel
+from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
 from app.schemas.user_preferences import FindPublicKeyResponseModel, UserPreferencesUpdate
 from app.utils.email import normalize_email
 from email_utils.web_key_discovery import find_public_key
@@ -18,6 +20,12 @@ router = APIRouter()
 @router.patch(
     "/",
     response_model=None,
+    responses={
+        403: {
+            "model": HTTPBadRequestExceptionModel,
+            "description": "You cannot update your GPG public key with an API key."
+        }
+    }
 )
 def update_user_preferences_api(
     update: UserPreferencesUpdate,
@@ -27,6 +35,12 @@ def update_user_preferences_api(
     )),
     db: Session = Depends(get_db),
 ):
+    if update.email_gpg_public_key is not None and auth.method == AuthResultMethod.API_KEY:
+        raise HTTPException(
+            status_code=403,
+            detail="You cannot update your GPG public key with an API key."
+        )
+
     update_user_preferences(
         db,
         preferences=auth.user.preferences,
@@ -51,7 +65,7 @@ def update_user_preferences_api(
 async def find_public_key_api(
     auth: AuthResult = Depends(get_auth(
         allow_api=True,
-        api_key_scope=APIKeyScope.PREFERENCES_UPDATE
+        api_key_scope=APIKeyScope.PREFERENCES_READ,
     )),
 ):
     result = find_public_key(auth.user.email.address)

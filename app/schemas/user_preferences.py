@@ -31,7 +31,10 @@ class UserPreferencesUpdate(BaseModel):
     @root_validator()
     def validate_any_value_set(cls, values: dict) -> dict:
         data = values.copy()
-        data.pop("update_all_instances", None)
+        update_all_instances = data.pop("update_all_instances", False)
+
+        if not update_all_instances:
+            return values
 
         if all(
             value is None
