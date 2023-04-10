@@ -22,10 +22,6 @@ def find_public_key(email: str) -> Optional[PublicKeyResult]:
 
     :raises ValueError: If the email is invalid.
     """
-
-    if not life_constants.ENABLE_PGP_KEY_DISCOVERY:
-        return None
-
     # We validate the email again to avoid any possible injection
     email = email.strip()
     if not re.match(constants.EMAIL_REGEX, email):

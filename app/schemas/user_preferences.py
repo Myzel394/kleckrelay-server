@@ -8,7 +8,8 @@ from app.models.enums.alias import ImageProxyFormatType, ProxyUserAgentType
 
 __all__ = [
     "UserPreferencesUpdate",
-    "FindPublicKeyResponseModel"
+    "FindPublicKeyResponseModel",
+    "FindPublicKeyGPGKeyDiscoveryDisabledResponseModel",
 ]
 
 
@@ -71,3 +72,8 @@ class FindPublicKeyResponseModel(BaseModel):
     public_key: str
     type: str
     created_at: date
+
+
+class FindPublicKeyGPGKeyDiscoveryDisabledResponseModel(BaseModel):
+    detail: str
+    code = "error:settings:gpg_disabled"

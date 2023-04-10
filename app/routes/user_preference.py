@@ -4,13 +4,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app import gpg_handler
+from app import gpg_handler, life_constants
 from app.controllers.user_preferences import update_user_preferences
 from app.database.dependencies import get_db
 from app.dependencies.auth import AuthResult, AuthResultMethod, get_auth
 from app.models.enums.api_key import APIKeyScope
 from app.schemas._basic import HTTPBadRequestExceptionModel, HTTPNotFoundExceptionModel
-from app.schemas.user_preferences import FindPublicKeyResponseModel, UserPreferencesUpdate
+from app.schemas.user_preferences import (
+    FindPublicKeyGPGKeyDiscoveryDisabledResponseModel,
+    FindPublicKeyResponseModel, UserPreferencesUpdate,
+)
 from app.utils.email import normalize_email
 from email_utils.web_key_discovery import find_public_key
 
@@ -59,6 +62,10 @@ def update_user_preferences_api(
         404: {
             "model": HTTPNotFoundExceptionModel,
             "description": "No public key found for the email address."
+        },
+        202: {
+            "model": FindPublicKeyGPGKeyDiscoveryDisabledResponseModel,
+            "description": "PGP key discovery is disabled."
         }
     }
 )
@@ -68,6 +75,11 @@ async def find_public_key_api(
         api_key_scope=APIKeyScope.PREFERENCES_READ,
     )),
 ):
+    if not life_constants.ENABLE_PGP_KEY_DISCOVERY:
+        return JSONResponse({
+            "detail": "PGP key discovery is disabled."
+        }, status_code=202)
+
     result = find_public_key(auth.user.email.address)
 
     if result is None:
