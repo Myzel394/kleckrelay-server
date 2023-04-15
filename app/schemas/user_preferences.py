@@ -15,6 +15,7 @@ class UserPreferencesUpdate(BaseModel):
     alias_proxy_user_agent: ProxyUserAgentType = None
     alias_expand_url_shortener: bool = None
     alias_reject_on_privacy_leak: bool = None
+    alias_remove_footer: bool = None
 
     update_all_instances: bool = Field(default=False)
 
