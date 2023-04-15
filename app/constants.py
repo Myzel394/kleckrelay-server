@@ -36,6 +36,7 @@ __all__ = [
     "DEFAULT_API_EXPIRE_DURATION",
     "API_KEY_HEADER_REGEX",
     "API_KEY_MAX_LABEL_LENGTH",
+    "EMAIL_QUOTE_REGEX",
 ]
 
 # According to https://www.mailboxvalidator.com/resources/articles/acceptable-email-address-syntax-rfc/
@@ -85,6 +86,7 @@ HMAC_ALGORITHM = hashlib.sha256
 DEFAULT_API_EXPIRE_DURATION = timedelta(days=30)
 API_KEY_HEADER_REGEX = re.compile(r"^Api-Key (.*)$")
 API_KEY_MAX_LABEL_LENGTH = 80
+EMAIL_QUOTE_REGEX = re.compile(r"(>+)$")
 
 
 TESTING_DB = None

@@ -1,3 +1,5 @@
+# Handlers return on what to do with an email. They check for example if an email has a tracker,
+# a shortened url or if it has a footer.
 import fnmatch
 import json
 import re
@@ -5,8 +7,8 @@ from typing import Optional
 from urllib.parse import urlparse
 
 from app.constants import ROOT_DIR
-from email_utils.trackers_handler_types import TrackerData, TrackersJsonFile
-from email_utils.url_shorteners_handler_types import ShortenerData, UrlShortenersJsonFile
+from .trackers_handler_types import TrackerData, TrackersJsonFile
+from .url_shorteners_handler_types import ShortenerData, UrlShortenersJsonFile
 
 TRACKERS_PATH = ROOT_DIR / "assets" / "trackers.json"
 URL_SHORTENERS_PATH = ROOT_DIR / "assets" / "url-shorteners.json"

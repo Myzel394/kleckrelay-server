@@ -1,0 +1,20 @@
+{
+    "quotes": [
+        {
+            "regex": "^-*\\s*(On\\s.+\\s.+\\n?wrote:?)\\s?-*$",
+            "language": "en"
+        },
+        {
+            "regex": "^-*\\s*(Le\\s.+\\s.+\\n?écrit\\s?:?)\\s?-*$",
+            "language": "fr"
+        },
+        {
+            "regex": "^-*\\s*(El\\s.+\\s.+\n?escribió:{0,1})\\s{0,1}-*$",
+            "language": "en"
+        },
+        {
+            "regex": "^-*\\s*(Il\\s.+\\s.+\\n?scritto:{0,1})\\s{0,1}-*$",
+            "language": "en"
+        }
+    ]
+}
