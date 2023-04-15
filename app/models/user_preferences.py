@@ -28,6 +28,7 @@ class UserPreferences(Base, IDMixin):
         alias_proxy_user_agent: ProxyUserAgentType
         alias_expand_url_shorteners: bool
         alias_reject_on_privacy_leak: bool
+        alias_remove_footer: bool
     else:
         user_id = sa.Column(
             UUID(as_uuid=True),
@@ -59,6 +60,10 @@ class UserPreferences(Base, IDMixin):
             default=False,
         )
         alias_reject_on_privacy_leak = sa.Column(
+            sa.Boolean,
+            default=False,
+        )
+        alias_remove_footer = sa.Column(
             sa.Boolean,
             default=False,
         )

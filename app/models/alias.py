@@ -38,6 +38,7 @@ class EmailAlias(Base, IDMixin, ModelPreference):
         pref_proxy_user_agent: ProxyUserAgentType
         pref_expand_url_shorteners: bool
         pref_reject_on_privacy_leak: bool
+        pref_remove_footer: bool
     else:
         local = sa.Column(
             sa.String(64),
@@ -103,6 +104,11 @@ class EmailAlias(Base, IDMixin, ModelPreference):
             default=None,
             nullable=True,
         )
+        pref_remove_footer = sa.Column(
+            sa.Boolean,
+            default=None,
+            nullable=True,
+        )
 
     def _get_user_preference_prefix(self) -> str:
         return "alias_"
@@ -144,6 +150,10 @@ class EmailAlias(Base, IDMixin, ModelPreference):
     @property
     def reject_on_privacy_leak(self) -> bool:
         return self.get_preference_value("reject_on_privacy_leak")
+
+    @property
+    def remove_footer(self) -> bool:
+        return self.get_preference_value("remove_footer")
 
 
 class DeletedEmailAlias(Base, IDMixin, CreationMixin):
