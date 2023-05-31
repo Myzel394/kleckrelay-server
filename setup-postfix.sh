@@ -120,12 +120,12 @@ if [[ "${POSTFIX_USE_TLS,,}" =~ ^(yes|true|t|1|y)$ ]]; then
     echo "TLS certificate already exists, skipping generation"
   else
     echo "Creating TLS certificate for Postfix"
-    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=GB/ST=London/L=London/O=KleckRelay Instance/OU=${MAIL_DOMAIN}/CN=${MAIL_DOMAIN}"
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem -subj "/C=GB/ST=London/L=London/O=KleckRelay Instance/OU=${MAIL_DOMAIN}/CN=${MAIL_DOMAIN}"
     echo "Done creating TLS certificate."
   fi
 
   postconf -e "smtpd_tls_cert_file = /etc/ssl/certs/ssl-cert-snakeoil.pem"
-  postconf -e "smtpd_tls_key_file = /etc/ssl/private/ssl-cert-snakeoil.key"
+  postconf -e "smtpd_tls_key_file = /etc/ssl/certs/ssl-cert-snakeoil.key"
   postconf -e "smtp_tls_security_level = may"
   postconf -e "smtpd_tls_security_level = may"
 fi
