@@ -18,6 +18,7 @@ def send_email_login_token(user: User, token: str) -> None:
                 "code": token,
                 "server_url": life_constants.APP_DOMAIN,
             },
+            gpg_public_key=user.preferences.email_gpg_public_key,
         ),
         to_mail=user.email.address,
     )

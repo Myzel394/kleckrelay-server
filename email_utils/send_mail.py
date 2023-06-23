@@ -2,10 +2,11 @@ import smtplib
 import time
 from email.message import Message
 from email.mime.multipart import MIMEMultipart
+from email.mime.nonmultipart import MIMENonMultipart
 from email.mime.text import MIMEText
 from typing import Any, Optional
 
-from app import life_constants, logger
+from app import life_constants, logger, gpg_handler
 from . import formatters, headers
 from .bounce_messages import generate_forward_status, StatusType
 from .headers import set_header
@@ -56,6 +57,32 @@ def _debug_email(
     logger.info("<===============> SEND email --- END --- <===============>")
 
 
+# Create a email message
+def _m(
+    klaas: Any,
+    *args,
+    extra_headers: dict[str, str] = None,
+    attachments: list[Message] = None,
+    payload: Optional[str] = None,
+    name: Optional[str] = None,
+    protocol: Optional[str] = None,
+) -> Message:
+    attachments = attachments or []
+    extra_headers = extra_headers or {}
+    message = klaas(*args, name=name, protocol=protocol)
+
+    for header, value in extra_headers.items():
+        set_header(message, header, value)
+
+    if payload:
+        message.set_payload(payload)
+
+    for attachment in attachments:
+        message.attach(attachment)
+
+    return message
+
+
 def send_mail(
     message: Message,
     to_mail: str,
@@ -101,6 +128,7 @@ def draft_message(
     template: str,
     bounce_status: StatusType = StatusType.OFFICIAL,
     context: dict[str, Any] = None,
+    gpg_public_key: str = None,
 ) -> Message:
     html = render(
         f"{template}.html",
@@ -111,17 +139,135 @@ def draft_message(
         **context,
     )
 
-    message = MIMEMultipart("alternative")
-    message.attach(MIMEText(html, "html"))
-    message.attach(MIMEText(plaintext, "plain"))
+    if gpg_public_key:
+        # Thanks to https://datawookie.dev/blog/2021/11/understanding-encrypted-email/
+        content_message = _m(
+            MIMEMultipart,
+            "mixed",
+            attachments=[
+                MIMEText(html, "html"),
+                MIMEText(plaintext, "plain"),
+                _m(
+                    MIMENonMultipart,
+                    "application",
+                    "pgp-keys",
+                    name="public_key.asc",
+                    extra_headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP public key",
+                        headers.CONTENT_TRANSFER_ENCODING: "quoted-printable",
+                    },
+                    payload=gpg_handler.SERVER_PUBLIC_KEY,
+                ),
+            ]
+        )
+        decrypted_message = _m(
+            MIMEMultipart,
+            "application",
+            "signed",
+            protocol="application/pgp-signature",
+            attachments=[
+                content_message,
+                _m(
+                    MIMENonMultipart,
+                    "application",
+                    "pgp-signature",
+                    name="signature.asc",
+                    extra_headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP digital signature",
+                    },
+                    payload=str(
+                        gpg_handler.sign_message(
+                            content_message.as_string(),
+                            clearsign=False,
+                            detach=True,
+                        )
+                    ),
+                ),
+            ],
+        )
+
+        message = _m(
+            MIMEMultipart,
+            "encrypted",
+            protocol="application/pgp-encrypted",
+            extra_headers={
+                headers.SUBJECT: subject,
+                headers.DATE: formatters.format_date(),
+                headers.MIME_VERSION: "1.0",
+            },
+            attachments=[
+                MIMEText("Version: 1", "pgp-encrypted"),
+                _m(
+                    MIMENonMultipart,
+                    "application",
+                    "octet-stream",
+                    name="encrypted.asc",
+                    extra_headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP encrypted message",
+                    },
+                    payload=str(
+                        gpg_handler.encrypt_message(
+                            decrypted_message.as_string(),
+                            gpg_public_key,
+                        )
+                    ),
+                ),
+            ]
+        )
+
+    else:
+        content_message = _m(
+            MIMEMultipart,
+            "alternative",
+            attachments=[
+                MIMEText(html, "html"),
+                MIMEText(plaintext, "plain"),
+                _m(
+                    MIMENonMultipart,
+                    "application",
+                    "pgp-keys",
+                    name="public_key.asc",
+                    extra_headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP public key",
+                        headers.CONTENT_TRANSFER_ENCODING: "quoted-printable",
+                    },
+                    payload=gpg_handler.SERVER_PUBLIC_KEY,
+                ),
+            ],
+        )
+
+        message = _m(
+            MIMEMultipart,
+            "signed",
+            protocol="application/pgp-signature",
+            extra_headers={
+                headers.SUBJECT: subject,
+                headers.DATE: formatters.format_date(),
+                headers.MIME_VERSION: "1.0",
+            },
+            attachments=[
+                content_message,
+                _m(
+                    MIMENonMultipart,
+                    "application",
+                    "pgp-signature",
+                    name="signature.asc",
+                    extra_headers={
+                        headers.CONTENT_DESCRIPTION: "OpenPGP digital signature",
+                    },
+                    payload=str(
+                        gpg_handler.sign_message(
+                            content_message.as_string(),
+                            clearsign=False,
+                        )
+                    ),
+                ),
+            ],
+        )
 
     # Those headers will be replaced by `send_mail`
     message[headers.FROM] = "ReplaceMe"
     message[headers.TO] = "ReplaceMe"
-
-    message[headers.SUBJECT] = subject
-    message[headers.DATE] = formatters.format_date()
-    message[headers.MIME_VERSION] = "1.0"
 
     message[headers.KLECK_FORWARD_STATUS] = generate_forward_status(bounce_status)
 

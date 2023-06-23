@@ -8,6 +8,7 @@ EXPOSE 80 25 587
 ARG DEBIAN_FRONTEND=noninteractive
 RUN echo "postfix postfix/mailname string ${MAIL_DOMAIN}" | debconf-set-selections && \
     echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
+# https://stackoverflow.com/a/51752997/9878135 We'll use `gnupg` instead of `gnupg2`
 RUN apt-get update \
     && apt-get -y install libpq-dev gcc \
     && apt install python3 python3-pip gunicorn3 gnupg2 postfix postfix-pgsql postfix-policyd-spf-python opendkim opendkim-tools dnsutils procps -y \

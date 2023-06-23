@@ -44,6 +44,7 @@ def get_settings(
         "max_aliases_per_user": settings.get(db, "MAX_ALIASES_PER_USER"),
         "api_key_max_days": life_constants.API_KEY_MAX_DAYS,
         "allow_registrations": settings.get(db, "ALLOW_REGISTRATIONS"),
+        "allow_pgp_key_discovery": life_constants.ENABLE_PGP_KEY_DISCOVERY,
     }
 
 
